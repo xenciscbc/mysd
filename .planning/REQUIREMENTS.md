@@ -46,6 +46,15 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
 - [ ] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
 - [ ] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
+- [ ] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
+
+### UAT Acceptance
+
+- [ ] **UAT-01**: 驗證階段可選擇產生互動式 UAT 驗收清單（從 spec 的 UI 相關 MUST/SHOULD 項目衍生）
+- [ ] **UAT-02**: UAT 清單為可選步驟，不是 archive 的前提條件
+- [ ] **UAT-03**: UAT 清單存放於 `.mysd/uat/` 目錄，可跨 session 保留
+- [ ] **UAT-04**: 使用者可透過 `/mysd:uat` 獨立觸發 UAT 流程，可重複執行
+- [ ] **UAT-05**: UAT 清單記錄每次執行的結果（通過/未通過/跳過）與時間戳
 
 ### Testing
 
@@ -112,58 +121,64 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SPEC-01 | — | Pending |
-| SPEC-02 | — | Pending |
-| SPEC-03 | — | Pending |
-| SPEC-04 | — | Pending |
-| SPEC-05 | — | Pending |
-| SPEC-06 | — | Pending |
-| SPEC-07 | — | Pending |
-| EXEC-01 | — | Pending |
-| EXEC-02 | — | Pending |
-| EXEC-03 | — | Pending |
-| EXEC-04 | — | Pending |
-| EXEC-05 | — | Pending |
-| VRFY-01 | — | Pending |
-| VRFY-02 | — | Pending |
-| VRFY-03 | — | Pending |
-| VRFY-04 | — | Pending |
-| VRFY-05 | — | Pending |
-| WCMD-01 | — | Pending |
-| WCMD-02 | — | Pending |
-| WCMD-03 | — | Pending |
-| WCMD-04 | — | Pending |
-| WCMD-05 | — | Pending |
-| WCMD-06 | — | Pending |
-| WCMD-07 | — | Pending |
-| WCMD-08 | — | Pending |
-| WCMD-09 | — | Pending |
-| OPSX-01 | — | Pending |
-| OPSX-02 | — | Pending |
-| OPSX-03 | — | Pending |
-| OPSX-04 | — | Pending |
-| DIST-01 | — | Pending |
-| DIST-02 | — | Pending |
-| DIST-03 | — | Pending |
-| DIST-04 | — | Pending |
-| STAT-01 | — | Pending |
-| STAT-02 | — | Pending |
-| STAT-03 | — | Pending |
-| WCMD-10 | — | Pending |
-| WCMD-11 | — | Pending |
-| TEST-01 | — | Pending |
-| TEST-02 | — | Pending |
-| TEST-03 | — | Pending |
-| CONF-01 | — | Pending |
-| CONF-02 | — | Pending |
-| CONF-03 | — | Pending |
-| CONF-04 | — | Pending |
+| SPEC-01 | Phase 1 | Pending |
+| SPEC-02 | Phase 1 | Pending |
+| SPEC-03 | Phase 1 | Pending |
+| SPEC-04 | Phase 1 | Pending |
+| SPEC-05 | Phase 3 | Pending |
+| SPEC-06 | Phase 3 | Pending |
+| SPEC-07 | Phase 1 | Pending |
+| EXEC-01 | Phase 2 | Pending |
+| EXEC-02 | Phase 2 | Pending |
+| EXEC-03 | Phase 2 | Pending |
+| EXEC-04 | Phase 2 | Pending |
+| EXEC-05 | Phase 2 | Pending |
+| VRFY-01 | Phase 3 | Pending |
+| VRFY-02 | Phase 3 | Pending |
+| VRFY-03 | Phase 3 | Pending |
+| VRFY-04 | Phase 3 | Pending |
+| VRFY-05 | Phase 3 | Pending |
+| WCMD-01 | Phase 2 | Pending |
+| WCMD-02 | Phase 2 | Pending |
+| WCMD-03 | Phase 2 | Pending |
+| WCMD-04 | Phase 2 | Pending |
+| WCMD-05 | Phase 2 | Pending |
+| WCMD-06 | Phase 3 | Pending |
+| WCMD-07 | Phase 3 | Pending |
+| WCMD-08 | Phase 2 | Pending |
+| WCMD-09 | Phase 4 | Pending |
+| WCMD-10 | Phase 2 | Pending |
+| WCMD-11 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Pending |
+| TEST-02 | Phase 2 | Pending |
+| TEST-03 | Phase 2 | Pending |
+| CONF-01 | Phase 1 | Pending |
+| CONF-02 | Phase 1 | Pending |
+| CONF-03 | Phase 1 | Pending |
+| CONF-04 | Phase 1 | Pending |
+| OPSX-01 | Phase 1 | Pending |
+| OPSX-02 | Phase 1 | Pending |
+| OPSX-03 | Phase 1 | Pending |
+| OPSX-04 | Phase 1 | Pending |
+| DIST-01 | Phase 1 | Pending |
+| DIST-02 | Phase 1 | Pending |
+| DIST-03 | Phase 4 | Pending |
+| DIST-04 | Phase 4 | Pending |
+| STAT-01 | Phase 1 | Pending |
+| STAT-02 | Phase 1 | Pending |
+| STAT-03 | Phase 1 | Pending |
+| WCMD-12 | Phase 3 | Pending |
+| UAT-01 | Phase 3 | Pending |
+| UAT-02 | Phase 3 | Pending |
+| UAT-03 | Phase 3 | Pending |
+| UAT-04 | Phase 3 | Pending |
+| UAT-05 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 46 total
-- Mapped to phases: 0
-- Unmapped: 46 ⚠️
+- v1 requirements: 52 total
+- Mapped to phases: 52
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after initial definition*
+*Last updated: 2026-03-23 after roadmap creation*
