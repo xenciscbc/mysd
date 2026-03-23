@@ -1,0 +1,116 @@
+package spec
+
+import "errors"
+
+// RFC2119Keyword represents RFC 2119 semantic keywords for requirements.
+type RFC2119Keyword string
+
+const (
+	Must   RFC2119Keyword = "MUST"
+	Should RFC2119Keyword = "SHOULD"
+	May    RFC2119Keyword = "MAY"
+)
+
+// DeltaOp represents the type of change operation in a delta spec.
+type DeltaOp string
+
+const (
+	DeltaAdded    DeltaOp = "ADDED"
+	DeltaModified DeltaOp = "MODIFIED"
+	DeltaRemoved  DeltaOp = "REMOVED"
+	DeltaNone     DeltaOp = ""
+)
+
+// ItemStatus represents the lifecycle status of a spec item.
+type ItemStatus string
+
+const (
+	StatusPending    ItemStatus = "pending"
+	StatusInProgress ItemStatus = "in_progress"
+	StatusDone       ItemStatus = "done"
+	StatusBlocked    ItemStatus = "blocked"
+)
+
+// SpecDirFlavor identifies which spec directory convention a project uses.
+type SpecDirFlavor string
+
+const (
+	FlavorMySD     SpecDirFlavor = "mysd"
+	FlavorOpenSpec SpecDirFlavor = "openspec"
+	FlavorNone     SpecDirFlavor = "none"
+)
+
+// ChangeMeta holds metadata from .openspec.yaml at the change level.
+type ChangeMeta struct {
+	Schema  string `yaml:"schema"`
+	Created string `yaml:"created"`
+}
+
+// ProposalFrontmatter holds the YAML frontmatter fields for proposal.md.
+type ProposalFrontmatter struct {
+	SpecVersion string `yaml:"spec-version"`
+	ChangeName  string `yaml:"change"`
+	Status      string `yaml:"status"`
+	Created     string `yaml:"created"`
+	Updated     string `yaml:"updated"`
+}
+
+// SpecFrontmatter holds the YAML frontmatter fields for spec.md files.
+type SpecFrontmatter struct {
+	SpecVersion string     `yaml:"spec-version"`
+	Capability  string     `yaml:"capability"`
+	Delta       DeltaOp    `yaml:"delta"`
+	Status      ItemStatus `yaml:"status"`
+}
+
+// TasksFrontmatter holds the YAML frontmatter fields for tasks.md.
+type TasksFrontmatter struct {
+	SpecVersion string `yaml:"spec-version"`
+	Total       int    `yaml:"total"`
+	Completed   int    `yaml:"completed"`
+}
+
+// ProposalDoc is the parsed content of a proposal.md file.
+type ProposalDoc struct {
+	Frontmatter ProposalFrontmatter
+	Body        string
+}
+
+// DesignDoc is the parsed content of a design.md file.
+type DesignDoc struct {
+	Body string
+}
+
+// Requirement represents a single requirement extracted from a spec file.
+type Requirement struct {
+	ID      string
+	Text    string
+	Keyword RFC2119Keyword
+	DeltaOp DeltaOp
+	Status  ItemStatus
+}
+
+// Task represents a single task entry in tasks.md.
+type Task struct {
+	ID          int
+	Name        string
+	Description string
+	Status      ItemStatus
+}
+
+// Change is the fully assembled representation of a change directory.
+type Change struct {
+	Name     string
+	Dir      string
+	Proposal ProposalDoc
+	Specs    []Requirement
+	Design   DesignDoc
+	Tasks    []Task
+	Meta     ChangeMeta
+}
+
+// Sentinel errors for the spec package.
+var (
+	ErrNoSpecDir        = errors.New("no spec directory found")
+	ErrInvalidTransition = errors.New("invalid state transition")
+)
