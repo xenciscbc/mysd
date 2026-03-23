@@ -71,10 +71,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Configuration
 
-- [ ] **CONF-01**: 專案設定檔存放於 `.claude/mysd.yaml`，記憶使用者的偏好預設值
-- [ ] **CONF-02**: 設定檔支援：執行模式（single/wave）、agent 數量、atomic commits、TDD 模式、測試產出等可選項目的預設值
-- [ ] **CONF-03**: 設定檔支援預設回應語言（response_language）和文件產出語言（document_language）
-- [ ] **CONF-04**: 所有可選項目在指令執行時可被 flag 覆蓋（flag 優先於設定檔）
+- [x] **CONF-01**: 專案設定檔存放於 `.claude/mysd.yaml`，記憶使用者的偏好預設值
+- [x] **CONF-02**: 設定檔支援：執行模式（single/wave）、agent 數量、atomic commits、TDD 模式、測試產出等可選項目的預設值
+- [x] **CONF-03**: 設定檔支援預設回應語言（response_language）和文件產出語言（document_language）
+- [x] **CONF-04**: 所有可選項目在指令執行時可被 flag 覆蓋（flag 優先於設定檔）
 
 ### OpenSpec Compatibility
 
@@ -92,9 +92,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### State & Session
 
-- [ ] **STAT-01**: Project state tracked in `.specs/STATE.md` for cross-session continuity
-- [ ] **STAT-02**: State machine enforces valid transitions (proposed → specced → designed → planned → executed → verified → archived)
-- [ ] **STAT-03**: User can resume interrupted workflow from last valid state
+- [x] **STAT-01**: Project state tracked in `.specs/STATE.md` for cross-session continuity
+- [x] **STAT-02**: State machine enforces valid transitions (proposed → specced → designed → planned → executed → verified → archived)
+- [x] **STAT-03**: User can resume interrupted workflow from last valid state
 
 ## v2 Requirements
 
@@ -159,10 +159,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-01 | Phase 2 | Pending |
 | TEST-02 | Phase 2 | Pending |
 | TEST-03 | Phase 2 | Pending |
-| CONF-01 | Phase 1 | Pending |
-| CONF-02 | Phase 1 | Pending |
-| CONF-03 | Phase 1 | Pending |
-| CONF-04 | Phase 1 | Pending |
+| CONF-01 | Phase 1 | Complete |
+| CONF-02 | Phase 1 | Complete |
+| CONF-03 | Phase 1 | Complete |
+| CONF-04 | Phase 1 | Complete |
 | OPSX-01 | Phase 1 | Complete |
 | OPSX-02 | Phase 1 | Complete |
 | OPSX-03 | Phase 1 | Complete |
@@ -171,9 +171,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DIST-02 | Phase 1 | Complete |
 | DIST-03 | Phase 4 | Pending |
 | DIST-04 | Phase 4 | Pending |
-| STAT-01 | Phase 1 | Pending |
-| STAT-02 | Phase 1 | Pending |
-| STAT-03 | Phase 1 | Pending |
+| STAT-01 | Phase 1 | Complete |
+| STAT-02 | Phase 1 | Complete |
+| STAT-03 | Phase 1 | Complete |
 | WCMD-12 | Phase 3 | Pending |
 | UAT-01 | Phase 3 | Pending |
 | UAT-02 | Phase 3 | Pending |
