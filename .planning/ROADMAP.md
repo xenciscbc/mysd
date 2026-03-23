@@ -46,8 +46,15 @@ Plans:
   3. Each task in tasks.md is marked IN_PROGRESS / DONE as execution proceeds; interrupted session can resume from last completed task
   4. User can run `mysd status` and see current spec state, completed tasks, and any pending items
   5. TDD mode is available as opt-in: test code is generated before implementation when `--tdd` flag is set
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 6 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Execution engine core: tasks.md updater, executor context builder, progress tracker, alignment path
+- [ ] 02-02-PLAN.md — Config model profiles, status dashboard with lipgloss
+- [ ] 02-03-PLAN.md — CLI commands: execute, task-update, status, ff, ffe, capture, init
+- [ ] 02-04-PLAN.md — CLI commands: spec, design, plan with --context-only
+- [ ] 02-05-PLAN.md — Claude Code plugin: 10 SKILL.md + 5 agent definitions
+- [ ] 02-06-PLAN.md — Integration tests: execute, status, ff end-to-end verification
 
 ### Phase 3: Verification & Feedback Loop
 **Goal**: 開發者可以用 `mysd verify` 觸發全自動的目標反推驗證，驗證結果自動寫回 spec 狀態，archive 指令在 MUST items 有未解決的失敗時拒絕執行。驗證過程中自動產出 UAT 文件（若 spec 有 UI 相關項目），但不阻塞任何流程。
@@ -83,6 +90,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
-| 2. Execution Engine | 0/TBD | Not started | - |
+| 2. Execution Engine | 0/6 | Planning complete | - |
 | 3. Verification & Feedback Loop | 0/TBD | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |
