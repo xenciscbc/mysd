@@ -12,22 +12,21 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ 完全相容 OpenSpec 格式（proposal.md / specs/ / design.md / tasks.md） — Phase 1
+- ✓ 支援 OpenSpec 的 Delta Specs（ADDED / MODIFIED / REMOVED） — Phase 1
+- ✓ 支援 RFC 2119 語義關鍵字（MUST / SHOULD / MAY） — Phase 1
+- ✓ 單一 Go binary 發佈，無需 Node.js runtime — Phase 1
+- ✓ Convention over configuration 設計哲學 — Phase 1
+- ✓ 能在既有 OpenSpec 專案上直接運作（brownfield 支援） — Phase 1
 
 ### Active
 
-- [ ] 完全相容 OpenSpec 格式（proposal.md / specs/ / design.md / tasks.md）
-- [ ] 支援 OpenSpec 的 Delta Specs（ADDED / MODIFIED / REMOVED）
-- [ ] 支援 RFC 2119 語義關鍵字（MUST / SHOULD / MAY）
 - [ ] 提供類似 OpenSpec 的指令集（propose → spec → design → plan → execute → verify → archive）
 - [ ] Spec 作為 AI 執行的事實來源，執行前強制對齊
 - [ ] 多 agent 執行引擎（預設單 agent，複雜任務可選平行模式）
 - [ ] Goal-backward 驗證機制（驗證 spec 中所有 MUST 條目是否被滿足）
 - [ ] 驗證結果回饋到 spec（自動更新 spec 狀態）
-- [ ] 單一 Go binary 發佈，無需 Node.js runtime
 - [ ] Claude Code plugin 整合（slash commands + agents）
-- [ ] Convention over configuration 設計哲學
-- [ ] 能在既有 OpenSpec 專案上直接運作（brownfield 支援）
 
 ### Out of Scope
 
@@ -79,4 +78,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after initialization*
+*Last updated: 2026-03-23 after Phase 1 completion*
