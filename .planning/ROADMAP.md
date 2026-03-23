@@ -39,7 +39,7 @@ Plans:
 ### Phase 2: Execution Engine
 **Goal**: 開發者可以用 `mysd execute` 執行 spec 任務，AI 在寫 code 前必須通過 alignment gate（強制讀取並確認 spec），執行進度被追蹤且可從中斷點恢復
 **Depends on**: Phase 1
-**Requirements**: EXEC-01, EXEC-02, EXEC-03, EXEC-04, EXEC-05, WCMD-01, WCMD-02, WCMD-03, WCMD-04, WCMD-05, WCMD-08, WCMD-10, WCMD-11, TEST-01, TEST-02, TEST-03
+**Requirements**: EXEC-01, EXEC-02, EXEC-03, EXEC-04, EXEC-05, WCMD-01, WCMD-02, WCMD-03, WCMD-04, WCMD-05, WCMD-08, WCMD-10, WCMD-11, WCMD-13, WCMD-14, TEST-01, TEST-02, TEST-03
 **Success Criteria** (what must be TRUE):
   1. User runs `mysd execute` and AI cannot write code until it has explicitly acknowledged the spec content (alignment gate is non-bypassable)
   2. Execution runs single-agent sequential by default; user can opt into wave mode with `--mode=wave --agents=N`

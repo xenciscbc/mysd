@@ -27,6 +27,7 @@
 ### Workflow 指令深度
 - **D-08:** spec / design / plan 三個指令都有完整的 AI 互動流程，各由專屬 agent 執行（類似 propose 的互動體驗）
 - **D-09:** `mysd ff`（fast-forward）從 propose 一氣推進到 plan 完成，跳過互動確認（用預設值），結果是完整的 spec artifacts + plan，使用者可直接 execute
+- **D-09b:** `mysd ffe`（fast-forward execute）從 propose 一氣推進到**實作完成**（propose → spec → design → plan → execute），跳過所有互動確認。和 ff 的差別是 ff 停在 plan，ffe 一直到實作完成
 - **D-10:** `mysd capture` 分析當前 Claude Code 對話中討論過的變更，提取關鍵需求，然後帶預填內容自動進入 propose 流程（減少重複描述）
 - **D-11:** `mysd status` 顯示綜合儀表板：當前 change name、workflow phase、任務完成率（X/Y tasks done）、MUST/SHOULD/MAY 達成狀態、上次執行時間
 - **D-12:** Plan 階段可選管線 — 預設只有 plan（快速），可用 flag 啟用 research 和 plan-check（完整管線仿 GSD 的 research → plan → check）。Convention-over-configuration：快速為預設，完整為可選
@@ -54,7 +55,7 @@
 
 ### 專案架構
 - `.planning/PROJECT.md` — 專案願景、約束條件、核心價值
-- `.planning/REQUIREMENTS.md` — 完整 v1 需求清單，Phase 2 需覆蓋 EXEC-01~05, WCMD-01~05/08/10/11/13, TEST-01~03
+- `.planning/REQUIREMENTS.md` — 完整 v1 需求清單，Phase 2 需覆蓋 EXEC-01~05, WCMD-01~05/08/10/11/13/14, TEST-01~03
 - `.planning/ROADMAP.md` — Phase 2 goal 和 success criteria
 
 ### Phase 1 基礎
