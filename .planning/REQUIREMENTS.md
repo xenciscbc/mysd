@@ -47,6 +47,13 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
 - [ ] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
 - [ ] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
+- [ ] **WCMD-13**: `/mysd:capture` — 從當前對話中分析並提取要做的變更，自動進入 propose 的討論模式
+
+### Roadmap Tracking
+
+- [ ] **RMAP-01**: 實作完成後自動產生或更新 `.mysd/roadmap/` 下的追蹤文件
+- [ ] **RMAP-02**: 追蹤文件記錄每個 change 的名稱、狀態、開始/完成日期時間
+- [ ] **RMAP-03**: 追蹤文件格式可被第三方工具讀取（支援 roadmap 視覺化，如 Mermaid gantt chart）
 
 ### UAT Acceptance
 
@@ -173,10 +180,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UAT-03 | Phase 3 | Pending |
 | UAT-04 | Phase 3 | Pending |
 | UAT-05 | Phase 3 | Pending |
+| WCMD-13 | Phase 2 | Pending |
+| RMAP-01 | Phase 1 | Pending |
+| RMAP-02 | Phase 1 | Pending |
+| RMAP-03 | Phase 1 | Pending |
 
 **Coverage:**
-- v1 requirements: 52 total
-- Mapped to phases: 52
+- v1 requirements: 56 total
+- Mapped to phases: 56
 - Unmapped: 0 ✓
 
 ---
