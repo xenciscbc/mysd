@@ -92,7 +92,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### State & Session
 
-- [x] **STAT-01**: Project state tracked in `.specs/STATE.md` for cross-session continuity
+- [x] **STAT-01**: Project state tracked in `.specs/STATE.json` for cross-session continuity
 - [x] **STAT-02**: State machine enforces valid transitions (proposed → specced → designed → planned → executed → verified → archived)
 - [x] **STAT-03**: User can resume interrupted workflow from last valid state
 
@@ -181,9 +181,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UAT-04 | Phase 3 | Pending |
 | UAT-05 | Phase 3 | Pending |
 | WCMD-13 | Phase 2 | Pending |
-| RMAP-01 | Phase 1 | Pending |
-| RMAP-02 | Phase 1 | Pending |
-| RMAP-03 | Phase 1 | Pending |
+| RMAP-01 | Phase 4 | Pending |
+| RMAP-02 | Phase 4 | Pending |
+| RMAP-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 56 total
