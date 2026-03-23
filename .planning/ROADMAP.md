@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Go module + spec schema types + parser/writer/delta/detector
+- [x] 01-01-PLAN.md — Go module + spec schema types + parser/writer/delta/detector
 - [ ] 01-02-PLAN.md — State machine + config management + terminal output
 - [ ] 01-03-PLAN.md — CLI skeleton (Cobra) + propose/init commands
 
@@ -82,7 +82,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Planning complete | - |
+| 1. Foundation | 1/3 | In Progress|  |
 | 2. Execution Engine | 0/TBD | Not started | - |
 | 3. Verification & Feedback Loop | 0/TBD | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |

@@ -9,13 +9,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Spec Management
 
-- [ ] **SPEC-01**: User can create structured spec artifacts (proposal.md, specs/, design.md, tasks.md) via `/mysd:propose` command
-- [ ] **SPEC-02**: Spec files support RFC 2119 semantic keywords (MUST / SHOULD / MAY) with machine-parseable priority levels
-- [ ] **SPEC-03**: User can use Delta Specs semantics (ADDED / MODIFIED / REMOVED) to describe changes to existing specs
-- [ ] **SPEC-04**: Spec status is tracked per-item (PENDING / IN_PROGRESS / DONE / BLOCKED) in spec metadata
+- [x] **SPEC-01**: User can create structured spec artifacts (proposal.md, specs/, design.md, tasks.md) via `/mysd:propose` command
+- [x] **SPEC-02**: Spec files support RFC 2119 semantic keywords (MUST / SHOULD / MAY) with machine-parseable priority levels
+- [x] **SPEC-03**: User can use Delta Specs semantics (ADDED / MODIFIED / REMOVED) to describe changes to existing specs
+- [x] **SPEC-04**: Spec status is tracked per-item (PENDING / IN_PROGRESS / DONE / BLOCKED) in spec metadata
 - [ ] **SPEC-05**: Verification results are automatically written back to spec status (spec feedback loop)
 - [ ] **SPEC-06**: Completed specs can be archived to `.specs/archive/` via `/mysd:archive` command
-- [ ] **SPEC-07**: Spec format uses schema-versioned frontmatter (`spec-version` field) for forward compatibility
+- [x] **SPEC-07**: Spec format uses schema-versioned frontmatter (`spec-version` field) for forward compatibility
 
 ### Execution Engine
 
@@ -78,15 +78,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### OpenSpec Compatibility
 
-- [ ] **OPSX-01**: Parser can read existing OpenSpec `openspec/` directory structure
-- [ ] **OPSX-02**: Parser can read and write OpenSpec's proposal.md / specs/ / design.md / tasks.md format
-- [ ] **OPSX-03**: Delta Specs support matches OpenSpec's ADDED / MODIFIED / REMOVED semantics
-- [ ] **OPSX-04**: User can point my-ssd at an existing OpenSpec project and run execute/verify without migration
+- [x] **OPSX-01**: Parser can read existing OpenSpec `openspec/` directory structure
+- [x] **OPSX-02**: Parser can read and write OpenSpec's proposal.md / specs/ / design.md / tasks.md format
+- [x] **OPSX-03**: Delta Specs support matches OpenSpec's ADDED / MODIFIED / REMOVED semantics
+- [x] **OPSX-04**: User can point my-ssd at an existing OpenSpec project and run execute/verify without migration
 
 ### CLI & Distribution
 
-- [ ] **DIST-01**: Single Go binary with zero runtime dependencies
-- [ ] **DIST-02**: Cross-platform support (macOS / Linux / Windows)
+- [x] **DIST-01**: Single Go binary with zero runtime dependencies
+- [x] **DIST-02**: Cross-platform support (macOS / Linux / Windows)
 - [ ] **DIST-03**: Install via `go install` and GitHub releases (precompiled binaries)
 - [ ] **DIST-04**: Claude Code plugin integration via slash commands and agent definitions
 
@@ -128,13 +128,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SPEC-01 | Phase 1 | Pending |
-| SPEC-02 | Phase 1 | Pending |
-| SPEC-03 | Phase 1 | Pending |
-| SPEC-04 | Phase 1 | Pending |
+| SPEC-01 | Phase 1 | Complete |
+| SPEC-02 | Phase 1 | Complete |
+| SPEC-03 | Phase 1 | Complete |
+| SPEC-04 | Phase 1 | Complete |
 | SPEC-05 | Phase 3 | Pending |
 | SPEC-06 | Phase 3 | Pending |
-| SPEC-07 | Phase 1 | Pending |
+| SPEC-07 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Pending |
 | EXEC-02 | Phase 2 | Pending |
 | EXEC-03 | Phase 2 | Pending |
@@ -163,12 +163,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONF-02 | Phase 1 | Pending |
 | CONF-03 | Phase 1 | Pending |
 | CONF-04 | Phase 1 | Pending |
-| OPSX-01 | Phase 1 | Pending |
-| OPSX-02 | Phase 1 | Pending |
-| OPSX-03 | Phase 1 | Pending |
-| OPSX-04 | Phase 1 | Pending |
-| DIST-01 | Phase 1 | Pending |
-| DIST-02 | Phase 1 | Pending |
+| OPSX-01 | Phase 1 | Complete |
+| OPSX-02 | Phase 1 | Complete |
+| OPSX-03 | Phase 1 | Complete |
+| OPSX-04 | Phase 1 | Complete |
+| DIST-01 | Phase 1 | Complete |
+| DIST-02 | Phase 1 | Complete |
 | DIST-03 | Phase 4 | Pending |
 | DIST-04 | Phase 4 | Pending |
 | STAT-01 | Phase 1 | Pending |
