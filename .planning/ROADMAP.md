@@ -29,7 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Parser can read an existing OpenSpec `openspec/` directory without modification and produce typed Go structs
   4. State machine enforces valid transitions (proposed → specced → designed → planned → executed → verified → archived) and blocks invalid ones
   5. Project config file `.claude/mysd.yaml` is created via `mysd init` and persists user preferences across sessions
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Go module + spec schema types + parser/writer/delta/detector
+- [ ] 01-02-PLAN.md — State machine + config management + terminal output
+- [ ] 01-03-PLAN.md — CLI skeleton (Cobra) + propose/init commands
 
 ### Phase 2: Execution Engine
 **Goal**: 開發者可以用 `mysd execute` 執行 spec 任務，AI 在寫 code 前必須通過 alignment gate（強制讀取並確認 spec），執行進度被追蹤且可從中斷點恢復
@@ -77,7 +82,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/3 | Planning complete | - |
 | 2. Execution Engine | 0/TBD | Not started | - |
 | 3. Verification & Feedback Loop | 0/TBD | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |
