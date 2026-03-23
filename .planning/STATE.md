@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 01-foundation/01-02-PLAN.md
-last_updated: "2026-03-23T08:53:19.892Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 01-foundation/01-03-PLAN.md
+last_updated: "2026-03-23T09:00:40.493Z"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -48,6 +48,7 @@ Plan: 3 of 3
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 10 | 2 tasks | 18 files |
 | Phase 01-foundation P02 | 5 | 2 tasks | 10 files |
+| Phase 01-foundation P03 | 4 | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,8 @@ Recent decisions affecting current work:
 - [Phase 01-01]: ParseProposal returns zero-value frontmatter (not error) when no frontmatter found — enables brownfield OPSX-04 compatibility
 - [Phase 01-02]: Instance viper (viper.New()) instead of global viper for full test isolation
 - [Phase 01-02]: charmbracelet/x/term for TTY detection — already a transitive dependency via lipgloss, avoids new direct dependency
+- [Phase 01-03]: init_cmd.go naming convention avoids Go init() function confusion
+- [Phase 01-03]: propose defaults to .specs specDir when DetectSpecDir returns ErrNoSpecDir — enables first-time bootstrapping without prior mysd init
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T08:53:19.887Z
-Stopped at: Completed 01-foundation/01-02-PLAN.md
+Last session: 2026-03-23T09:00:40.488Z
+Stopped at: Completed 01-foundation/01-03-PLAN.md
 Resume file: None

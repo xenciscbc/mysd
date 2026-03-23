@@ -12,7 +12,7 @@ my-ssd 從零開始建構一個 Go binary + Claude Code plugin 的 Spec-Driven D
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Spec 資料模型、CLI 骨架、OpenSpec 格式解析器、狀態機
+- [x] **Phase 1: Foundation** - Spec 資料模型、CLI 骨架、OpenSpec 格式解析器、狀態機 (completed 2026-03-23)
 - [ ] **Phase 2: Execution Engine** - 執行引擎、pre-execution alignment gate、workflow 指令核心
 - [ ] **Phase 3: Verification & Feedback Loop** - 全自動目標反推驗證、spec 狀態回寫、自動產出 UAT 文件（非阻塞）
 - [ ] **Phase 4: Plugin Layer & Distribution** - 完整 Claude Code plugin、所有 slash commands、GoReleaser 發佈
@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Go module + spec schema types + parser/writer/delta/detector
 - [x] 01-02-PLAN.md — State machine + config management + terminal output
-- [ ] 01-03-PLAN.md — CLI skeleton (Cobra) + propose/init commands
+- [x] 01-03-PLAN.md — CLI skeleton (Cobra) + propose/init commands
 
 ### Phase 2: Execution Engine
 **Goal**: 開發者可以用 `mysd execute` 執行 spec 任務，AI 在寫 code 前必須通過 alignment gate（強制讀取並確認 spec），執行進度被追蹤且可從中斷點恢復
@@ -82,7 +82,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In Progress|  |
+| 1. Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Execution Engine | 0/TBD | Not started | - |
 | 3. Verification & Feedback Loop | 0/TBD | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |
