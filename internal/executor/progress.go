@@ -1,6 +1,6 @@
 package executor
 
-import "github.com/mysd/internal/spec"
+import "github.com/xenciscbc/mysd/internal/spec"
 
 // PendingTasks returns tasks that have not been completed or blocked.
 // Done and blocked tasks are excluded to support execution resumption (EXEC-05).

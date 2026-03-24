@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mysd/internal/output"
-	"github.com/mysd/internal/roadmap"
-	"github.com/mysd/internal/spec"
-	"github.com/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/output"
+	"github.com/xenciscbc/mysd/internal/roadmap"
+	"github.com/xenciscbc/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/state"
 	"github.com/spf13/cobra"
 )
 

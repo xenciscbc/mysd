@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mysd/internal/uat"
+	"github.com/xenciscbc/mysd/internal/uat"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

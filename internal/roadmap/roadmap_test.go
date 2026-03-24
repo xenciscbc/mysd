@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mysd/internal/roadmap"
-	"github.com/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/roadmap"
+	"github.com/xenciscbc/mysd/internal/state"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/mysd/internal/spec"
-	"github.com/mysd/internal/verifier"
+	"github.com/xenciscbc/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/verifier"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mysd/internal/spec"
-	"github.com/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/state"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mysd/internal/roadmap"
+	"github.com/xenciscbc/mysd/internal/roadmap"
 	"github.com/stretchr/testify/assert"
 )
 

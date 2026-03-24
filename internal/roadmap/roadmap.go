@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/state"
 	"gopkg.in/yaml.v3"
 )
 

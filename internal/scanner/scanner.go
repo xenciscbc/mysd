@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/spec"
 )
 
 // ScanContext is the JSON-serializable output of BuildScanContext.

@@ -3,7 +3,7 @@ package executor
 import (
 	"testing"
 
-	"github.com/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/stretchr/testify/assert"
 )
 

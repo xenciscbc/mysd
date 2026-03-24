@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mysd/internal/spec"
-	"github.com/mysd/internal/state"
-	"github.com/mysd/internal/verifier"
+	"github.com/xenciscbc/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/verifier"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

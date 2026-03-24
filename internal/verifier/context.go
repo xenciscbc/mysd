@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/spec"
 )
 
 // VerificationContext is the JSON-serializable context passed to the verifier agent.

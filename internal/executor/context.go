@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/mysd/internal/config"
-	"github.com/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/config"
+	"github.com/xenciscbc/mysd/internal/spec"
 )
 
 // ExecutionContext is the JSON-serializable context passed to SKILL.md consumers (per EXEC-01).

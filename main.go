@@ -1,6 +1,6 @@
 package main
 
-import "github.com/mysd/cmd"
+import "github.com/xenciscbc/mysd/cmd"
 
 var (
 	version = "dev"

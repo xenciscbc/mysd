@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/term"
-	"github.com/mysd/internal/roadmap"
-	"github.com/mysd/internal/spec"
-	"github.com/mysd/internal/state"
-	"github.com/mysd/internal/verifier"
+	"github.com/xenciscbc/mysd/internal/roadmap"
+	"github.com/xenciscbc/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/verifier"
 	"github.com/spf13/cobra"
 )
 

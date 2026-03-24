@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/mysd/internal/config"
-	"github.com/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/config"
+	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

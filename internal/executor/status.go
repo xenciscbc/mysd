@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mysd/internal/spec"
-	"github.com/mysd/internal/state"
+	"github.com/xenciscbc/mysd/internal/spec"
+	"github.com/xenciscbc/mysd/internal/state"
 )
 
 // StatusSummary aggregates workflow state, task progress, and requirement counts

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/mysd/internal/scanner"
+	"github.com/xenciscbc/mysd/internal/scanner"
 	"github.com/spf13/cobra"
 )
 

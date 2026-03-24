@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mysd/internal/scanner"
+	"github.com/xenciscbc/mysd/internal/scanner"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

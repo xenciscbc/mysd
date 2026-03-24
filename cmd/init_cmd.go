@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mysd/internal/config"
-	"github.com/mysd/internal/output"
+	"github.com/xenciscbc/mysd/internal/config"
+	"github.com/xenciscbc/mysd/internal/output"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
