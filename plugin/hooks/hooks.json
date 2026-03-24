@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mysd --version >/dev/null 2>&1 && echo '[mysd] Ready.' || echo '[mysd] WARNING: mysd binary not found. Install: go install github.com/[owner]/mysd@latest'"
+          }
+        ]
+      }
+    ]
+  }
+}
