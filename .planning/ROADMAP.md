@@ -80,11 +80,11 @@ Plans:
 ### Phase 4: Plugin Layer & Distribution
 **Goal**: 完整的 Claude Code plugin 可被安裝，所有 `/mysd:*` slash commands 在 Claude Code 中可用，預編譯 binary 可透過 `go install` 和 GitHub Releases 取得
 **Depends on**: Phase 3
-**Requirements**: DIST-03, DIST-04, WCMD-09
+**Requirements**: DIST-03, DIST-04, WCMD-09, RMAP-01, RMAP-02, RMAP-03
 **Success Criteria** (what must be TRUE):
   1. User installs plugin by placing the `plugin/` directory under `.claude/plugins/` and all `/mysd:*` slash commands appear in Claude Code
   2. User runs `go install github.com/[owner]/mysd@latest` and gets a working binary on macOS, Linux, and Windows
-  3. GitHub Releases page contains precompiled binaries for all three platforms; Homebrew cask (not formula) installs cleanly on macOS
+  3. User can download precompiled binaries from GitHub Releases page for macOS/Linux/Windows (per D-07: no Homebrew in v1)
   4. User runs `/mysd:scan` on an existing codebase and gets OpenSpec-format spec documents generated in `.specs/`
 **Plans**: 3 plans
 
