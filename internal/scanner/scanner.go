@@ -57,12 +57,14 @@ func BuildScanContext(root string, exclude []string) (ScanContext, error) {
 		}
 		if d.IsDir() {
 			name := d.Name()
-			// Skip hidden dirs (e.g., .git, .specs)
-			if strings.HasPrefix(name, ".") {
+			// Skip hidden dirs (e.g., .git, .specs), but NOT the root itself.
+			// WalkDir calls the root with name "." which starts with "." —
+			// we must not skip it or the entire walk is aborted.
+			if path != root && strings.HasPrefix(name, ".") {
 				return filepath.SkipDir
 			}
-			// Skip explicitly excluded dirs
-			if excludeSet[name] {
+			// Skip explicitly excluded dirs (never skip root)
+			if path != root && excludeSet[name] {
 				return filepath.SkipDir
 			}
 			return nil

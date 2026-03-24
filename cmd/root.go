@@ -47,6 +47,12 @@ func init() {
 	_ = viper.BindPFlag("atomic_commits", rootCmd.PersistentFlags().Lookup("atomic-commits"))
 }
 
+// SetVersion sets the root command version string.
+// Called by main.go with build-time ldflags values.
+func SetVersion(v string) {
+	rootCmd.Version = v
+}
+
 func initConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
