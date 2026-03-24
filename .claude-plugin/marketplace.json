@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Spec-Driven Development for AI programming — integrates OpenSpec SDD with a planning/execution/verification engine",
-    "version": "1.0.0"
+    "version": "1.0.2"
   },
   "plugins": [
     {
       "name": "mysd",
       "source": "./plugin",
       "description": "Spec-Driven Development for AI programming — specs as single source of truth, mandatory alignment gates, goal-backward verification",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "author": {
         "name": "xenciscbc"
       },
