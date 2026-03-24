@@ -43,7 +43,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
 - [x] **WCMD-07**: `/mysd:archive` — archive completed spec to history
 - [x] **WCMD-08**: `/mysd:status` — show current spec state, progress, and verification results
-- [ ] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
+- [x] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
 - [x] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
 - [x] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
 - [x] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
@@ -52,9 +52,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Roadmap Tracking
 
-- [ ] **RMAP-01**: 實作完成後自動產生或更新 `.mysd/roadmap/` 下的追蹤文件
-- [ ] **RMAP-02**: 追蹤文件記錄每個 change 的名稱、狀態、開始/完成日期時間
-- [ ] **RMAP-03**: 追蹤文件格式可被第三方工具讀取（支援 roadmap 視覺化，如 Mermaid gantt chart）
+- [x] **RMAP-01**: 實作完成後自動產生或更新 `.mysd/roadmap/` 下的追蹤文件
+- [x] **RMAP-02**: 追蹤文件記錄每個 change 的名稱、狀態、開始/完成日期時間
+- [x] **RMAP-03**: 追蹤文件格式可被第三方工具讀取（支援 roadmap 視覺化，如 Mermaid gantt chart）
 
 ### UAT Acceptance
 
@@ -88,8 +88,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **DIST-01**: Single Go binary with zero runtime dependencies
 - [x] **DIST-02**: Cross-platform support (macOS / Linux / Windows)
-- [ ] **DIST-03**: Install via `go install` and GitHub releases (precompiled binaries)
-- [ ] **DIST-04**: Claude Code plugin integration via slash commands and agent definitions
+- [x] **DIST-03**: Install via `go install` and GitHub releases (precompiled binaries)
+- [x] **DIST-04**: Claude Code plugin integration via slash commands and agent definitions
 
 ### State & Session
 
@@ -154,7 +154,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WCMD-06 | Phase 3 | Complete |
 | WCMD-07 | Phase 3 | Complete |
 | WCMD-08 | Phase 2 | Complete |
-| WCMD-09 | Phase 4 | Pending |
+| WCMD-09 | Phase 4 | Complete |
 | WCMD-10 | Phase 2 | Complete |
 | WCMD-11 | Phase 2 | Complete |
 | TEST-01 | Phase 2 | Complete |
@@ -170,8 +170,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPSX-04 | Phase 1 | Complete |
 | DIST-01 | Phase 1 | Complete |
 | DIST-02 | Phase 1 | Complete |
-| DIST-03 | Phase 4 | Pending |
-| DIST-04 | Phase 4 | Pending |
+| DIST-03 | Phase 4 | Complete |
+| DIST-04 | Phase 4 | Complete |
 | STAT-01 | Phase 1 | Complete |
 | STAT-02 | Phase 1 | Complete |
 | STAT-03 | Phase 1 | Complete |
@@ -183,9 +183,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UAT-05 | Phase 3 | Complete |
 | WCMD-13 | Phase 2 | Complete |
 | WCMD-14 | Phase 2 | Complete |
-| RMAP-01 | Phase 4 | Pending |
-| RMAP-02 | Phase 4 | Pending |
-| RMAP-03 | Phase 4 | Pending |
+| RMAP-01 | Phase 4 | Complete |
+| RMAP-02 | Phase 4 | Complete |
+| RMAP-03 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 57 total
