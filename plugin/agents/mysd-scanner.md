@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Scanner agent. Analyzes Go package source code and generates OpenSpec-format spec documents.
 allowed-tools:
   - Read

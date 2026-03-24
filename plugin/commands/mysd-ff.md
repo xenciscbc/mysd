@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Fast-forward a change through propose, spec, design, and plan in one command. Usage: /mysd:ff [change-name]
 allowed-tools:
   - Bash

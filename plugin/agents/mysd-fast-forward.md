@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Fast-forward agent. Executes full planning pipeline (ff mode) or full pipeline through execution (ffe mode) without interactive confirmation.
 allowed-tools:
   - Read

@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Designer agent. Receives spec context and writes technical design decisions and architecture in .specs/changes/{change_name}/design.md.
 allowed-tools:
   - Read

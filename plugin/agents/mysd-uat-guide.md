@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Interactive UAT guide. Walks user through acceptance tests one by one.
 allowed-tools:
   - Read

@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Fast-forward a change through the entire workflow including execution. Usage: /mysd:ffe [change-name]
 allowed-tools:
   - Bash

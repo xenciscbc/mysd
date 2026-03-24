@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Capture technical decisions and architecture for the current change. Invokes mysd-designer agent.
 allowed-tools:
   - Bash

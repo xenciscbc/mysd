@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Execute pending tasks with mandatory alignment gate. Supports single and wave (parallel) execution modes.
 allowed-tools:
   - Bash

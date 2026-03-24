@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Executor agent. Implements spec tasks with mandatory alignment gate before any code is written.
 allowed-tools:
   - Read

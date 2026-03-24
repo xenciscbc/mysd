@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Create a new spec change with proposal scaffolding. Usage: /mysd:propose [change-name]
 allowed-tools:
   - Bash

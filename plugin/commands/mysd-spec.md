@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Write detailed requirements for the current change using RFC 2119 keywords. Invokes mysd-spec-writer agent.
 allowed-tools:
   - Bash

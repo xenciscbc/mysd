@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Independent verifier agent. Evaluates spec MUST/SHOULD/MAY items against filesystem evidence only.
 allowed-tools:
   - Read

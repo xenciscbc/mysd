@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Interactive User Acceptance Testing walkthrough.
 allowed-tools:
   - Bash

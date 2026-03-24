@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Initialize mysd configuration for the current project.
 allowed-tools:
   - Bash

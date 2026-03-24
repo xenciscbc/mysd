@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Archive a verified spec change to .specs/archive/.
 allowed-tools:
   - Bash

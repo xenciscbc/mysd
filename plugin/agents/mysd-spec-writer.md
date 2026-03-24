@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Spec writer agent. Receives proposal context and writes detailed RFC 2119 requirement specs in .specs/changes/{change_name}/specs/.
 allowed-tools:
   - Read

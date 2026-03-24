@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Planner agent. Receives design context and writes an executable tasks.md with TasksFrontmatterV2 format in .specs/changes/{change_name}/tasks.md.
 allowed-tools:
   - Read

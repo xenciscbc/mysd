@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Show current workflow status dashboard for the active change.
 allowed-tools:
   - Bash

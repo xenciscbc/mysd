@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Break design into an executable task list. Invokes mysd-planner agent. Usage: /mysd:plan [--research] [--check]
 allowed-tools:
   - Bash
