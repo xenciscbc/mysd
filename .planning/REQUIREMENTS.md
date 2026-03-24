@@ -13,8 +13,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **SPEC-02**: Spec files support RFC 2119 semantic keywords (MUST / SHOULD / MAY) with machine-parseable priority levels
 - [x] **SPEC-03**: User can use Delta Specs semantics (ADDED / MODIFIED / REMOVED) to describe changes to existing specs
 - [x] **SPEC-04**: Spec status is tracked per-item (PENDING / IN_PROGRESS / DONE / BLOCKED) in spec metadata
-- [ ] **SPEC-05**: Verification results are automatically written back to spec status (spec feedback loop)
-- [ ] **SPEC-06**: Completed specs can be archived to `.specs/archive/` via `/mysd:archive` command
+- [x] **SPEC-05**: Verification results are automatically written back to spec status (spec feedback loop)
+- [x] **SPEC-06**: Completed specs can be archived to `.specs/archive/` via `/mysd:archive` command
 - [x] **SPEC-07**: Spec format uses schema-versioned frontmatter (`spec-version` field) for forward compatibility
 
 ### Execution Engine
@@ -27,11 +27,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Verification
 
-- [ ] **VRFY-01**: Goal-backward verification parses all MUST items from spec and generates verification checklist
-- [ ] **VRFY-02**: Verification uses an independent fresh-context agent (not the same agent that executed)
-- [ ] **VRFY-03**: SHOULD items are verified with lower priority; MAY items are noted but not required
-- [ ] **VRFY-04**: Verification produces structured pass/fail report per MUST/SHOULD/MAY item
-- [ ] **VRFY-05**: Failed MUST items trigger gap report that can feed back into re-execution
+- [x] **VRFY-01**: Goal-backward verification parses all MUST items from spec and generates verification checklist
+- [x] **VRFY-02**: Verification uses an independent fresh-context agent (not the same agent that executed)
+- [x] **VRFY-03**: SHOULD items are verified with lower priority; MAY items are noted but not required
+- [x] **VRFY-04**: Verification produces structured pass/fail report per MUST/SHOULD/MAY item
+- [x] **VRFY-05**: Failed MUST items trigger gap report that can feed back into re-execution
 
 ### Workflow Commands
 
@@ -40,13 +40,13 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **WCMD-03**: `/mysd:design` — capture technical decisions and architecture choices
 - [x] **WCMD-04**: `/mysd:plan` — break design into executable task list with dependency analysis
 - [x] **WCMD-05**: `/mysd:execute` — run tasks with pre-execution alignment and progress tracking
-- [ ] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
-- [ ] **WCMD-07**: `/mysd:archive` — archive completed spec to history
+- [x] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
+- [x] **WCMD-07**: `/mysd:archive` — archive completed spec to history
 - [x] **WCMD-08**: `/mysd:status` — show current spec state, progress, and verification results
 - [ ] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
 - [x] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
 - [x] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
-- [ ] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
+- [x] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
 - [x] **WCMD-13**: `/mysd:capture` — 從當前對話中分析並提取要做的變更，自動進入 propose 的討論模式
 - [x] **WCMD-14**: `/mysd:ffe` — fast-forward execute 指令，從 propose 一氣推進到實作完成（propose → spec → design → plan → execute），跳過所有互動確認
 
@@ -58,11 +58,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UAT Acceptance
 
-- [ ] **UAT-01**: 驗證階段可選擇產生互動式 UAT 驗收清單（從 spec 的 UI 相關 MUST/SHOULD 項目衍生）
-- [ ] **UAT-02**: UAT 清單為可選步驟，不是 archive 的前提條件
-- [ ] **UAT-03**: UAT 清單存放於 `.mysd/uat/` 目錄，可跨 session 保留
-- [ ] **UAT-04**: 使用者可透過 `/mysd:uat` 獨立觸發 UAT 流程，可重複執行
-- [ ] **UAT-05**: UAT 清單記錄每次執行的結果（通過/未通過/跳過）與時間戳
+- [x] **UAT-01**: 驗證階段可選擇產生互動式 UAT 驗收清單（從 spec 的 UI 相關 MUST/SHOULD 項目衍生）
+- [x] **UAT-02**: UAT 清單為可選步驟，不是 archive 的前提條件
+- [x] **UAT-03**: UAT 清單存放於 `.mysd/uat/` 目錄，可跨 session 保留
+- [x] **UAT-04**: 使用者可透過 `/mysd:uat` 獨立觸發 UAT 流程，可重複執行
+- [x] **UAT-05**: UAT 清單記錄每次執行的結果（通過/未通過/跳過）與時間戳
 
 ### Testing
 
@@ -133,26 +133,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SPEC-02 | Phase 1 | Complete |
 | SPEC-03 | Phase 1 | Complete |
 | SPEC-04 | Phase 1 | Complete |
-| SPEC-05 | Phase 3 | Pending |
-| SPEC-06 | Phase 3 | Pending |
+| SPEC-05 | Phase 3 | Complete |
+| SPEC-06 | Phase 3 | Complete |
 | SPEC-07 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Complete |
 | EXEC-02 | Phase 2 | Complete |
 | EXEC-03 | Phase 2 | Complete |
 | EXEC-04 | Phase 2 | Complete |
 | EXEC-05 | Phase 2 | Complete |
-| VRFY-01 | Phase 3 | Pending |
-| VRFY-02 | Phase 3 | Pending |
-| VRFY-03 | Phase 3 | Pending |
-| VRFY-04 | Phase 3 | Pending |
-| VRFY-05 | Phase 3 | Pending |
+| VRFY-01 | Phase 3 | Complete |
+| VRFY-02 | Phase 3 | Complete |
+| VRFY-03 | Phase 3 | Complete |
+| VRFY-04 | Phase 3 | Complete |
+| VRFY-05 | Phase 3 | Complete |
 | WCMD-01 | Phase 2 | Complete |
 | WCMD-02 | Phase 2 | Complete |
 | WCMD-03 | Phase 2 | Complete |
 | WCMD-04 | Phase 2 | Complete |
 | WCMD-05 | Phase 2 | Complete |
-| WCMD-06 | Phase 3 | Pending |
-| WCMD-07 | Phase 3 | Pending |
+| WCMD-06 | Phase 3 | Complete |
+| WCMD-07 | Phase 3 | Complete |
 | WCMD-08 | Phase 2 | Complete |
 | WCMD-09 | Phase 4 | Pending |
 | WCMD-10 | Phase 2 | Complete |
@@ -175,12 +175,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STAT-01 | Phase 1 | Complete |
 | STAT-02 | Phase 1 | Complete |
 | STAT-03 | Phase 1 | Complete |
-| WCMD-12 | Phase 3 | Pending |
-| UAT-01 | Phase 3 | Pending |
-| UAT-02 | Phase 3 | Pending |
-| UAT-03 | Phase 3 | Pending |
-| UAT-04 | Phase 3 | Pending |
-| UAT-05 | Phase 3 | Pending |
+| WCMD-12 | Phase 3 | Complete |
+| UAT-01 | Phase 3 | Complete |
+| UAT-02 | Phase 3 | Complete |
+| UAT-03 | Phase 3 | Complete |
+| UAT-04 | Phase 3 | Complete |
+| UAT-05 | Phase 3 | Complete |
 | WCMD-13 | Phase 2 | Complete |
 | WCMD-14 | Phase 2 | Complete |
 | RMAP-01 | Phase 4 | Pending |

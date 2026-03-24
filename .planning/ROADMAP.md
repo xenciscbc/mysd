@@ -71,10 +71,10 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Verification engine core: VerificationContext builder, VerifierReport parser, gap report writer, spec status sidecar
-- [ ] 03-02-PLAN.md — UAT checklist package: data model, read/write with history preservation
-- [ ] 03-03-PLAN.md — CLI commands: verify (--context-only, --write-results) + archive (double gate, directory move)
-- [ ] 03-04-PLAN.md — Plugin layer: 3 SKILL.md (verify, archive, uat) + 2 agents (verifier, uat-guide)
+- [x] 03-01-PLAN.md — Verification engine core: VerificationContext builder, VerifierReport parser, gap report writer, spec status sidecar
+- [x] 03-02-PLAN.md — UAT checklist package: data model, read/write with history preservation
+- [x] 03-03-PLAN.md — CLI commands: verify (--context-only, --write-results) + archive (double gate, directory move)
+- [x] 03-04-PLAN.md — Plugin layer: 3 SKILL.md (verify, archive, uat) + 2 agents (verifier, uat-guide)
 - [ ] 03-05-PLAN.md — Integration tests: verify pipeline, archive pipeline, UAT round-trip
 
 ### Phase 4: Plugin Layer & Distribution
@@ -98,5 +98,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Execution Engine | 5/6 | In Progress|  |
-| 3. Verification & Feedback Loop | 0/5 | Not started | - |
+| 3. Verification & Feedback Loop | 2/5 | In Progress|  |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |

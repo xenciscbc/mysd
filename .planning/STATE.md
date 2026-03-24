@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-24T01:14:11.306Z"
+stopped_at: Completed 03-05-PLAN.md
+last_updated: "2026-03-24T02:13:37.994Z"
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
+  completed_phases: 3
+  total_plans: 14
+  completed_plans: 14
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Phase 02 — execution-engine
+**Current focus:** Phase 03 — verification-feedback-loop
 
 ## Current Position
 
-Phase: 3
+Phase: 4
 Plan: Not started
 
 ## Performance Metrics
@@ -55,6 +55,11 @@ Plan: Not started
 | Phase 02-execution-engine P03 | 18 | 2 tasks | 7 files |
 | Phase 02-execution-engine P06 | 4 | 2 tasks | 3 files |
 | Phase 02-execution-engine P05 | 15 | 2 tasks | 15 files |
+| Phase 03 P02 | 10 | 1 tasks | 2 files |
+| Phase 03-verification-feedback-loop P01 | 4 | 2 tasks | 9 files |
+| Phase 03 P03 | 3 | 2 tasks | 4 files |
+| Phase 03 P04 | 7 | 2 tasks | 5 files |
+| Phase 03-verification-feedback-loop P05 | 6 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -86,6 +91,18 @@ Recent decisions affecting current work:
 - [Phase 02-05]: SKILL.md orchestrator pattern: thin files that run --context-only, delegate to agents via Task tool, then call binary for state transition
 - [Phase 02-05]: Alignment gate enforced by prompt ordering — alignment.md must be written before any implementation code, creating a hard structural blocker
 - [Phase 02-05]: mysd-capture performs conversation analysis in AI layer (not binary) per Pitfall 6 — binary only scaffolds directory if name provided
+- [Phase 03]: UATItem.Status is plain string not spec.ItemStatus — UAT statuses diverge from spec lifecycle statuses
+- [Phase 03]: ReadUAT returns zero-value on missing file — enables first-time use without pre-existing UAT file
+- [Phase 03-01]: StableID uses CRC32 hash of requirement text (not sequential counter) — stable across re-parses
+- [Phase 03-01]: VerificationStatus sidecar (verification-status.json) does not modify spec.md — avoids merge conflicts in brownfield
+- [Phase 03-01]: BuildVerificationContextFromParts is a pure function (no I/O) — mirrors BuildContextFromParts pattern for test isolation
+- [Phase 03]: runVerifyContextOnly and runVerifyWriteResults are testable functions separate from cobra RunE — accepts io.Writer for test isolation
+- [Phase 03]: moveDir tries os.Rename first (atomic), falls back to recursive copy + RemoveAll for Windows cross-volume (Pitfall 2)
+- [Phase 03]: ARCHIVED-STATE.json snapshot is best-effort (warning logged, not fatal) — archive proceeds even if snapshot write fails
+- [Phase 03-04]: mysd-verifier agent reads ONLY spec files and filesystem evidence — alignment.md explicitly prohibited (D-12)
+- [Phase 03-04]: mysd-archive.md has no agent — archive is a pure binary gate operation with user-readable error guidance only
+- [Phase 03-05]: Integration tests rely on already-completed Plans 01-03 implementations — no new production code in Plan 05
+- [Phase 03-05]: Empty verification map as MUST gate trigger: cmd integration tests avoid importing verifier.StableID by using absent-from-map check
 
 ### Pending Todos
 
@@ -99,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T01:14:11.299Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-verification-feedback-loop/03-CONTEXT.md
+Last session: 2026-03-24T02:07:44.245Z
+Stopped at: Completed 03-05-PLAN.md
+Resume file: None
