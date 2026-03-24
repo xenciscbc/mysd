@@ -86,8 +86,12 @@ Plans:
   2. User runs `go install github.com/[owner]/mysd@latest` and gets a working binary on macOS, Linux, and Windows
   3. GitHub Releases page contains precompiled binaries for all three platforms; Homebrew cask (not formula) installs cleanly on macOS
   4. User runs `/mysd:scan` on an existing codebase and gets OpenSpec-format spec documents generated in `.specs/`
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Scanner package + scan CLI command + version wiring
+- [ ] 04-02-PLAN.md — Roadmap tracking package + integration into state transitions
+- [ ] 04-03-PLAN.md — Plugin directory structure + GoReleaser config + scan SKILL.md/agent
 
 ## Progress
 
@@ -99,4 +103,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Execution Engine | 5/6 | In Progress|  |
 | 3. Verification & Feedback Loop | 2/5 | In Progress|  |
-| 4. Plugin Layer & Distribution | 0/TBD | Not started | - |
+| 4. Plugin Layer & Distribution | 0/3 | Not started | - |
