@@ -39,16 +39,16 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **WCMD-02**: `/mysd:spec` — define detailed requirements with RFC 2119 keywords and scenarios (Given/When/Then)
 - [x] **WCMD-03**: `/mysd:design` — capture technical decisions and architecture choices
 - [x] **WCMD-04**: `/mysd:plan` — break design into executable task list with dependency analysis
-- [ ] **WCMD-05**: `/mysd:execute` — run tasks with pre-execution alignment and progress tracking
+- [x] **WCMD-05**: `/mysd:execute` — run tasks with pre-execution alignment and progress tracking
 - [ ] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
 - [ ] **WCMD-07**: `/mysd:archive` — archive completed spec to history
 - [x] **WCMD-08**: `/mysd:status` — show current spec state, progress, and verification results
 - [ ] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
-- [ ] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
+- [x] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
 - [x] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
 - [ ] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
-- [ ] **WCMD-13**: `/mysd:capture` — 從當前對話中分析並提取要做的變更，自動進入 propose 的討論模式
-- [ ] **WCMD-14**: `/mysd:ffe` — fast-forward execute 指令，從 propose 一氣推進到實作完成（propose → spec → design → plan → execute），跳過所有互動確認
+- [x] **WCMD-13**: `/mysd:capture` — 從當前對話中分析並提取要做的變更，自動進入 propose 的討論模式
+- [x] **WCMD-14**: `/mysd:ffe` — fast-forward execute 指令，從 propose 一氣推進到實作完成（propose → spec → design → plan → execute），跳過所有互動確認
 
 ### Roadmap Tracking
 
@@ -66,7 +66,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TEST-01**: User can opt into TDD mode — 先產生測試程式碼，再執行實作
+- [x] **TEST-01**: User can opt into TDD mode — 先產生測試程式碼，再執行實作
 - [x] **TEST-02**: 執行完成後可選擇自動產生對應的測試程式碼（如果語言/框架支援）
 - [x] **TEST-03**: TDD 模式為可選設定，可在專案設定檔中設為預設
 
@@ -150,14 +150,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WCMD-02 | Phase 2 | Complete |
 | WCMD-03 | Phase 2 | Complete |
 | WCMD-04 | Phase 2 | Complete |
-| WCMD-05 | Phase 2 | Pending |
+| WCMD-05 | Phase 2 | Complete |
 | WCMD-06 | Phase 3 | Pending |
 | WCMD-07 | Phase 3 | Pending |
 | WCMD-08 | Phase 2 | Complete |
 | WCMD-09 | Phase 4 | Pending |
-| WCMD-10 | Phase 2 | Pending |
+| WCMD-10 | Phase 2 | Complete |
 | WCMD-11 | Phase 2 | Complete |
-| TEST-01 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 2 | Complete |
 | TEST-03 | Phase 2 | Complete |
 | CONF-01 | Phase 1 | Complete |
@@ -181,8 +181,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UAT-03 | Phase 3 | Pending |
 | UAT-04 | Phase 3 | Pending |
 | UAT-05 | Phase 3 | Pending |
-| WCMD-13 | Phase 2 | Pending |
-| WCMD-14 | Phase 2 | Pending |
+| WCMD-13 | Phase 2 | Complete |
+| WCMD-14 | Phase 2 | Complete |
 | RMAP-01 | Phase 4 | Pending |
 | RMAP-02 | Phase 4 | Pending |
 | RMAP-03 | Phase 4 | Pending |
