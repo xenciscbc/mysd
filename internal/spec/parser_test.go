@@ -117,6 +117,25 @@ func TestParseTasks_NativeWithFrontmatter(t *testing.T) {
 	assert.Len(t, tasks, 3)
 }
 
+// SourceFile field tests — ensure parser fills SourceFile after Task 1 changes
+func TestParseSpec_FillsSourceFile(t *testing.T) {
+	reqs, err := ParseSpec("../../testdata/fixtures/mysd-project/.specs/changes/add-dark-mode/specs/theme-support/spec.md")
+	require.NoError(t, err)
+	require.NotEmpty(t, reqs, "Expected at least one requirement")
+	for _, r := range reqs {
+		assert.Equal(t, "spec.md", r.SourceFile, "SourceFile must be filepath.Base(path)")
+	}
+}
+
+func TestParseRequirementsFromBody_RegressionKeywords(t *testing.T) {
+	body := "The system MUST validate input.\nThe system SHOULD log events.\nThe system MAY cache."
+	reqs := parseRequirementsFromBody(body, DeltaNone)
+	require.Len(t, reqs, 3)
+	assert.Equal(t, Must, reqs[0].Keyword)
+	assert.Equal(t, Should, reqs[1].Keyword)
+	assert.Equal(t, May, reqs[2].Keyword)
+}
+
 // ParseChangeMeta tests
 func TestParseChangeMeta_MySD(t *testing.T) {
 	meta, err := ParseChangeMeta("../../testdata/fixtures/mysd-project/.specs/changes/add-dark-mode/.openspec.yaml")

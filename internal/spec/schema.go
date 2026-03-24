@@ -102,11 +102,12 @@ type DesignDoc struct {
 
 // Requirement represents a single requirement extracted from a spec file.
 type Requirement struct {
-	ID      string
-	Text    string
-	Keyword RFC2119Keyword
-	DeltaOp DeltaOp
-	Status  ItemStatus
+	ID         string
+	Text       string
+	Keyword    RFC2119Keyword
+	DeltaOp    DeltaOp
+	Status     ItemStatus
+	SourceFile string // basename of the source spec file, e.g. "spec.md"
 }
 
 // Task represents a single task entry in tasks.md.

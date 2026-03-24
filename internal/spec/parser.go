@@ -87,7 +87,12 @@ func ParseSpec(path string) ([]Requirement, error) {
 		rest = content
 	}
 
-	return parseRequirementsFromBody(string(rest), fm.Delta), nil
+	reqs := parseRequirementsFromBody(string(rest), fm.Delta)
+	baseName := filepath.Base(path)
+	for i := range reqs {
+		reqs[i].SourceFile = baseName
+	}
+	return reqs, nil
 }
 
 // parseRequirementsFromBody scans the body text for RFC 2119 keywords
