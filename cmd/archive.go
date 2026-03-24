@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/x/term"
+	"github.com/mysd/internal/roadmap"
 	"github.com/mysd/internal/spec"
 	"github.com/mysd/internal/state"
 	"github.com/mysd/internal/verifier"
@@ -91,6 +92,9 @@ func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error 
 	}
 	if err := state.SaveState(specsDir, ws); err != nil {
 		return fmt.Errorf("save state: %w", err)
+	}
+	if trackErr := roadmap.UpdateTracking(specsDir, ws); trackErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 	}
 
 	fmt.Printf("Archived %s to %s\n", ws.ChangeName, archiveDir)

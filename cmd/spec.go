@@ -3,11 +3,13 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/mysd/internal/config"
 	"github.com/mysd/internal/output"
+	"github.com/mysd/internal/roadmap"
 	"github.com/mysd/internal/spec"
 	"github.com/mysd/internal/state"
 	"github.com/spf13/cobra"
@@ -68,6 +70,9 @@ func runSpec(cmd *cobra.Command, args []string) error {
 	ws.LastRun = time.Now()
 	if err := state.SaveState(specDir, ws); err != nil {
 		return err
+	}
+	if trackErr := roadmap.UpdateTracking(specDir, ws); trackErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 	}
 
 	p.Success("State transitioned to: specced")

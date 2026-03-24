@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/mysd/internal/output"
+	"github.com/mysd/internal/roadmap"
 	"github.com/mysd/internal/spec"
 	"github.com/mysd/internal/state"
 	"github.com/spf13/cobra"
@@ -65,6 +67,9 @@ func runTaskUpdate(cmd *cobra.Command, args []string) error {
 	ws.LastRun = time.Now()
 	if saveErr := state.SaveState(specDir, ws); saveErr != nil {
 		p.Warning("Updated tasks.md but failed to update STATE.json: " + saveErr.Error())
+	}
+	if trackErr := roadmap.UpdateTracking(specDir, ws); trackErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 	}
 
 	p.Success(fmt.Sprintf("Task %d status updated to %s", taskID, newStatus))
