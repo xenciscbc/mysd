@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mysd/internal/output"
+	"github.com/mysd/internal/roadmap"
 	"github.com/mysd/internal/spec"
 	"github.com/mysd/internal/state"
 	"github.com/spf13/cobra"
@@ -54,6 +56,9 @@ func runFFE(cmd *cobra.Command, args []string) error {
 		}
 		if saveErr := state.SaveState(specDir, ws); saveErr != nil {
 			return fmt.Errorf("save state after %s: %w", nextPhase, saveErr)
+		}
+		if trackErr := roadmap.UpdateTracking(specDir, ws); trackErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 		}
 		p.Info(fmt.Sprintf("-> %s", nextPhase))
 	}

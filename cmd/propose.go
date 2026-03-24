@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mysd/internal/output"
+	"github.com/mysd/internal/roadmap"
 	"github.com/mysd/internal/spec"
 	"github.com/mysd/internal/state"
 	"github.com/spf13/cobra"
@@ -46,6 +48,9 @@ func runPropose(cmd *cobra.Command, args []string) error {
 	if saveErr := state.SaveState(specDir, ws); saveErr != nil {
 		p.Error(fmt.Sprintf("Failed to save state: %s", saveErr))
 		return saveErr
+	}
+	if trackErr := roadmap.UpdateTracking(specDir, ws); trackErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 	}
 
 	p.Success(fmt.Sprintf("Created spec: %s", change.Dir))

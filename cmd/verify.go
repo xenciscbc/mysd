@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mysd/internal/roadmap"
 	"github.com/mysd/internal/spec"
 	"github.com/mysd/internal/state"
 	"github.com/mysd/internal/verifier"
@@ -134,6 +135,9 @@ func runVerifyWriteResults(out io.Writer, specsDir string, ws *state.WorkflowSta
 	}
 	if err := state.SaveState(specsDir, *ws); err != nil {
 		return fmt.Errorf("save state: %w", err)
+	}
+	if trackErr := roadmap.UpdateTracking(specsDir, *ws); trackErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 	}
 
 	// 6. Terminal summary — lipgloss styled
