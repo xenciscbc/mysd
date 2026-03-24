@@ -133,6 +133,83 @@ func TestWriteTasks_PreservesBody(t *testing.T) {
 	assert.Equal(t, body, newBody, "body content must be preserved after round-trip")
 }
 
+// VerificationStatus tests
+
+// TestReadVerificationStatus_NoFile verifies zero-value is returned when file does not exist.
+func TestReadVerificationStatus_NoFile(t *testing.T) {
+	dir := t.TempDir()
+	vs, err := ReadVerificationStatus(dir)
+	require.NoError(t, err)
+	assert.Empty(t, vs.ChangeName)
+	assert.NotNil(t, vs.Requirements, "Requirements map must not be nil")
+}
+
+// TestWriteVerificationStatus creates the sidecar JSON.
+func TestWriteVerificationStatus(t *testing.T) {
+	dir := t.TempDir()
+	vs := VerificationStatus{
+		ChangeName: "add-dark-mode",
+		Requirements: map[string]ItemStatus{
+			"spec.md::must-aabbccdd": StatusDone,
+			"spec.md::must-11223344": StatusBlocked,
+		},
+	}
+
+	err := WriteVerificationStatus(dir, vs)
+	require.NoError(t, err)
+
+	// File must exist
+	jsonPath := filepath.Join(dir, "verification-status.json")
+	assert.FileExists(t, jsonPath)
+
+	// Round-trip: re-read and compare
+	vs2, err := ReadVerificationStatus(dir)
+	require.NoError(t, err)
+	assert.Equal(t, "add-dark-mode", vs2.ChangeName)
+	assert.Equal(t, StatusDone, vs2.Requirements["spec.md::must-aabbccdd"])
+	assert.Equal(t, StatusBlocked, vs2.Requirements["spec.md::must-11223344"])
+}
+
+// TestUpdateItemStatus updates a single requirement's status.
+func TestUpdateItemStatus(t *testing.T) {
+	dir := t.TempDir()
+
+	// Pre-populate with one requirement
+	vs := VerificationStatus{
+		ChangeName: "my-change",
+		Requirements: map[string]ItemStatus{
+			"spec.md::must-aabb": StatusPending,
+		},
+	}
+	require.NoError(t, WriteVerificationStatus(dir, vs))
+
+	// Update to done
+	err := UpdateItemStatus(dir, "spec.md::must-aabb", StatusDone)
+	require.NoError(t, err)
+
+	// Verify updated
+	vs2, err := ReadVerificationStatus(dir)
+	require.NoError(t, err)
+	assert.Equal(t, StatusDone, vs2.Requirements["spec.md::must-aabb"])
+}
+
+// TestUpdateItemStatus_CreatesFileIfNotExist verifies sidecar is created when missing.
+func TestUpdateItemStatus_CreatesFileIfNotExist(t *testing.T) {
+	dir := t.TempDir()
+
+	// No sidecar file yet
+	err := UpdateItemStatus(dir, "spec.md::must-new", StatusDone)
+	require.NoError(t, err)
+
+	// Verify file was created
+	jsonPath := filepath.Join(dir, "verification-status.json")
+	assert.FileExists(t, jsonPath)
+
+	vs, err := ReadVerificationStatus(dir)
+	require.NoError(t, err)
+	assert.Equal(t, StatusDone, vs.Requirements["spec.md::must-new"])
+}
+
 // TestParseTasksV2_EmptyTasks verifies zero tasks returns empty slice without error.
 func TestParseTasksV2_EmptyTasks(t *testing.T) {
 	path := writeTempTasksFile(t, tasksV2EmptyContent)
