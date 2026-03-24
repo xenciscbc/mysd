@@ -54,7 +54,7 @@ Plans:
 - [x] 02-03-PLAN.md — CLI commands: execute, task-update, status, ff, ffe, capture, init
 - [x] 02-04-PLAN.md — CLI commands: spec, design, plan with --context-only
 - [ ] 02-05-PLAN.md — Claude Code plugin: 10 SKILL.md + 5 agent definitions
-- [ ] 02-06-PLAN.md — Integration tests: execute, status, ff end-to-end verification
+- [x] 02-06-PLAN.md — Integration tests: execute, status, ff end-to-end verification
 
 ### Phase 3: Verification & Feedback Loop
 **Goal**: 開發者可以用 `mysd verify` 觸發全自動的目標反推驗證，驗證結果自動寫回 spec 狀態，archive 指令在 MUST items 有未解決的失敗時拒絕執行。驗證過程中自動產出 UAT 文件（若 spec 有 UI 相關項目），但不阻塞任何流程。
@@ -90,6 +90,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
-| 2. Execution Engine | 2/6 | In Progress|  |
+| 2. Execution Engine | 5/6 | In Progress|  |
 | 3. Verification & Feedback Loop | 0/TBD | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |
