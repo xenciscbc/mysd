@@ -68,7 +68,14 @@ Plans:
   5. User runs `mysd archive` after all MUST items pass — command succeeds; running it with open MUST failures returns an error
   6. If spec contains UI-related items, `mysd verify` auto-generates UAT checklist files in `.mysd/uat/` without blocking the verification flow
   7. User can run `/mysd:uat` independently at any time (before archive, after archive, or much later) to interactively walk through the UAT checklist; `mysd archive` optionally prompts "Run UAT first?" but proceeds regardless of answer
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Verification engine core: VerificationContext builder, VerifierReport parser, gap report writer, spec status sidecar
+- [ ] 03-02-PLAN.md — UAT checklist package: data model, read/write with history preservation
+- [ ] 03-03-PLAN.md — CLI commands: verify (--context-only, --write-results) + archive (double gate, directory move)
+- [ ] 03-04-PLAN.md — Plugin layer: 3 SKILL.md (verify, archive, uat) + 2 agents (verifier, uat-guide)
+- [ ] 03-05-PLAN.md — Integration tests: verify pipeline, archive pipeline, UAT round-trip
 
 ### Phase 4: Plugin Layer & Distribution
 **Goal**: 完整的 Claude Code plugin 可被安裝，所有 `/mysd:*` slash commands 在 Claude Code 中可用，預編譯 binary 可透過 `go install` 和 GitHub Releases 取得
@@ -91,5 +98,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Execution Engine | 5/6 | In Progress|  |
-| 3. Verification & Feedback Loop | 0/TBD | Not started | - |
+| 3. Verification & Feedback Loop | 0/5 | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |
