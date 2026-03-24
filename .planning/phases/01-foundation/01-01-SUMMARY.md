@@ -168,6 +168,20 @@ None - no external service configuration required.
 - Scaffold foundation ready — Phase 3 CLI will wire `mysd propose` to `Scaffold()`
 - No blockers for Phase 2
 
+## Self-Check: PASSED
+
+- FOUND: go.mod
+- FOUND: internal/spec/schema.go
+- FOUND: internal/spec/parser.go
+- FOUND: internal/spec/detector.go
+- FOUND: internal/spec/delta.go
+- FOUND: internal/spec/writer.go
+- FOUND: .planning/phases/01-foundation/01-01-SUMMARY.md
+- FOUND commit: cbe00ca (feat(01-01): Go module init + spec schema types + test fixtures)
+- FOUND commit: b9b8fc1 (feat(01-01): spec parser + detector + delta + writer implementation)
+- FOUND commit: 8025f58 (docs(01-01): complete plan)
+- 36 tests passing, go build ./... exits 0, go vet ./... clean
+
 ---
 *Phase: 01-foundation*
 *Completed: 2026-03-23*
