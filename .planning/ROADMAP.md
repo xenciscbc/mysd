@@ -53,7 +53,7 @@ Plans:
 - [x] 02-02-PLAN.md — Config model profiles, status dashboard with lipgloss
 - [x] 02-03-PLAN.md — CLI commands: execute, task-update, status, ff, ffe, capture, init
 - [x] 02-04-PLAN.md — CLI commands: spec, design, plan with --context-only
-- [ ] 02-05-PLAN.md — Claude Code plugin: 10 SKILL.md + 5 agent definitions
+- [x] 02-05-PLAN.md — Claude Code plugin: 10 SKILL.md + 5 agent definitions
 - [x] 02-06-PLAN.md — Integration tests: execute, status, ff end-to-end verification
 
 ### Phase 3: Verification & Feedback Loop
