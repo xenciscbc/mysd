@@ -26,10 +26,15 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 - ✓ 多 agent 執行引擎（預設單 agent，--mode=wave 可選平行模式） — Phase 2
 - ✓ Claude Code plugin 整合（10 slash commands + 5 agent definitions） — Phase 2
 
-### Active
+### Validated (Phase 3)
 
-- [ ] Goal-backward 驗證機制（驗證 spec 中所有 MUST 條目是否被滿足）
-- [ ] 驗證結果回饋到 spec（自動更新 spec 狀態）
+- ✓ Goal-backward 驗證機制（驗證 spec 中所有 MUST 條目是否被滿足） — Phase 3
+- ✓ 驗證結果回饋到 spec（自動更新 spec 狀態） — Phase 3
+- ✓ 自動產出 UAT checklist（若 spec 有 UI 相關項目），非阻塞 — Phase 3
+- ✓ Archive 雙重閘門（state==verified + all MUST done）確保品質 — Phase 3
+- ✓ Verifier agent 獨立性（不讀 executor artifacts） — Phase 3
+
+### Active
 
 ### Out of Scope
 
