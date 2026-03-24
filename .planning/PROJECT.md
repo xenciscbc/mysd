@@ -34,7 +34,16 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 - ✓ Archive 雙重閘門（state==verified + all MUST done）確保品質 — Phase 3
 - ✓ Verifier agent 獨立性（不讀 executor artifacts） — Phase 3
 
+### Validated (Phase 4)
+
+- ✓ /mysd:scan 掃描既有 codebase 自動產生 OpenSpec spec 文件 — Phase 4
+- ✓ 完整 Claude Code plugin（14 commands + 8 agents + hooks）— Phase 4
+- ✓ GoReleaser 跨平台 binary 發佈（Linux/macOS/Windows）— Phase 4
+- ✓ Roadmap tracking 自動記錄 change lifecycle（tracking.yaml + Mermaid timeline）— Phase 4
+
 ### Active
+
+(v1.0 complete — all 57 requirements shipped. Next milestone requirements TBD.)
 
 ### Out of Scope
 
@@ -45,11 +54,13 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 
 ## Context
 
-- 現有工具的缺口：OpenSpec 有完整的 SDD 方法論但沒有執行引擎；GSD 有強大的執行引擎但沒有 spec 管理。my-ssd 填補這個缺口。
-- 技術棧：Go 語言，單一 binary 部署。Claude Code plugin 整合層透過 slash commands 和 agent definitions 實現。
-- 目標用戶：獨立開發者（solo developer），使用 AI 輔助開發，希望有結構化的 spec 驅動流程而非 vibecoding。
-- 設計參考：OpenSpec 的 artifact-guided workflow（proposal → specs → design → tasks）、GSD 的 multi-agent orchestration 和 wave-based execution。
-- Spec 存放位置：專案內的 `.specs/` 目錄（相容 OpenSpec 的 `openspec/` 結構）。
+- **v1.0 shipped** (2026-03-24): 7,555 lines Go, 11 packages, 57 requirements, 18 plans across 4 phases in 2 days
+- 技術棧：Go 1.25, Cobra CLI, Viper config, lipgloss output, yaml.v3, adrg/frontmatter
+- Module path: `github.com/xenciscbc/mysd`
+- Distribution: `go install github.com/xenciscbc/mysd@latest` + GitHub Releases via GoReleaser
+- Plugin: 14 SKILL.md commands, 8 agent definitions, SessionStart hook
+- 目標用戶：獨立開發者（solo developer），使用 AI 輔助開發，希望有結構化的 spec 驅動流程而非 vibecoding
+- Spec 存放位置：專案內的 `.specs/` 目錄（相容 OpenSpec 的 `openspec/` 結構）
 
 ## Constraints
 
@@ -62,12 +73,12 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| 用 Go 而非 Node.js | 單一 binary 部署，不依賴 runtime，安裝更簡單 | — Pending |
-| 完全相容 OpenSpec 格式 | 讓現有 OpenSpec 用戶無縫遷移，不重新發明格式 | — Pending |
-| Spec 存放在 .specs/ 目錄 | 跟著專案走，版控追蹤，相容 OpenSpec 的目錄結構 | — Pending |
+| 用 Go 而非 Node.js | 單一 binary 部署，不依賴 runtime，安裝更簡單 | ✓ v1.0 — 7,555 LOC, cross-platform binary |
+| 完全相容 OpenSpec 格式 | 讓現有 OpenSpec 用戶無縫遷移，不重新發明格式 | ✓ v1.0 — brownfield parser tested with real OpenSpec dirs |
+| Spec 存放在 .specs/ 目錄 | 跟著專案走，版控追蹤，相容 OpenSpec 的目錄結構 | ✓ v1.0 — DetectSpecDir handles both .specs/ and openspec/ |
 | 混合執行模式（預設單 agent） | 平衡簡單性和效能，convention over config | ✓ Phase 2 — wave mode via --mode=wave --agents=N |
-| 全新系統而非基於 GSD/OpenSpec 擴展 | 避免繼承兩者的技術債，從零設計更精簡的架構 | — Pending |
-| Plugin reverse-calling 架構 | Go binary 提供狀態管理，SKILL.md 觸發 agent definitions | ✓ Phase 2 — 10 commands + 5 agents |
+| 全新系統而非基於 GSD/OpenSpec 擴展 | 避免繼承兩者的技術債，從零設計更精簡的架構 | ✓ v1.0 — clean 11-package architecture, no legacy debt |
+| Plugin reverse-calling 架構 | Go binary 提供狀態管理，SKILL.md 觸發 agent definitions | ✓ Phase 2+4 — 14 commands + 8 agents |
 | Alignment gate 純 prompt engineering | binary 輸出 spec 內容，agent definition 強制 AI 確認 | ✓ Phase 2 — MANDATORY section in mysd-executor.md |
 | Model profile 系統 | quality/balanced/budget 配置，per-agent override | ✓ Phase 2 — ResolveModel in config package |
 
@@ -89,4 +100,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after Phase 1 completion*
+*Last updated: 2026-03-24 after v1.0 milestone completion*
