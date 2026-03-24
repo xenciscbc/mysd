@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-24T02:44:51.494Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-03-24T03:37:43.318Z"
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 14
-  completed_plans: 14
+  completed_phases: 4
+  total_plans: 17
+  completed_plans: 17
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Phase 03 — verification-feedback-loop
+**Current focus:** Phase 04 — plugin-layer-distribution
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (plugin-layer-distribution) — EXECUTING
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -60,6 +60,9 @@ Plan: Not started
 | Phase 03 P03 | 3 | 2 tasks | 4 files |
 | Phase 03 P04 | 7 | 2 tasks | 5 files |
 | Phase 03-verification-feedback-loop P05 | 6 | 2 tasks | 3 files |
+| Phase 04-plugin-layer-distribution P01 | 22 | 2 tasks | 6 files |
+| Phase 04-plugin-layer-distribution P02 | 5 | 2 tasks | 13 files |
+| Phase 04-plugin-layer-distribution P03 | 15 | 2 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -103,6 +106,12 @@ Recent decisions affecting current work:
 - [Phase 03-04]: mysd-archive.md has no agent — archive is a pure binary gate operation with user-readable error guidance only
 - [Phase 03-05]: Integration tests rely on already-completed Plans 01-03 implementations — no new production code in Plan 05
 - [Phase 03-05]: Empty verification map as MUST gate trigger: cmd integration tests avoid importing verifier.StableID by using absent-from-map check
+- [Phase 04-01]: WalkDir root-skip guard (path \!= root) required: WalkDir calls root with name '.' which triggers hidden-dir skip, aborting entire walk
+- [Phase 04-01]: SetVersion in cmd package (not main.go) keeps rootCmd mutation encapsulated; version/commit/date vars in main.go for GoReleaser ldflags
+- [Phase 04-02]: UpdateTracking derives project root from filepath.Dir(specsDir) — handles both .specs/ and openspec/ conventions
+- [Phase 04-02]: timeline.md wrapped in mermaid code fence for direct rendering in GitHub/GitLab
+- [Phase 04-03]: Plugin manifest uses minimal schema (metadata only) — commands/agents/hooks arrays not in plugin.json per current Claude Code format
+- [Phase 04-03]: GoReleaser release.github omitted — auto-detected from git remote, no hardcoded owner placeholder needed
 
 ### Pending Todos
 
@@ -116,6 +125,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T02:44:51.488Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-plugin-layer-distribution/04-CONTEXT.md
+Last session: 2026-03-24T03:37:43.312Z
+Stopped at: Completed 04-03-PLAN.md
+Resume file: None
