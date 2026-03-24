@@ -21,8 +21,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **EXEC-01**: User can execute spec tasks via `/mysd:execute` with pre-execution alignment gate (AI must read and acknowledge spec before writing code)
 - [x] **EXEC-02**: Default execution mode is single-agent sequential
-- [ ] **EXEC-03**: User can opt into multi-agent wave execution mode with configurable agent count
-- [ ] **EXEC-04**: Atomic git commits per task is available as an opt-in option
+- [x] **EXEC-03**: User can opt into multi-agent wave execution mode with configurable agent count
+- [x] **EXEC-04**: Atomic git commits per task is available as an opt-in option
 - [x] **EXEC-05**: Execution engine tracks progress and can resume from interruption point
 
 ### Verification
@@ -42,10 +42,10 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **WCMD-05**: `/mysd:execute` — run tasks with pre-execution alignment and progress tracking
 - [ ] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
 - [ ] **WCMD-07**: `/mysd:archive` — archive completed spec to history
-- [ ] **WCMD-08**: `/mysd:status` — show current spec state, progress, and verification results
+- [x] **WCMD-08**: `/mysd:status` — show current spec state, progress, and verification results
 - [ ] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
 - [ ] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
-- [ ] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
+- [x] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
 - [ ] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
 - [ ] **WCMD-13**: `/mysd:capture` — 從當前對話中分析並提取要做的變更，自動進入 propose 的討論模式
 - [ ] **WCMD-14**: `/mysd:ffe` — fast-forward execute 指令，從 propose 一氣推進到實作完成（propose → spec → design → plan → execute），跳過所有互動確認
@@ -138,8 +138,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SPEC-07 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Complete |
 | EXEC-02 | Phase 2 | Complete |
-| EXEC-03 | Phase 2 | Pending |
-| EXEC-04 | Phase 2 | Pending |
+| EXEC-03 | Phase 2 | Complete |
+| EXEC-04 | Phase 2 | Complete |
 | EXEC-05 | Phase 2 | Complete |
 | VRFY-01 | Phase 3 | Pending |
 | VRFY-02 | Phase 3 | Pending |
@@ -153,10 +153,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WCMD-05 | Phase 2 | Pending |
 | WCMD-06 | Phase 3 | Pending |
 | WCMD-07 | Phase 3 | Pending |
-| WCMD-08 | Phase 2 | Pending |
+| WCMD-08 | Phase 2 | Complete |
 | WCMD-09 | Phase 4 | Pending |
 | WCMD-10 | Phase 2 | Pending |
-| WCMD-11 | Phase 2 | Pending |
+| WCMD-11 | Phase 2 | Complete |
 | TEST-01 | Phase 2 | Pending |
 | TEST-02 | Phase 2 | Pending |
 | TEST-03 | Phase 2 | Complete |
