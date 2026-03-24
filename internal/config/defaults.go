@@ -2,13 +2,15 @@ package config
 
 // ProjectConfig holds all user-configurable preferences for my-ssd.
 type ProjectConfig struct {
-	ExecutionMode    string `yaml:"execution_mode" mapstructure:"execution_mode"`      // "single" | "wave"
-	AgentCount       int    `yaml:"agent_count" mapstructure:"agent_count"`            // default 1
-	AtomicCommits    bool   `yaml:"atomic_commits" mapstructure:"atomic_commits"`      // default false
-	TDD              bool   `yaml:"tdd" mapstructure:"tdd"`                            // default false
-	TestGeneration   bool   `yaml:"test_generation" mapstructure:"test_generation"`    // default false
-	ResponseLanguage string `yaml:"response_language" mapstructure:"response_language"` // e.g. "zh-TW"
-	DocumentLanguage string `yaml:"document_language" mapstructure:"document_language"` // e.g. "en"
+	ExecutionMode    string            `yaml:"execution_mode" mapstructure:"execution_mode"`      // "single" | "wave"
+	AgentCount       int               `yaml:"agent_count" mapstructure:"agent_count"`            // default 1
+	AtomicCommits    bool              `yaml:"atomic_commits" mapstructure:"atomic_commits"`      // default false
+	TDD              bool              `yaml:"tdd" mapstructure:"tdd"`                            // default false
+	TestGeneration   bool              `yaml:"test_generation" mapstructure:"test_generation"`    // default false
+	ResponseLanguage string            `yaml:"response_language" mapstructure:"response_language"` // e.g. "zh-TW"
+	DocumentLanguage string            `yaml:"document_language" mapstructure:"document_language"` // e.g. "en"
+	ModelProfile     string            `yaml:"model_profile" mapstructure:"model_profile"`        // "quality" | "balanced" | "budget"
+	ModelOverrides   map[string]string `yaml:"model_overrides" mapstructure:"model_overrides"`    // per-agent model overrides
 }
 
 // Defaults returns a ProjectConfig with convention-over-config default values.
@@ -21,5 +23,7 @@ func Defaults() ProjectConfig {
 		TestGeneration:   false,
 		ResponseLanguage: "",
 		DocumentLanguage: "",
+		ModelProfile:     "balanced",
+		ModelOverrides:   nil,
 	}
 }

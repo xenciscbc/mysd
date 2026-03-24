@@ -90,3 +90,49 @@ func TestProjectConfig_AllFields(t *testing.T) {
 	}
 	assert.NotNil(t, cfg)
 }
+
+// --- ModelProfile tests ---
+
+func TestDefaults_ModelProfile_IsBalanced(t *testing.T) {
+	d := Defaults()
+	assert.Equal(t, "balanced", d.ModelProfile, "default ModelProfile should be 'balanced'")
+}
+
+func TestLoad_WithModelProfile_ReturnsQuality(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	err := os.MkdirAll(claudeDir, 0755)
+	require.NoError(t, err)
+
+	configContent := `model_profile: quality
+`
+	err = os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644)
+	require.NoError(t, err)
+
+	cfg, err := Load(tmpDir)
+	require.NoError(t, err)
+	assert.Equal(t, "quality", cfg.ModelProfile)
+}
+
+func TestResolveModel_QualityProfile_ExecutorReturnsSonnet(t *testing.T) {
+	model := ResolveModel("executor", "quality", nil)
+	assert.Equal(t, "claude-sonnet-4-5", model, "quality profile executor should map to sonnet")
+}
+
+func TestResolveModel_BudgetProfile_ExecutorReturnsHaiku(t *testing.T) {
+	model := ResolveModel("executor", "budget", nil)
+	assert.Equal(t, "claude-haiku-3-5", model, "budget profile executor should map to haiku")
+}
+
+func TestResolveModel_BalancedProfile_PlannerReturnsSonnet(t *testing.T) {
+	model := ResolveModel("planner", "balanced", nil)
+	assert.Equal(t, "claude-sonnet-4-5", model, "balanced profile planner should map to sonnet")
+}
+
+func TestResolveModel_WithOverride_UsesOverride(t *testing.T) {
+	overrides := map[string]string{
+		"executor": "claude-opus-4",
+	}
+	model := ResolveModel("executor", "quality", overrides)
+	assert.Equal(t, "claude-opus-4", model, "model_overrides should take precedence over profile mapping")
+}

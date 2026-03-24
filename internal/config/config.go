@@ -9,6 +9,53 @@ import (
 	"github.com/spf13/viper"
 )
 
+// DefaultModelMap defines the model mapping per profile per agent role.
+// Profiles: "quality" | "balanced" | "budget"
+// Roles: "spec-writer" | "designer" | "planner" | "executor" | "verifier" | "fast-forward"
+var DefaultModelMap = map[string]map[string]string{
+	"quality": {
+		"spec-writer":  "claude-sonnet-4-5",
+		"designer":     "claude-sonnet-4-5",
+		"planner":      "claude-sonnet-4-5",
+		"executor":     "claude-sonnet-4-5",
+		"verifier":     "claude-sonnet-4-5",
+		"fast-forward": "claude-sonnet-4-5",
+	},
+	"balanced": {
+		"spec-writer":  "claude-sonnet-4-5",
+		"designer":     "claude-sonnet-4-5",
+		"planner":      "claude-sonnet-4-5",
+		"executor":     "claude-sonnet-4-5",
+		"verifier":     "claude-sonnet-4-5",
+		"fast-forward": "claude-sonnet-4-5",
+	},
+	"budget": {
+		"spec-writer":  "claude-haiku-3-5",
+		"designer":     "claude-haiku-3-5",
+		"planner":      "claude-sonnet-4-5",
+		"executor":     "claude-haiku-3-5",
+		"verifier":     "claude-sonnet-4-5",
+		"fast-forward": "claude-haiku-3-5",
+	},
+}
+
+// ResolveModel returns the model name for the given agent role and profile.
+// Checks overrides first, then DefaultModelMap[profile][agentRole],
+// falling back to "claude-sonnet-4-5" if not found.
+func ResolveModel(agentRole string, profile string, overrides map[string]string) string {
+	if overrides != nil {
+		if model, ok := overrides[agentRole]; ok {
+			return model
+		}
+	}
+	if profileMap, ok := DefaultModelMap[profile]; ok {
+		if model, ok := profileMap[agentRole]; ok {
+			return model
+		}
+	}
+	return "claude-sonnet-4-5"
+}
+
 // Load reads the project configuration from .claude/mysd.yaml (project-level)
 // or ~/.claude/mysd.yaml (user-level). If no config file is found, defaults are returned
 // without error (convention over config).
@@ -32,6 +79,7 @@ func Load(projectRoot string) (ProjectConfig, error) {
 	v.SetDefault("test_generation", d.TestGeneration)
 	v.SetDefault("response_language", d.ResponseLanguage)
 	v.SetDefault("document_language", d.DocumentLanguage)
+	v.SetDefault("model_profile", d.ModelProfile)
 
 	if err := v.ReadInConfig(); err != nil {
 		var notFound viper.ConfigFileNotFoundError
