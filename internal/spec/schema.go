@@ -64,10 +64,29 @@ type SpecFrontmatter struct {
 }
 
 // TasksFrontmatter holds the YAML frontmatter fields for tasks.md.
+// Kept for backward compatibility with Phase 1 callers.
 type TasksFrontmatter struct {
 	SpecVersion string `yaml:"spec-version"`
 	Total       int    `yaml:"total"`
 	Completed   int    `yaml:"completed"`
+}
+
+// TaskEntry represents a single task with explicit status in tasks.md YAML frontmatter.
+// Used by TasksFrontmatterV2 for YAML round-trip task tracking.
+type TaskEntry struct {
+	ID          int        `yaml:"id"`
+	Name        string     `yaml:"name"`
+	Description string     `yaml:"description,omitempty"`
+	Status      ItemStatus `yaml:"status"`
+}
+
+// TasksFrontmatterV2 extends TasksFrontmatter with a per-task Tasks slice,
+// enabling YAML round-trip status updates via updater.go.
+type TasksFrontmatterV2 struct {
+	SpecVersion string      `yaml:"spec-version"`
+	Total       int         `yaml:"total"`
+	Completed   int         `yaml:"completed"`
+	Tasks       []TaskEntry `yaml:"tasks,omitempty"`
 }
 
 // ProposalDoc is the parsed content of a proposal.md file.
