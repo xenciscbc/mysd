@@ -35,10 +35,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Workflow Commands
 
-- [ ] **WCMD-01**: `/mysd:propose` — create new spec from user description
-- [ ] **WCMD-02**: `/mysd:spec` — define detailed requirements with RFC 2119 keywords and scenarios (Given/When/Then)
-- [ ] **WCMD-03**: `/mysd:design` — capture technical decisions and architecture choices
-- [ ] **WCMD-04**: `/mysd:plan` — break design into executable task list with dependency analysis
+- [x] **WCMD-01**: `/mysd:propose` — create new spec from user description
+- [x] **WCMD-02**: `/mysd:spec` — define detailed requirements with RFC 2119 keywords and scenarios (Given/When/Then)
+- [x] **WCMD-03**: `/mysd:design` — capture technical decisions and architecture choices
+- [x] **WCMD-04**: `/mysd:plan` — break design into executable task list with dependency analysis
 - [ ] **WCMD-05**: `/mysd:execute` — run tasks with pre-execution alignment and progress tracking
 - [ ] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
 - [ ] **WCMD-07**: `/mysd:archive` — archive completed spec to history
@@ -67,7 +67,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Testing
 
 - [ ] **TEST-01**: User can opt into TDD mode — 先產生測試程式碼，再執行實作
-- [ ] **TEST-02**: 執行完成後可選擇自動產生對應的測試程式碼（如果語言/框架支援）
+- [x] **TEST-02**: 執行完成後可選擇自動產生對應的測試程式碼（如果語言/框架支援）
 - [x] **TEST-03**: TDD 模式為可選設定，可在專案設定檔中設為預設
 
 ### Configuration
@@ -146,10 +146,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VRFY-03 | Phase 3 | Pending |
 | VRFY-04 | Phase 3 | Pending |
 | VRFY-05 | Phase 3 | Pending |
-| WCMD-01 | Phase 2 | Pending |
-| WCMD-02 | Phase 2 | Pending |
-| WCMD-03 | Phase 2 | Pending |
-| WCMD-04 | Phase 2 | Pending |
+| WCMD-01 | Phase 2 | Complete |
+| WCMD-02 | Phase 2 | Complete |
+| WCMD-03 | Phase 2 | Complete |
+| WCMD-04 | Phase 2 | Complete |
 | WCMD-05 | Phase 2 | Pending |
 | WCMD-06 | Phase 3 | Pending |
 | WCMD-07 | Phase 3 | Pending |
@@ -158,7 +158,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WCMD-10 | Phase 2 | Pending |
 | WCMD-11 | Phase 2 | Complete |
 | TEST-01 | Phase 2 | Pending |
-| TEST-02 | Phase 2 | Pending |
+| TEST-02 | Phase 2 | Complete |
 | TEST-03 | Phase 2 | Complete |
 | CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 1 | Complete |
