@@ -19,14 +19,17 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 - ✓ Convention over configuration 設計哲學 — Phase 1
 - ✓ 能在既有 OpenSpec 專案上直接運作（brownfield 支援） — Phase 1
 
+### Validated (Phase 2)
+
+- ✓ 提供類似 OpenSpec 的指令集（propose → spec → design → plan → execute → verify → archive） — Phase 2
+- ✓ Spec 作為 AI 執行的事實來源，執行前強制對齊（alignment gate） — Phase 2
+- ✓ 多 agent 執行引擎（預設單 agent，--mode=wave 可選平行模式） — Phase 2
+- ✓ Claude Code plugin 整合（10 slash commands + 5 agent definitions） — Phase 2
+
 ### Active
 
-- [ ] 提供類似 OpenSpec 的指令集（propose → spec → design → plan → execute → verify → archive）
-- [ ] Spec 作為 AI 執行的事實來源，執行前強制對齊
-- [ ] 多 agent 執行引擎（預設單 agent，複雜任務可選平行模式）
 - [ ] Goal-backward 驗證機制（驗證 spec 中所有 MUST 條目是否被滿足）
 - [ ] 驗證結果回饋到 spec（自動更新 spec 狀態）
-- [ ] Claude Code plugin 整合（slash commands + agents）
 
 ### Out of Scope
 
@@ -57,8 +60,11 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 | 用 Go 而非 Node.js | 單一 binary 部署，不依賴 runtime，安裝更簡單 | — Pending |
 | 完全相容 OpenSpec 格式 | 讓現有 OpenSpec 用戶無縫遷移，不重新發明格式 | — Pending |
 | Spec 存放在 .specs/ 目錄 | 跟著專案走，版控追蹤，相容 OpenSpec 的目錄結構 | — Pending |
-| 混合執行模式（預設單 agent） | 平衡簡單性和效能，convention over config | — Pending |
+| 混合執行模式（預設單 agent） | 平衡簡單性和效能，convention over config | ✓ Phase 2 — wave mode via --mode=wave --agents=N |
 | 全新系統而非基於 GSD/OpenSpec 擴展 | 避免繼承兩者的技術債，從零設計更精簡的架構 | — Pending |
+| Plugin reverse-calling 架構 | Go binary 提供狀態管理，SKILL.md 觸發 agent definitions | ✓ Phase 2 — 10 commands + 5 agents |
+| Alignment gate 純 prompt engineering | binary 輸出 spec 內容，agent definition 強制 AI 確認 | ✓ Phase 2 — MANDATORY section in mysd-executor.md |
+| Model profile 系統 | quality/balanced/budget 配置，per-agent override | ✓ Phase 2 — ResolveModel in config package |
 
 ## Evolution
 
