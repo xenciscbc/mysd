@@ -49,8 +49,8 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Execution engine core: tasks.md updater, executor context builder, progress tracker, alignment path
-- [ ] 02-02-PLAN.md — Config model profiles, status dashboard with lipgloss
+- [x] 02-01-PLAN.md — Execution engine core: tasks.md updater, executor context builder, progress tracker, alignment path
+- [x] 02-02-PLAN.md — Config model profiles, status dashboard with lipgloss
 - [ ] 02-03-PLAN.md — CLI commands: execute, task-update, status, ff, ffe, capture, init
 - [ ] 02-04-PLAN.md — CLI commands: spec, design, plan with --context-only
 - [ ] 02-05-PLAN.md — Claude Code plugin: 10 SKILL.md + 5 agent definitions
@@ -90,6 +90,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
-| 2. Execution Engine | 0/6 | Planning complete | - |
+| 2. Execution Engine | 2/6 | In Progress|  |
 | 3. Verification & Feedback Loop | 0/TBD | Not started | - |
 | 4. Plugin Layer & Distribution | 0/TBD | Not started | - |

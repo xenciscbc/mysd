@@ -19,11 +19,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Execution Engine
 
-- [ ] **EXEC-01**: User can execute spec tasks via `/mysd:execute` with pre-execution alignment gate (AI must read and acknowledge spec before writing code)
-- [ ] **EXEC-02**: Default execution mode is single-agent sequential
+- [x] **EXEC-01**: User can execute spec tasks via `/mysd:execute` with pre-execution alignment gate (AI must read and acknowledge spec before writing code)
+- [x] **EXEC-02**: Default execution mode is single-agent sequential
 - [ ] **EXEC-03**: User can opt into multi-agent wave execution mode with configurable agent count
 - [ ] **EXEC-04**: Atomic git commits per task is available as an opt-in option
-- [ ] **EXEC-05**: Execution engine tracks progress and can resume from interruption point
+- [x] **EXEC-05**: Execution engine tracks progress and can resume from interruption point
 
 ### Verification
 
@@ -68,7 +68,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **TEST-01**: User can opt into TDD mode — 先產生測試程式碼，再執行實作
 - [ ] **TEST-02**: 執行完成後可選擇自動產生對應的測試程式碼（如果語言/框架支援）
-- [ ] **TEST-03**: TDD 模式為可選設定，可在專案設定檔中設為預設
+- [x] **TEST-03**: TDD 模式為可選設定，可在專案設定檔中設為預設
 
 ### Configuration
 
@@ -136,11 +136,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SPEC-05 | Phase 3 | Pending |
 | SPEC-06 | Phase 3 | Pending |
 | SPEC-07 | Phase 1 | Complete |
-| EXEC-01 | Phase 2 | Pending |
-| EXEC-02 | Phase 2 | Pending |
+| EXEC-01 | Phase 2 | Complete |
+| EXEC-02 | Phase 2 | Complete |
 | EXEC-03 | Phase 2 | Pending |
 | EXEC-04 | Phase 2 | Pending |
-| EXEC-05 | Phase 2 | Pending |
+| EXEC-05 | Phase 2 | Complete |
 | VRFY-01 | Phase 3 | Pending |
 | VRFY-02 | Phase 3 | Pending |
 | VRFY-03 | Phase 3 | Pending |
@@ -159,7 +159,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WCMD-11 | Phase 2 | Pending |
 | TEST-01 | Phase 2 | Pending |
 | TEST-02 | Phase 2 | Pending |
-| TEST-03 | Phase 2 | Pending |
+| TEST-03 | Phase 2 | Complete |
 | CONF-01 | Phase 1 | Complete |
 | CONF-02 | Phase 1 | Complete |
 | CONF-03 | Phase 1 | Complete |
