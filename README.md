@@ -25,7 +25,11 @@ Or download precompiled binaries from [GitHub Releases](https://github.com/xenci
 
 ### Claude Code Plugin
 
-Copy the `plugin/` directory to your Claude Code plugins:
+```bash
+claude plugin add --marketplace https://github.com/xenciscbc/mysd
+```
+
+Or manually copy the `plugin/` directory:
 
 ```bash
 cp -r plugin/ ~/.claude/plugins/mysd/
