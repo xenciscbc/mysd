@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Spec 資料模型、CLI 骨架、OpenSpec 格式解析器、狀態機 (completed 2026-03-23)
 - [ ] **Phase 2: Execution Engine** - 執行引擎、pre-execution alignment gate、workflow 指令核心
 - [ ] **Phase 3: Verification & Feedback Loop** - 全自動目標反推驗證、spec 狀態回寫、自動產出 UAT 文件（非阻塞）
-- [x] **Phase 4: Plugin Layer & Distribution** - 完整 Claude Code plugin、所有 slash commands、GoReleaser 發佈 (completed 2026-03-24)
+- [ ] **Phase 4: Plugin Layer & Distribution** - 完整 Claude Code plugin、所有 slash commands、GoReleaser 發佈
 
 ## Phase Details
 
@@ -86,12 +86,13 @@ Plans:
   2. User runs `go install github.com/[owner]/mysd@latest` and gets a working binary on macOS, Linux, and Windows
   3. User can download precompiled binaries from GitHub Releases page for macOS/Linux/Windows (per D-07: no Homebrew in v1)
   4. User runs `/mysd:scan` on an existing codebase and gets OpenSpec-format spec documents generated in `.specs/`
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
 - [x] 04-01-PLAN.md — Scanner package + scan CLI command + version wiring
 - [x] 04-02-PLAN.md — Roadmap tracking package + integration into state transitions
 - [x] 04-03-PLAN.md — Plugin directory structure + GoReleaser config + scan SKILL.md/agent
+- [ ] 04-04-PLAN.md — Gap closure: real module path + GitHub Actions release workflow
 
 ## Progress
 
@@ -103,4 +104,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 3/3 | Complete   | 2026-03-23 |
 | 2. Execution Engine | 5/6 | In Progress|  |
 | 3. Verification & Feedback Loop | 2/5 | In Progress|  |
-| 4. Plugin Layer & Distribution | 3/3 | Complete   | 2026-03-24 |
+| 4. Plugin Layer & Distribution | 3/4 | Gap Closure |  |
