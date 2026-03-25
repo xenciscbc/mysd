@@ -2,16 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: planning
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-25T03:52:15.078Z"
-last_activity: 2026-03-25 — v1.1 roadmap created, Phase 5-9 defined
+status: Ready to execute
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-25T07:14:03.667Z"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State
@@ -21,16 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Phase 5 — Schema Foundation & Plan-Checker
+**Current focus:** Phase 05 — schema-foundation-plan-checker
 
 ## Current Position
 
-Phase: 5 of 9 (Schema Foundation & Plan-Checker)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-25 — v1.1 roadmap created, Phase 5-9 defined
-
-Progress: [░░░░░░░░░░] 0% (v1.1 phases 5-9)
+Phase: 05 (schema-foundation-plan-checker) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -50,6 +44,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1 phases 5-9)
 | 4. Plugin Layer & Distribution | 4 | 14 min |
 
 **v1.1 metrics:** Not yet started
+| Phase 05-schema-foundation-plan-checker P01 | 18 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -64,6 +59,9 @@ Recent decisions affecting v1.1 work:
 - [v1.1 roadmap]: plan-checker uses deterministic Go string matching on satisfies IDs (not AI inference)
 - [v1.1 roadmap]: subagent cannot spawn subagent — only top-level SKILL.md may use Task tool; manual audit required before Phase 8 closes
 - [v1.1 roadmap]: worktree paths kept short as T{id} only (no change name in path) for Windows MAX_PATH mitigation
+- [Phase 05-01]: New fields appended at END of structs (D-11/D-12) for stable YAML field order — additive-only extension pattern
+- [Phase 05-01]: Budget profile new roles (researcher/advisor/proposal-writer/plan-checker) use sonnet-4-5, not haiku — new subagent roles require quality model (D-06)
+- [Phase 05-01]: ReadOpenSpecConfig returns zero-value (not error) for absent file — convention-over-config pattern from Phase 1
 
 ### Pending Todos
 
@@ -78,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T03:52:15.060Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-schema-foundation-plan-checker/05-CONTEXT.md
+Last session: 2026-03-25T07:14:03.662Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

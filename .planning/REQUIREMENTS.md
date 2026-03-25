@@ -74,13 +74,13 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### Schema & Foundation
 
-- [ ] **FSCHEMA-01**: TaskEntry 支援 `depends` 欄位標記 task 間依賴關係
-- [ ] **FSCHEMA-02**: TaskEntry 支援 `files` 欄位標記 task 會修改的檔案
-- [ ] **FSCHEMA-03**: TaskEntry 支援 `satisfies` 欄位對應 MUST requirement IDs
-- [ ] **FSCHEMA-04**: TaskEntry 支援 `skills` 欄位標記執行時建議使用的 slash commands
+- [x] **FSCHEMA-01**: TaskEntry 支援 `depends` 欄位標記 task 間依賴關係
+- [x] **FSCHEMA-02**: TaskEntry 支援 `files` 欄位標記 task 會修改的檔案
+- [x] **FSCHEMA-03**: TaskEntry 支援 `satisfies` 欄位對應 MUST requirement IDs
+- [x] **FSCHEMA-04**: TaskEntry 支援 `skills` 欄位標記執行時建議使用的 slash commands
 - [ ] **FSCHEMA-05**: Plan-checker 自動驗證所有 MUST items 都有 task 的 `satisfies` 對應（structured ID matching）
 - [ ] **FSCHEMA-06**: Plan-checker 未通過時顯示缺口，互動式詢問自動補齊或手動調整
-- [ ] **FSCHEMA-07**: openspec/config.yaml writer 可產生/讀取 OpenSpec config（含 project metadata + locale）
+- [x] **FSCHEMA-07**: openspec/config.yaml writer 可產生/讀取 OpenSpec config（含 project metadata + locale）
 
 ### Research & Discovery
 
@@ -144,9 +144,9 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### Model Profile
 
-- [ ] **FMODEL-01**: Model profile 分層表涵蓋所有新 agents（researcher, advisor, proposal-writer, plan-checker）
-- [ ] **FMODEL-02**: Orchestrator（SKILL.md）動態指定 model 參數給每個 spawned agent
-- [ ] **FMODEL-03**: quality/balanced/budget 三層完整對應表
+- [x] **FMODEL-01**: Model profile 分層表涵蓋所有新 agents（researcher, advisor, proposal-writer, plan-checker）
+- [x] **FMODEL-02**: Orchestrator（SKILL.md）動態指定 model 參數給每個 spawned agent
+- [x] **FMODEL-03**: quality/balanced/budget 三層完整對應表
 
 ### Auto Mode
 
@@ -188,17 +188,17 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FSCHEMA-01 | Phase 5 | Pending |
-| FSCHEMA-02 | Phase 5 | Pending |
-| FSCHEMA-03 | Phase 5 | Pending |
-| FSCHEMA-04 | Phase 5 | Pending |
+| FSCHEMA-01 | Phase 5 | Complete |
+| FSCHEMA-02 | Phase 5 | Complete |
+| FSCHEMA-03 | Phase 5 | Complete |
+| FSCHEMA-04 | Phase 5 | Complete |
 | FSCHEMA-05 | Phase 5 | Pending |
 | FSCHEMA-06 | Phase 5 | Pending |
-| FSCHEMA-07 | Phase 5 | Pending |
+| FSCHEMA-07 | Phase 5 | Complete |
 | FAGENT-04 | Phase 5 | Pending |
-| FMODEL-01 | Phase 5 | Pending |
-| FMODEL-02 | Phase 5 | Pending |
-| FMODEL-03 | Phase 5 | Pending |
+| FMODEL-01 | Phase 5 | Complete |
+| FMODEL-02 | Phase 5 | Complete |
+| FMODEL-03 | Phase 5 | Complete |
 | FEXEC-01 | Phase 6 | Pending |
 | FEXEC-02 | Phase 6 | Pending |
 | FEXEC-03 | Phase 6 | Pending |
