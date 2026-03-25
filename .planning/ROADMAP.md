@@ -39,7 +39,10 @@
   3. 執行 `mysd plan --context-only` 後，輸出的 JSON 包含 WaveGroups、WorktreeDir、AutoMode 欄位
   4. `mysd.yaml` 的 model profile（quality/balanced/budget）可正確 resolve 到 researcher、advisor、proposal-writer、plan-checker 四個新 agent role
   5. `openspec/config.yaml` 可被 binary 產生和讀取，包含 project metadata 和 locale 欄位
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 05-01-PLAN.md — Schema extension + model profile + openspec config writer
+- [ ] 05-02-PLAN.md — Plan-checker package + cmd wiring + agent definition
 
 ### Phase 6: Executor Wave Grouping & Worktree Engine
 **Goal**: 依賴關係正確的 tasks 自動分組為波次，每個波次內的 tasks 可在獨立 git worktree 中並行執行，衝突由 AI 自動解決
@@ -100,7 +103,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 2. Execution Engine | v1.0 | 6/6 | Complete | 2026-03-24 |
 | 3. Verification & Feedback Loop | v1.0 | 5/5 | Complete | 2026-03-24 |
 | 4. Plugin Layer & Distribution | v1.0 | 4/4 | Complete | 2026-03-24 |
-| 5. Schema Foundation & Plan-Checker | v1.1 | 0/TBD | Not started | - |
+| 5. Schema Foundation & Plan-Checker | v1.1 | 0/2 | Planning | - |
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 0/TBD | Not started | - |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 0/TBD | Not started | - |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/TBD | Not started | - |
