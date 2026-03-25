@@ -54,7 +54,12 @@ Plans:
   3. 並行執行時每個 task 在 `.worktrees/T{id}/` 建立獨立 worktree，branch 命名為 `mysd/{change-name}/T{id}-{slug}`
   4. 所有 wave 執行完畢後，tasks 依 ID 順序以 `git merge --no-ff` 合入主線；成功後 worktree 和 branch 被自動清理
   5. 執行前磁碟空間不足時顯示可讀錯誤並中止；Windows 環境下 `git config core.longpaths true` 被自動設定；一個 task 失敗不中止同 wave 其他 tasks
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 06-01-PLAN.md — Wave grouping algorithm (Kahn's topological sort + file overlap split) + ExecutionContext extension
+- [ ] 06-02-PLAN.md — Worktree lifecycle package (create/remove/disk space/longpaths) + CLI subcommand
+- [ ] 06-03-PLAN.md — cmd layer wiring (execute + plan context-only emit real wave_groups)
+- [ ] 06-04-PLAN.md — SKILL.md execute orchestrator rewrite + executor agent worktree isolation
 **UI hint**: no
 
 ### Phase 7: New Binary Commands & Scanner Refactor
@@ -104,7 +109,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 3. Verification & Feedback Loop | v1.0 | 5/5 | Complete | 2026-03-24 |
 | 4. Plugin Layer & Distribution | v1.0 | 4/4 | Complete | 2026-03-24 |
 | 5. Schema Foundation & Plan-Checker | v1.1 | 2/2 | Complete   | 2026-03-25 |
-| 6. Executor Wave Grouping & Worktree Engine | v1.1 | 0/TBD | Not started | - |
+| 6. Executor Wave Grouping & Worktree Engine | v1.1 | 0/4 | Planned | - |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 0/TBD | Not started | - |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/TBD | Not started | - |
 | 9. Interactive Discovery Integration | v1.1 | 0/TBD | Not started | - |
