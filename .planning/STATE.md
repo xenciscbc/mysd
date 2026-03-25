@@ -83,7 +83,10 @@ Recent decisions affecting v1.1 work:
 
 ### Pending Todos
 
-None yet.
+- [Phase 8] `/mysd:propose` 自動偵測輸入來源（參考 spectra:propose Step 1 設計）：
+  - Case 1：偵測 `.planning/phases/{phase}/` 下的 CONTEXT.md / PLAN.md 作為 initial content
+  - Case 2：從當前 conversation context 提取需求
+  - 優先順序：argument > planning files > conversation context > 詢問使用者
 
 ### Blockers/Concerns
 
