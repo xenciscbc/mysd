@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/xenciscbc/mysd/internal/config"
 	"github.com/xenciscbc/mysd/internal/output"
+	"github.com/xenciscbc/mysd/internal/planchecker"
 	"github.com/xenciscbc/mysd/internal/roadmap"
 	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/xenciscbc/mysd/internal/state"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -71,7 +72,25 @@ func runPlan(cmd *cobra.Command, args []string) error {
 			"research_enabled": planResearch,
 			"check_enabled":    planCheck,
 			"test_generation":  cfg.TestGeneration,
+			"wave_groups":      [][]int{},       // empty for Phase 5, populated in Phase 6
+			"worktree_dir":     cfg.WorktreeDir, // from ProjectConfig (default ".worktrees")
+			"auto_mode":        cfg.AutoMode,    // from ProjectConfig (default false)
 		}
+
+		if planCheck {
+			tasksPath := filepath.Join(changeDir, "tasks.md")
+			fm, _, parseErr := spec.ParseTasksV2(tasksPath)
+			if parseErr == nil {
+				var mustIDs []string
+				for _, r := range change.Specs {
+					if r.Keyword == spec.Must && r.ID != "" {
+						mustIDs = append(mustIDs, r.ID)
+					}
+				}
+				ctx["coverage"] = planchecker.CheckCoverage(fm.Tasks, mustIDs)
+			}
+		}
+
 		data, err := json.MarshalIndent(ctx, "", "  ")
 		if err != nil {
 			return fmt.Errorf("failed to marshal context: %w", err)
