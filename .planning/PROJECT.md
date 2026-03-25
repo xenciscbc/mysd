@@ -43,7 +43,21 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 
 ### Active
 
-(v1.0 complete — all 57 requirements shipped. Next milestone requirements TBD.)
+## Current Milestone: v1.1 Interactive Discovery & Parallel Execution
+
+**Goal:** 讓 mysd 具備互動式需求探索、model profile 分層、並行執行及修復機制
+
+**Target features:**
+- Interactive Discovery — propose/spec 階段的 adaptive questioning + research 模式
+- 新指令 — /mysd:discuss, /mysd:fix, /mysd:model, /mysd:lang
+- Subagent 架構升級 — researcher, advisor, proposal-writer, plan-checker 等新 agents
+- Model Profile 分層 — quality/balanced/budget 動態指定
+- Task 依賴 + 並行執行 — depends/files 標記 + wave 自動分層
+- Worktree 並行執行 — isolation: worktree + AI 自動解衝突
+- Auto mode — --auto flag + ff/ffe 隱含 auto
+- Plan-checker — 自動驗證 MUST 覆蓋率
+- Codebase Scout — 輕量掃描現有 code
+- Scan 重構 + Init 整合 — 語言無關通用掃描 + locale 互動設定
 
 ### Out of Scope
 
@@ -100,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after v1.0 milestone completion*
+*Last updated: 2026-03-25 — v1.1 milestone started*
