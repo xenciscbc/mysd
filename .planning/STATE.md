@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to plan
-stopped_at: Completed 06-04-PLAN.md
-last_updated: "2026-03-25T08:25:39.982Z"
+stopped_at: Completed Phase 07 context discussion
+last_updated: "2026-03-25T16:30:00.000Z"
 progress:
   total_phases: 5
   completed_phases: 2
@@ -19,7 +19,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Phase 06 — executor-wave-grouping-worktree-engine
+**Current focus:** Phase 07 — new-binary-commands-scanner-refactor
 
 ## Current Position
 
@@ -76,6 +76,10 @@ Recent decisions affecting v1.1 work:
 - [Phase 06-03]: plan.go wave groups computed only when tasks.md exists (lazy load) — graceful nil on parse failure
 - [Phase 06-04]: Mode selection per D-03: has_parallel_opportunity false skips prompt; auto_mode true uses wave without asking
 - [Phase 06-04]: Merge loop in ascending task ID order with --no-ff; 3-retry AI conflict resolution with go build+test; continue-on-failure policy; failed worktrees preserved
+- [Phase 07]: ScanContext 完全替換為語言無關通用 struct（primary_language/files/modules）— binary 只收集 metadata，LLM 處理任意語言（GSD 同樣模式）
+- [Phase 07]: `mysd init` 內部直接展開為 `scan --scaffold-only`（無 warning，回展相容）
+- [Phase 07]: Skills 推薦邏輯在 mysd-planner agent 層，確認流程在 SKILL.md 層，預設 accept-all
+- [Phase 07]: `mysd model` table 輸出（lipgloss），`mysd model set` 直接寫 .claude/mysd.yaml
 
 ### Pending Todos
 
