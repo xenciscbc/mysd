@@ -21,6 +21,11 @@ type ExecutionContext struct {
 	AtomicCommits bool              `json:"atomic_commits"`
 	ExecutionMode string            `json:"execution_mode"`
 	AgentCount    int               `json:"agent_count"`
+	// Wave grouping fields (Phase 06 extension — additive only per D-11)
+	WaveGroups     [][]TaskItem `json:"wave_groups,omitempty"`
+	WorktreeDir    string       `json:"worktree_dir,omitempty"`
+	AutoMode       bool         `json:"auto_mode,omitempty"`
+	HasParallelOpp bool         `json:"has_parallel_opportunity"`
 }
 
 // RequirementItem is a flattened requirement for JSON output.
@@ -84,6 +89,13 @@ func BuildContextFromParts(
 			Skills:      t.Skills,
 		})
 	}
+
+	// Compute wave groups and parallel opportunity from pending tasks
+	wg, _ := BuildWaveGroups(ctx.PendingTasks)
+	ctx.WaveGroups = wg
+	ctx.WorktreeDir = cfg.WorktreeDir
+	ctx.AutoMode = cfg.AutoMode
+	ctx.HasParallelOpp = HasParallelOpportunity(ctx.PendingTasks)
 
 	// Classify requirements by RFC 2119 keyword
 	for _, r := range reqs {

@@ -93,6 +93,7 @@ func TestBuildContext_JSONMarshal(t *testing.T) {
 	assert.Contains(t, m, "tdd_mode")
 	assert.Contains(t, m, "execution_mode")
 	assert.Contains(t, m, "agent_count")
+	assert.Contains(t, m, "has_parallel_opportunity")
 }
 
 // TestBuildContextFromParts_NewFields verifies new fields are copied from TaskEntry to TaskItem.
@@ -124,6 +125,59 @@ func TestBuildContextFromParts_NewFields(t *testing.T) {
 	pt := ctx.PendingTasks[0]
 	assert.Equal(t, []int{2, 3}, pt.Depends)
 	assert.Equal(t, []string{"REQ-01"}, pt.Satisfies)
+}
+
+// TestBuildContextFromParts_WaveGroups verifies WaveGroups is populated from pending tasks with depends.
+func TestBuildContextFromParts_WaveGroups(t *testing.T) {
+	tasks := []spec.TaskEntry{
+		{ID: 1, Name: "Task A", Status: spec.StatusPending},
+		{ID: 2, Name: "Task B", Status: spec.StatusPending, Depends: []int{1}},
+	}
+	cfg := config.Defaults()
+
+	ctx := BuildContextFromParts("my-change", tasks, nil, cfg)
+
+	// WaveGroups should be computed: wave 1 = [Task A], wave 2 = [Task B]
+	require.Len(t, ctx.WaveGroups, 2)
+	assert.Equal(t, 1, ctx.WaveGroups[0][0].ID)
+	assert.Equal(t, 2, ctx.WaveGroups[1][0].ID)
+	assert.True(t, ctx.HasParallelOpp)
+	assert.Equal(t, ".worktrees", ctx.WorktreeDir)
+	assert.False(t, ctx.AutoMode)
+}
+
+// TestBuildContextFromParts_WaveGroups_NoParallel verifies WaveGroups and HasParallelOpp
+// when tasks have no deps or files.
+func TestBuildContextFromParts_WaveGroups_NoParallel(t *testing.T) {
+	tasks := []spec.TaskEntry{
+		{ID: 1, Name: "Task A", Status: spec.StatusPending},
+		{ID: 2, Name: "Task B", Status: spec.StatusPending},
+	}
+	cfg := config.Defaults()
+
+	ctx := BuildContextFromParts("my-change", tasks, nil, cfg)
+
+	// No depends/files — still computes wave groups (single wave)
+	require.Len(t, ctx.WaveGroups, 1)
+	assert.Len(t, ctx.WaveGroups[0], 2)
+	assert.False(t, ctx.HasParallelOpp)
+}
+
+// TestBuildContextFromParts_AutoMode verifies WorktreeDir and AutoMode come from config.
+func TestBuildContextFromParts_AutoMode(t *testing.T) {
+	cfg := config.ProjectConfig{
+		ExecutionMode: "wave",
+		AgentCount:    2,
+		WorktreeDir:   ".worktrees",
+		AutoMode:      true,
+	}
+	tasks := []spec.TaskEntry{}
+	reqs := []spec.Requirement{}
+
+	ctx := BuildContextFromParts("my-change", tasks, reqs, cfg)
+
+	assert.Equal(t, ".worktrees", ctx.WorktreeDir)
+	assert.True(t, ctx.AutoMode)
 }
 
 // TestTaskItemJSON_OmitEmpty verifies TaskItem with nil new fields does NOT emit those keys in JSON.
