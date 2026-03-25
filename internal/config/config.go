@@ -14,28 +14,40 @@ import (
 // Roles: "spec-writer" | "designer" | "planner" | "executor" | "verifier" | "fast-forward"
 var DefaultModelMap = map[string]map[string]string{
 	"quality": {
-		"spec-writer":  "claude-sonnet-4-5",
-		"designer":     "claude-sonnet-4-5",
-		"planner":      "claude-sonnet-4-5",
-		"executor":     "claude-sonnet-4-5",
-		"verifier":     "claude-sonnet-4-5",
-		"fast-forward": "claude-sonnet-4-5",
+		"spec-writer":     "claude-sonnet-4-5",
+		"designer":        "claude-sonnet-4-5",
+		"planner":         "claude-sonnet-4-5",
+		"executor":        "claude-sonnet-4-5",
+		"verifier":        "claude-sonnet-4-5",
+		"fast-forward":    "claude-sonnet-4-5",
+		"researcher":      "claude-sonnet-4-5",
+		"advisor":         "claude-sonnet-4-5",
+		"proposal-writer": "claude-sonnet-4-5",
+		"plan-checker":    "claude-sonnet-4-5",
 	},
 	"balanced": {
-		"spec-writer":  "claude-sonnet-4-5",
-		"designer":     "claude-sonnet-4-5",
-		"planner":      "claude-sonnet-4-5",
-		"executor":     "claude-sonnet-4-5",
-		"verifier":     "claude-sonnet-4-5",
-		"fast-forward": "claude-sonnet-4-5",
+		"spec-writer":     "claude-sonnet-4-5",
+		"designer":        "claude-sonnet-4-5",
+		"planner":         "claude-sonnet-4-5",
+		"executor":        "claude-sonnet-4-5",
+		"verifier":        "claude-sonnet-4-5",
+		"fast-forward":    "claude-sonnet-4-5",
+		"researcher":      "claude-sonnet-4-5",
+		"advisor":         "claude-sonnet-4-5",
+		"proposal-writer": "claude-sonnet-4-5",
+		"plan-checker":    "claude-sonnet-4-5",
 	},
 	"budget": {
-		"spec-writer":  "claude-haiku-3-5",
-		"designer":     "claude-haiku-3-5",
-		"planner":      "claude-sonnet-4-5",
-		"executor":     "claude-haiku-3-5",
-		"verifier":     "claude-sonnet-4-5",
-		"fast-forward": "claude-haiku-3-5",
+		"spec-writer":     "claude-haiku-3-5",
+		"designer":        "claude-haiku-3-5",
+		"planner":         "claude-sonnet-4-5",
+		"executor":        "claude-haiku-3-5",
+		"verifier":        "claude-sonnet-4-5",
+		"fast-forward":    "claude-haiku-3-5",
+		"researcher":      "claude-sonnet-4-5",
+		"advisor":         "claude-sonnet-4-5",
+		"proposal-writer": "claude-sonnet-4-5",
+		"plan-checker":    "claude-sonnet-4-5",
 	},
 }
 
@@ -80,6 +92,8 @@ func Load(projectRoot string) (ProjectConfig, error) {
 	v.SetDefault("response_language", d.ResponseLanguage)
 	v.SetDefault("document_language", d.DocumentLanguage)
 	v.SetDefault("model_profile", d.ModelProfile)
+	v.SetDefault("worktree_dir", d.WorktreeDir)
+	v.SetDefault("auto_mode", d.AutoMode)
 
 	if err := v.ReadInConfig(); err != nil {
 		var notFound viper.ConfigFileNotFoundError

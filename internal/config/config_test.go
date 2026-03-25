@@ -136,3 +136,54 @@ func TestResolveModel_WithOverride_UsesOverride(t *testing.T) {
 	model := ResolveModel("executor", "quality", overrides)
 	assert.Equal(t, "claude-opus-4", model, "model_overrides should take precedence over profile mapping")
 }
+
+// TestResolveModel_NewRoles verifies all 4 new agent roles return sonnet across all 3 profiles.
+func TestResolveModel_NewRoles(t *testing.T) {
+	newRoles := []string{"researcher", "advisor", "proposal-writer", "plan-checker"}
+	profiles := []string{"quality", "balanced", "budget"}
+
+	for _, role := range newRoles {
+		for _, profile := range profiles {
+			t.Run(role+"/"+profile, func(t *testing.T) {
+				model := ResolveModel(role, profile, nil)
+				assert.Equal(t, "claude-sonnet-4-5", model,
+					"role %s profile %s should map to claude-sonnet-4-5", role, profile)
+			})
+		}
+	}
+}
+
+// TestResolveModel_NewRoles_Override verifies overrides work for new roles.
+func TestResolveModel_NewRoles_Override(t *testing.T) {
+	overrides := map[string]string{
+		"plan-checker": "custom-model",
+	}
+	model := ResolveModel("plan-checker", "quality", overrides)
+	assert.Equal(t, "custom-model", model, "override should take precedence for new roles")
+}
+
+// TestDefaults_NewFields verifies new ProjectConfig fields have correct defaults.
+func TestDefaults_NewFields(t *testing.T) {
+	d := Defaults()
+	assert.Equal(t, ".worktrees", d.WorktreeDir, "default WorktreeDir should be '.worktrees'")
+	assert.False(t, d.AutoMode, "default AutoMode should be false")
+}
+
+// TestLoad_NewFields verifies worktree_dir and auto_mode are read from config file.
+func TestLoad_NewFields(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	err := os.MkdirAll(claudeDir, 0755)
+	require.NoError(t, err)
+
+	configContent := `worktree_dir: .wt
+auto_mode: true
+`
+	err = os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644)
+	require.NoError(t, err)
+
+	cfg, err := Load(tmpDir)
+	require.NoError(t, err)
+	assert.Equal(t, ".wt", cfg.WorktreeDir)
+	assert.True(t, cfg.AutoMode)
+}
