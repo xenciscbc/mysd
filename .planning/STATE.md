@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Phase complete — ready for verification
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-03-25T08:19:55.709Z"
+stopped_at: Completed 06-04-PLAN.md
+last_updated: "2026-03-25T08:20:17.704Z"
 progress:
   total_phases: 5
   completed_phases: 2
@@ -49,6 +49,7 @@ Plan: 4 of 4
 | Phase 06 P01 | 12 | 2 tasks | 4 files |
 | Phase 06-executor-wave-grouping-worktree-engine P02 | 3 | 2 tasks | 5 files |
 | Phase 06 P03 | 2 | 2 tasks | 2 files |
+| Phase 06-executor-wave-grouping-worktree-engine P04 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 06-02]: mysd worktree create/remove outputs JSON to stdout for SKILL.md consumption (consistent with --context-only pattern)
 - [Phase 06-03]: execute --context-only required zero cmd changes — Plan 01 already wired WaveGroups via BuildContextFromParts
 - [Phase 06-03]: plan.go wave groups computed only when tasks.md exists (lazy load) — graceful nil on parse failure
+- [Phase 06-04]: Mode selection per D-03: has_parallel_opportunity false skips prompt; auto_mode true uses wave without asking
+- [Phase 06-04]: Merge loop in ascending task ID order with --no-ff; 3-retry AI conflict resolution with go build+test; continue-on-failure policy; failed worktrees preserved
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T08:19:43.800Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-03-25T08:20:17.698Z
+Stopped at: Completed 06-04-PLAN.md
 Resume file: None
