@@ -1,517 +1,598 @@
 # Architecture Research
 
-**Domain:** AI-assisted Spec-Driven Development CLI (Go binary + Claude Code plugin)
-**Researched:** 2026-03-23
-**Confidence:** HIGH
+**Domain:** Go CLI Tool — Interactive Discovery, Worktree Parallel Execution, Subagent Orchestration (v1.1 Integration)
+**Researched:** 2026-03-25
+**Confidence:** HIGH (direct codebase analysis of v1.0 + proposal spec)
+
+## Context: Subsequent Milestone
+
+This is NOT a greenfield architecture document. v1.0 shipped with a clean 11-package architecture
+(7,555 LOC). This document focuses specifically on how v1.1 features integrate with that
+existing foundation — what is new, what is modified, and what must not be broken.
+
+**Existing packages inventory:**
+
+```
+cmd/                  — 14 Cobra command files (thin layer, no business logic)
+internal/config/      — ProjectConfig, ResolveModel, DefaultModelMap, Defaults, BindFlags
+internal/spec/        — OpenSpec parser: schema.go, parser.go, updater.go, delta.go, detector.go, writer.go
+internal/state/       — WorkflowState, ValidTransitions, Transition, LoadState, SaveState
+internal/executor/    — ExecutionContext, BuildContext, BuildContextFromParts, alignment, progress, status
+internal/scanner/     — Codebase scanner (currently Go-specific)
+internal/verifier/    — Verification context and report
+internal/output/      — Printer (lipgloss-backed terminal output)
+internal/roadmap/     — tracking.yaml + Mermaid timeline
+internal/uat/         — UAT checklist generation
+plugin/commands/      — 14 SKILL.md orchestrator files
+plugin/agents/        — 8 agent definition files
+plugin/hooks/         — SessionStart hook
+```
+
+---
 
 ## Standard Architecture
 
-### System Overview
+### System Overview: v1.0 (Existing)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    Claude Code Plugin Layer                          │
-│  commands/          agents/              hooks/         .mcp.json   │
-│  ┌────────────┐  ┌───────────────┐  ┌──────────────┐  ┌──────────┐ │
-│  │ /ssd:new   │  │ spec-writer   │  │ PostToolUse  │  │ MCP      │ │
-│  │ /ssd:spec  │  │ task-runner   │  │ SessionStart │  │ Server   │ │
-│  │ /ssd:apply │  │ verifier      │  │ (Go binary)  │  │(optional)│ │
-│  │ /ssd:verify│  │ orchestrator  │  └──────────────┘  └──────────┘ │
-│  └─────┬──────┘  └──────┬────────┘                                  │
-└────────┼───────────────┼──────────────────────────────────────────┘
-         │  invokes       │  spawns
-         ▼               ▼
+│                       Claude Code Session                            │
+│                                                                      │
+│  plugin/commands/*.md     (SKILL.md orchestrators — 14 commands)    │
+│           │ Task tool                                                │
+│           ▼                                                          │
+│  plugin/agents/*.md       (subagent definitions — 8 agents)         │
+└─────────────────────┬───────────────────────────────────────────────┘
+                      │ bash: mysd {cmd} --context-only → JSON
+                      ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    CLI Core (Go binary: myssd)                       │
-├─────────────────────────────────────────────────────────────────────┤
-│  cmd/                  (Cobra command tree)                          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
-│  │ propose  │ │  spec    │ │  design  │ │  plan    │ │ execute  │ │
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ │
-│       │            │            │             │            │        │
-│  ┌──────────┐ ┌──────────┐                                          │
-│  │  verify  │ │ archive  │                                          │
-│  └────┬─────┘ └────┬─────┘                                          │
-├───────┴────────────┴────────────────────────────────────────────────┤
-│                    Internal Engine Layer                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐  │
-│  │ Spec Engine │  │  Execution  │  │ Verification│  │   State   │  │
-│  │  (parser +  │  │   Engine    │  │  Pipeline   │  │ Manager   │  │
-│  │  generator) │  │ (orchestr.) │  │ (goal-back) │  │           │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └─────┬─────┘  │
-└─────────┼───────────────┼────────────────┼───────────────┼─────────┘
-          │               │                │               │
-          ▼               ▼                ▼               ▼
+│                    mysd binary (Go)                                  │
+│                                                                      │
+│  cmd/ → internal/config → .claude/mysd.yaml                        │
+│       → internal/spec   → .specs/changes/{name}/ filesystem        │
+│       → internal/state  → STATE.json                                │
+│       → internal/executor → ExecutionContext JSON (--context-only)  │
+│       → internal/roadmap → tracking.yaml                           │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Core principle (must be preserved in v1.1):** The Go binary is a state manager and
+context provider. SKILL.md files are orchestrators. Agent .md files are workers. The
+binary outputs structured JSON that SKILL.md files consume via `--context-only` flags.
+The binary never directly invokes AI or prompts the user interactively.
+
+---
+
+### System Overview: v1.1 (Target)
+
+```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    Storage Layer                                      │
-│  .specs/                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
-│  │ changes/     │  │ specs/       │  │ .ssd-state.json          │   │
-│  │ [name]/      │  │ (source of   │  │ (workflow state, current  │   │
-│  │  proposal.md │  │  truth)      │  │  phase, last run result)  │   │
-│  │  specs/      │  │              │  └──────────────────────────┘   │
-│  │  design.md   │  └──────────────┘                                 │
-│  │  tasks.md    │                                                    │
-│  └──────────────┘                                                    │
+│                       Claude Code Session                            │
+│                                                                      │
+│  NEW COMMANDS:              MODIFIED COMMANDS:                       │
+│  /mysd:discuss              /mysd:propose  (+ research mode)        │
+│  /mysd:fix                  /mysd:spec     (+ research mode)        │
+│  /mysd:model                /mysd:plan     (+ plan-checker trigger) │
+│  /mysd:lang                 /mysd:execute  (+ wave groups, worktree)│
+│  /mysd:scan (upgraded)      /mysd:ff       (+ auto, research-once)  │
+│  /mysd:ffe (upgraded)                                                │
+│           │ Task tool                                                │
+│           ▼                                                          │
+│  NEW AGENTS:                 MODIFIED AGENTS:                        │
+│  mysd-researcher             mysd-spec-writer  (per-capability)     │
+│  mysd-advisor x N            mysd-executor     (per-task, worktree) │
+│  mysd-proposal-writer                                                │
+│  mysd-plan-checker           UNCHANGED AGENTS:                      │
+│                              mysd-designer, mysd-planner,           │
+│                              mysd-verifier, mysd-fast-forward,      │
+│                              mysd-scanner, mysd-uat-guide            │
+└─────────────────────┬───────────────────────────────────────────────┘
+                      │ bash: mysd {cmd} --context-only → JSON
+                      ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    mysd binary (Go) — v1.1                           │
+│                                                                      │
+│  NEW COMMANDS:              NEW INTERNAL PACKAGES:                   │
+│  cmd/model.go               internal/worktree/    (git worktree)    │
+│  cmd/lang.go                internal/discovery/   (discovery state) │
+│                             internal/planchecker/ (MUST coverage)   │
+│  MODIFIED COMMANDS:                                                  │
+│  cmd/execute.go  (+waves)   MODIFIED INTERNAL PACKAGES:             │
+│  cmd/plan.go     (+checker) internal/executor/  (+depends, waves)   │
+│  cmd/scan.go     (+lang)    internal/config/    (+new agents, auto) │
+│  cmd/propose.go  (+auto)    internal/spec/      (+Depends, Files)   │
+│  cmd/ff.go       (+auto)    internal/scanner/   (lang-agnostic)     │
+│                                                                      │
+│  UNCHANGED COMMANDS:        UNCHANGED INTERNAL PACKAGES:            │
+│  cmd/spec.go                internal/state/                         │
+│  cmd/design.go              internal/output/                        │
+│  cmd/verify.go              internal/verifier/                      │
+│  cmd/archive.go             internal/roadmap/                       │
+│  cmd/status.go              internal/uat/                           │
+│  cmd/task_update.go                                                  │
+└─────────────────────────────────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Filesystem State                                   │
+│                                                                      │
+│  EXISTING:                           NEW:                            │
+│  .specs/changes/{name}/              .worktrees/T{id}/  (ephemeral) │
+│    proposal.md                                                       │
+│    specs/                            EXTENDED:                       │
+│    design.md                         .specs/changes/{name}/         │
+│    tasks.md        (+ depends/files) discovery-state.json (NEW)     │
+│    STATE.json                        .claude/mysd.yaml   (extended) │
+│    alignment.md                                                      │
+│    verification-status.json                                          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Responsibilities
 
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|------------------------|
-| Claude Code Plugin Layer | Expose slash commands and agents to Claude Code; invoke Go binary via hooks or MCP | Markdown files in `commands/`, `agents/`; `hooks/hooks.json`; optional `.mcp.json` |
-| Cobra Command Tree (`cmd/`) | Parse CLI arguments; route to correct engine function; surface user-facing errors | `cobra.Command` structs, one file per top-level command |
-| Spec Engine | Parse/validate OpenSpec Markdown; generate artifact scaffolds; write delta specs | `internal/spec/` — parser, schema validator, writer |
-| Execution Engine | Orchestrate single/multi-agent runs; manage wave-based task execution; pass spec context | `internal/engine/` — orchestrator, agent runner, context builder |
-| Verification Pipeline | Goal-backward check: iterate MUST items in specs; compare to evidence; emit verdict | `internal/verify/` — must-collector, verifier, report writer |
-| State Manager | Track current workflow phase, last command run, spec change name; enable resume | `internal/state/` — read/write `.ssd-state.json` |
-| Storage Layer | `.specs/` directory on disk; Markdown files as single source of truth | No DB; plain files + `encoding/json` for state blob |
+#### New Packages
 
-## Recommended Project Structure
+| Package | Responsibility | Key Types/Functions |
+|---------|----------------|---------------------|
+| `internal/worktree/` | Git worktree lifecycle: create at `.worktrees/T{id}/`, create branch `mysd/{change}/T{id}-{slug}`, merge `--no-ff` in task ID order, cleanup on success, preserve on failure | `WorktreeManager`, `Create(id, slug)`, `Merge(id)`, `Remove(id)` |
+| `internal/discovery/` | Builds discovery context JSON for SKILL.md consumption via `--context-only`. Persists discovery state (areas completed, deferred notes, research summary) as sidecar JSON. NOT responsible for AI questions — that is SKILL.md's job. | `DiscoveryContext`, `DiscoveryState`, `BuildDiscoveryContext(changeName, specDir)`, `LoadState`, `SaveState` |
+| `internal/planchecker/` | Pure function: validate tasks.md MUST coverage. Receives task list + MUST items, returns uncovered IDs. No I/O side effects. | `CheckCoverage(tasks, mustItems) CoverageResult`, `UncoveredItem` |
+
+#### Modified Packages
+
+| Package | What Changes | Why |
+|---------|-------------|-----|
+| `internal/executor/` | Add `Depends []int` and `Files []string` to `TaskItem`. Add `BuildWaveGroups(tasks []TaskItem) [][]TaskItem` computing wave layers from depends + file overlap. Add `WaveGroups`, `WorktreeDir`, `AutoMode` to `ExecutionContext`. | Supports parallel task execution with dependency-ordered waves |
+| `internal/config/` | Add new agent roles to `DefaultModelMap` (researcher, advisor, proposal-writer, plan-checker). Add `WorktreeDir string` and `AutoMode bool` to `ProjectConfig`. Update `Defaults()`. | New agents need model resolution; worktree path must be configurable |
+| `internal/spec/` | Add `Depends []int` and `Files []string` to `TaskEntry` and `TasksFrontmatterV2`. Update `WriteTasks` to serialize new fields. | tasks.md carries dependency metadata written by planner agent |
+| `internal/scanner/` | Refactor from Go-specific to language-agnostic. Add locale detection. Produce `openspec/config.yaml` + spec stubs. Accept `--scaffold-only` mode to replace init command logic. | /mysd:scan upgrade + /mysd:init replacement |
+
+---
+
+## Recommended Project Structure (v1.1 additions only)
 
 ```
-mysd/                              # repository root
-├── main.go                        # entry point — cobra root cmd
-├── cmd/                           # one file per top-level command
-│   ├── root.go                    # persistent flags, version
-│   ├── propose.go                 # ssd propose
-│   ├── spec.go                    # ssd spec
-│   ├── design.go                  # ssd design
-│   ├── plan.go                    # ssd plan
-│   ├── execute.go                 # ssd execute
-│   ├── verify.go                  # ssd verify
-│   └── archive.go                 # ssd archive
+mysd/
+├── cmd/
+│   ├── [existing 14 commands — unchanged]
+│   ├── model.go           # NEW: mysd model / model set / model resolve
+│   └── lang.go            # NEW: mysd lang (write locale to yaml files)
+│   NOTE: discuss and fix have no binary counterparts — SKILL.md only
+│
 ├── internal/
-│   ├── spec/
-│   │   ├── parser.go              # parse proposal.md / specs/*.md / design.md / tasks.md
-│   │   ├── schema.go              # OpenSpec schema structs (RFC 2119 keywords, delta types)
-│   │   ├── validator.go           # validate spec completeness and format
-│   │   ├── writer.go              # scaffold new change dirs, write artifacts
-│   │   └── delta.go               # ADDED / MODIFIED / REMOVED delta logic
-│   ├── engine/
-│   │   ├── orchestrator.go        # coordinate multi-step execution
-│   │   ├── agent.go               # single agent runner (Claude Code subagent call)
-│   │   ├── context_builder.go     # assemble spec context injected before AI runs
-│   │   └── wave.go                # wave-based parallel task execution (future)
-│   ├── verify/
-│   │   ├── must_collector.go      # extract all MUST items from specs/
-│   │   ├── verifier.go            # goal-backward: check each MUST against codebase
-│   │   ├── reporter.go            # write verification report, update spec status
-│   │   └── feedback.go            # feed results back into spec metadata
-│   ├── state/
-│   │   ├── state.go               # WorkflowState struct + read/write
-│   │   └── lock.go                # prevent concurrent runs (file lock)
-│   └── config/
-│       ├── config.go              # project config (.ssd.toml or convention defaults)
-│       └── defaults.go            # convention-over-config defaults
-├── plugin/                        # Claude Code plugin directory (installed separately)
-│   ├── .claude-plugin/
-│   │   └── plugin.json            # plugin manifest
-│   ├── commands/
-│   │   ├── new.md                 # /ssd:new
-│   │   ├── spec.md                # /ssd:spec
-│   │   ├── design.md              # /ssd:design
-│   │   ├── plan.md                # /ssd:plan
-│   │   ├── apply.md               # /ssd:apply (wraps execute)
-│   │   ├── verify.md              # /ssd:verify
-│   │   └── archive.md             # /ssd:archive
-│   ├── agents/
-│   │   ├── spec-writer.md         # generates spec artifacts
-│   │   ├── task-runner.md         # executes tasks from tasks.md
-│   │   └── verifier.md            # runs goal-backward verification
-│   └── hooks/
-│       └── hooks.json             # e.g. PreToolUse to enforce spec alignment check
-├── testdata/
-│   └── fixtures/                  # sample .specs/ trees for unit tests
-├── go.mod
-├── go.sum
-└── Makefile
+│   ├── config/            # MODIFIED: new agent roles, WorktreeDir, AutoMode
+│   ├── executor/          # MODIFIED: wave grouping, depends/files, WaveGroups in context
+│   ├── spec/              # MODIFIED: Depends/Files in TaskEntry schema
+│   ├── scanner/           # MODIFIED: language-agnostic refactor
+│   │
+│   ├── worktree/          # NEW package
+│   │   ├── worktree.go    # WorktreeManager, Create, Remove
+│   │   ├── merge.go       # Merge, conflict detection helpers
+│   │   └── worktree_test.go
+│   │
+│   ├── discovery/         # NEW package
+│   │   ├── context.go     # DiscoveryContext, BuildDiscoveryContext
+│   │   ├── state.go       # DiscoveryState persistence (sidecar JSON)
+│   │   └── discovery_test.go
+│   │
+│   └── planchecker/       # NEW package
+│       ├── checker.go     # CheckCoverage(tasks, mustItems) CoverageResult
+│       └── checker_test.go
+│
+└── plugin/
+    ├── commands/
+    │   ├── [existing 14 commands — some modified]
+    │   ├── mysd-discuss.md    # NEW
+    │   ├── mysd-fix.md        # NEW
+    │   ├── mysd-model.md      # NEW
+    │   └── mysd-lang.md       # NEW
+    └── agents/
+        ├── [existing 8 agents — some modified]
+        ├── mysd-researcher.md       # NEW
+        ├── mysd-advisor.md          # NEW
+        ├── mysd-proposal-writer.md  # NEW
+        └── mysd-plan-checker.md     # NEW
 ```
 
 ### Structure Rationale
 
-- **`cmd/`**: Each command file is one `cobra.Command`. Commands are thin — they only parse flags and call `internal/` functions. No business logic in `cmd/`.
-- **`internal/spec/`**: OpenSpec format knowledge is isolated here. If the format changes, only this package changes.
-- **`internal/engine/`**: Execution concerns (orchestration, agent invocation, context building) are separated from spec concerns. The engine reads parsed spec structs, not raw Markdown.
-- **`internal/verify/`**: Goal-backward verification is a distinct pipeline, not mixed into execution. This makes it independently testable and callable as a standalone step.
-- **`internal/state/`**: Explicit state machine file (`.ssd-state.json`) rather than inferring state from filesystem presence. Enables crash recovery and the `--resume` flag.
-- **`plugin/`**: Claude Code plugin lives in a separate directory. It is distributed and installed independently from the Go binary. It invokes the binary via `${CLAUDE_PLUGIN_ROOT}/../bin/myssd` or a PATH lookup.
+- **`internal/worktree/` separate package:** Git worktree operations are stateful and independently testable. Does NOT import `internal/executor/` — keeps the dependency graph acyclic. The executor calls worktree via context JSON passed through SKILL.md.
+- **`internal/discovery/` separate package:** Discovery state has different lifecycle than execution state (spans propose/spec/discuss phases, not execution phase). Prevents `internal/executor/` from growing to include discovery concerns.
+- **`internal/planchecker/` pure package:** No filesystem I/O, no config dependencies. `CheckCoverage` is a pure function. Can be unit-tested without any mocking. Intentionally minimal by design.
+- **discuss and fix as SKILL.md-only commands:** These flows are AI orchestration with no binary state changes beyond what existing commands already handle. The binary cannot drive interactive discovery sessions or AI-powered conflict resolution. This preserves the core pattern: binary = state/context, SKILL.md = orchestration.
+
+---
 
 ## Architectural Patterns
 
-### Pattern 1: Thin Commands, Fat Internal
+### Pattern 1: Binary-as-Context-Provider (existing — must be maintained)
 
-**What:** `cmd/` files contain zero business logic. Every command function calls one `internal/` function, then formats output.
-**When to use:** Always, from day one.
-**Trade-offs:** Slightly more indirection, but enables unit-testing all business logic without CLI ceremony.
+**What:** Every SKILL.md orchestrator runs `mysd {cmd} --context-only` to get structured JSON, then passes that JSON to subagents via the Task tool. The binary never drives AI execution or prompts interactively.
 
-**Example:**
-```go
-// cmd/verify.go
-func runVerify(cmd *cobra.Command, args []string) error {
-    cfg, err := config.Load(".")
-    if err != nil {
-        return err
-    }
-    report, err := verify.RunPipeline(cfg)
-    if err != nil {
-        return err
-    }
-    printer.PrintVerifyReport(cmd.OutOrStdout(), report)
-    return nil
+**When to use:** All new binary commands (model, lang, execute with waves). The pattern MUST be preserved.
+
+**Extended for v1.1 execute — wave context output:**
+```json
+{
+  "change_name": "my-feature",
+  "pending_tasks": [...],
+  "wave_groups": [
+    [{"id": 1, "name": "task-a", "depends": [], "files": ["pkg/auth.go"]},
+     {"id": 2, "name": "task-b", "depends": [], "files": ["pkg/cache.go"]}],
+    [{"id": 3, "name": "task-c", "depends": [1, 2], "files": ["main.go"]}]
+  ],
+  "worktree_dir": ".worktrees",
+  "auto_mode": false
 }
 ```
 
-### Pattern 2: Spec as Struct, Not String
+### Pattern 2: Orchestrator-Spawns-Subagents (existing — extended for parallelism)
 
-**What:** Parse OpenSpec Markdown into typed Go structs at the boundary (`internal/spec/parser.go`). All downstream code operates on `spec.Change`, `spec.Requirement`, `spec.Task` — never on raw strings.
-**When to use:** From the first parser implementation.
-**Trade-offs:** Parser complexity upfront, but all engine/verify logic becomes straightforward struct traversal.
+**What:** SKILL.md orchestrators use the Claude Code Task tool to spawn named agents. New in v1.1: parallel spawn for advisors and parallel spawn for wave-mode executors.
 
-**Example:**
-```go
-// internal/spec/schema.go
-type Requirement struct {
-    ID       string
-    Text     string
-    Keyword  RFC2119Keyword  // MUST | SHOULD | MAY
-    DeltaOp  DeltaOp         // ADDED | MODIFIED | REMOVED | (none)
-}
+**New parallel advisor pattern (in mysd-propose.md or mysd-discuss.md):**
+```
+For each gray area from researcher output, spawn parallel:
+Task → mysd-advisor
+  area: {one gray area}
+  codebase_context: {from researcher}
+  change_name: {change_name}
+```
 
-type Change struct {
-    Name     string
-    Proposal ProposalDoc
-    Specs    []Requirement
-    Design   DesignDoc
-    Tasks    []Task
+**New wave executor pattern (in mysd-execute.md):**
+```
+For each task in wave_groups[current_wave], spawn parallel:
+Task → mysd-executor
+  assigned_task: {task}
+  isolation: worktree
+  worktree_path: .worktrees/T{id}/
+  branch: mysd/{change}/T{id}-{slug}
+```
+
+### Pattern 3: Sidecar JSON for Phase State (existing — extended)
+
+**What:** Phase-specific state is stored as sidecar JSON files in the change directory. Existing examples: `STATE.json`, `verification-status.json`, `alignment.md`.
+
+**New in v1.1 — discovery state sidecar format:**
+```json
+// .specs/changes/{name}/discovery-state.json
+{
+  "research_enabled": true,
+  "areas_completed": ["auth-strategy", "error-handling"],
+  "deferred_notes": ["consider oauth2 in v2"],
+  "research_summary": "...",   // cached for ff/ffe reuse — avoid re-researching
+  "updated_at": "2026-03-25T12:00:00Z"
 }
 ```
 
-### Pattern 3: Explicit Workflow State Machine
+### Pattern 4: Interactive Prompts as SKILL.md Responsibility (new — important constraint)
 
-**What:** Store current phase (`proposed | specced | designed | planned | executed | verified | archived`) in `.ssd-state.json`. Commands validate state transitions before running.
-**When to use:** From the first multi-step command.
-**Trade-offs:** Small overhead writing state file, but prevents running `verify` before `execute` and enables `--resume`.
+**What:** Whenever a feature requires interactive questions (research mode, locale choice, single vs wave), the SKILL.md asks the question and passes the answer as argument or config to the binary. The binary never prompts stdin.
 
-**Example:**
-```go
-// internal/state/state.go
-type Phase string
-const (
-    PhaseProposed Phase = "proposed"
-    PhaseSpecced  Phase = "specced"
-    PhaseDesigned Phase = "designed"
-    PhasePlanned  Phase = "planned"
-    PhaseExecuted Phase = "executed"
-    PhaseVerified Phase = "verified"
-    PhaseArchived Phase = "archived"
-)
+**Why this matters:** The binary is called with `--context-only` flags by SKILL.md. If the binary reads stdin, it will hang when called non-interactively.
 
-type WorkflowState struct {
-    ChangeName  string    `json:"change_name"`
-    Phase       Phase     `json:"phase"`
-    LastRun     time.Time `json:"last_run"`
-    VerifyPass  *bool     `json:"verify_pass,omitempty"`
-}
-```
+**Implementation example for mysd lang:**
+- SKILL.md `/mysd:lang` asks: "What language for AI responses? (e.g. zh-TW, en, ja)"
+- User answers, SKILL.md calls: `mysd lang set zh-TW`
+- Binary `cmd/lang.go` receives the value as argument, writes to yaml files, exits
 
-### Pattern 4: Plugin Delegates to Binary
+### Pattern 5: Worktree-Per-Task Isolation (new)
 
-**What:** Claude Code plugin commands are thin Markdown wrappers. They construct and run the `myssd` binary via shell command. Plugin agents read spec files directly but trigger the binary for mutations.
-**When to use:** This is the integration model — not optional.
-**Trade-offs:** Requires Go binary to be on PATH when Claude Code invokes hooks. Installation step needed. Benefit: no logic duplication between CLI and plugin.
+**What:** Each parallel task executor gets its own git worktree at `.worktrees/T{id}/`. After all tasks in a wave complete, merge back to main branch in ascending task ID order using `git merge --no-ff`. Delete worktree on success, preserve on failure for debugging.
 
-**Example (commands/apply.md):**
-```markdown
+**Wave boundary contract:** Create all worktrees for a wave from the same HEAD snapshot. Complete the entire wave (including merges) BEFORE creating worktrees for the next wave. This prevents divergence across waves.
+
+**Conflict resolution:** AI attempts auto-resolve → run `go build` + `go test` → retry max 3 times → if still failing, notify user and preserve worktree.
+
 ---
-description: Execute implementation tasks from tasks.md
----
-Run the spec-driven development execution engine.
-
-Execute: `myssd execute --change $ARGUMENTS`
-
-After execution completes, report the results and ask whether to proceed to verify.
-```
 
 ## Data Flow
 
-### Primary Workflow: propose → verify
+### Interactive Discovery Flow (new — propose/spec/discuss)
 
 ```
-Developer: myssd propose "add auth"
-    │
-    ▼
-cmd/propose.go
-    │ config.Load()
-    ▼
-internal/spec/writer.go
-    │ scaffold .specs/changes/add-auth/
-    │   proposal.md (template)
-    │   specs/      (empty)
-    │   design.md   (empty)
-    │   tasks.md    (empty)
-    ▼
-internal/state/state.go
-    │ write .ssd-state.json { phase: "proposed", change: "add-auth" }
-    ▼
-[Claude Code reads proposal.md, human reviews and edits]
-
-Developer: myssd spec  (or /ssd:spec in Claude Code)
-    │
-    ▼
-cmd/spec.go
-    │ state.Load() → assert phase == "proposed"
-    ▼
-internal/engine/context_builder.go
-    │ read proposal.md → build AI prompt context
-    ▼
-internal/engine/agent.go
-    │ invoke spec-writer agent (Claude subagent or direct AI call)
-    │ agent writes specs/*.md with RFC 2119 MUST/SHOULD/MAY
-    ▼
-internal/spec/validator.go
-    │ validate generated specs against schema
-    ▼
-internal/state/state.go
-    │ update phase → "specced"
-    ▼
-[repeat pattern for design → plan]
-
-Developer: myssd execute
-    │
-    ▼
-cmd/execute.go
-    │ state.Load() → assert phase == "planned"
-    ▼
-internal/spec/parser.go
-    │ parse tasks.md → []Task (ordered, with spec references)
-    ▼
-internal/engine/orchestrator.go
-    │ for each Task:
-    │   context_builder: inject task + relevant spec requirements
-    │   agent.Run(task, specContext)  ← task-runner agent
-    │   update task completion status in tasks.md
-    ▼
-internal/state/state.go
-    │ update phase → "executed"
-    ▼
-
-Developer: myssd verify
-    │
-    ▼
-cmd/verify.go
-    │ state.Load() → assert phase == "executed"
-    ▼
-internal/spec/parser.go
-    │ parse specs/*.md → []Requirement where Keyword == MUST
-    ▼
-internal/verify/must_collector.go
-    │ collect all MUST requirements
-    ▼
-internal/verify/verifier.go
-    │ for each MUST requirement:
-    │   build verification query (goal-backward)
-    │   invoke verifier agent with codebase context
-    │   collect PASS / FAIL verdict
-    ▼
-internal/verify/reporter.go
-    │ write verification-report.md
-    │ update spec metadata (status fields)
-    ▼
-internal/verify/feedback.go
-    │ if any FAIL → set state.VerifyPass = false
-    │ else → set state.VerifyPass = true
-    ▼
-internal/state/state.go
-    │ update phase → "verified"
-    ▼
-
-Developer: myssd archive (only if VerifyPass == true)
-    │
-    ▼
-internal/spec/delta.go
-    │ merge ADDED/MODIFIED/REMOVED delta specs into .specs/specs/
-    │ move .specs/changes/[name]/ → .specs/changes/archive/[name]/
-    ▼
-internal/state/state.go
-    │ update phase → "archived"
-    │ clear current change context
+User: /mysd:propose {name}
+    ↓
+SKILL.md: "Use research mode? (y/n)"
+    ↓ [If yes]
+Task → mysd-researcher
+  Reads codebase (grep/glob — no new binary command needed)
+  Outputs: gray_areas[], codebase_summary
+    ↓
+[Parallel, for each gray area]
+Task → mysd-advisor
+  Input: one area + codebase_summary
+  Output: analysis + recommendation with comparison table
+    ↓
+SKILL.md: Present areas one-by-one (discussion loop with user)
+  Inner loop: deep-dive into one area
+  Outer loop: after all areas, "Any new areas? (y/n)"
+  Scope guardrail: off-topic → redirect to deferred_notes
+    ↓
+Task → mysd-proposal-writer
+  Input: all discussion conclusions + user decisions
+  Writes: proposal.md body
+    ↓
+Binary: mysd propose {name}   (scaffold + state transition only)
+    ↓
+SKILL.md: Show summary → next: /mysd:spec
 ```
 
-### Claude Code Plugin Integration Flow
+### Worktree Parallel Execution Flow (new — execute wave mode)
 
 ```
-User types /ssd:apply in Claude Code
-    │
-    ▼
-commands/apply.md is loaded as context
-    │ instructs Claude to run: myssd execute --change [current-change]
-    ▼
-Claude Code executes Bash tool: myssd execute
-    │
-    ▼
-myssd binary (Go) runs execute command
-    │ reads .ssd-state.json for change context
-    │ orchestrates task-runner agent (agents/task-runner.md)
-    ▼
-Subagent (agents/task-runner.md) receives:
-    │ - task description
-    │ - spec context (relevant MUST requirements)
-    │ - design constraints
-    │ Implements code, calls Write/Edit tools
-    ▼
-myssd binary receives subagent completion signal
-    │ validates task marked complete in tasks.md
-    ▼
-Claude Code reports results to user
+SKILL.md: mysd execute --context-only
+    ↓ JSON with wave_groups[][]
+SKILL.md: Ask "Single or wave execution? (single/wave)"
+          [or --auto: use config default]
+    ↓ [wave mode selected]
+For wave[0] — spawn parallel:
+  Task → mysd-executor (worktree: .worktrees/T1/, branch: mysd/{change}/T1-{slug})
+  Task → mysd-executor (worktree: .worktrees/T2/, branch: mysd/{change}/T2-{slug})
+  Task → mysd-executor (worktree: .worktrees/T3/, branch: mysd/{change}/T3-{slug})
+    ↓ [All wave[0] agents complete; failures do NOT stop others]
+SKILL.md: Merge in ascending task ID order: T1 → T2 → T3
+  For each merge:
+    Conflict? → AI resolves → go build + go test → retry max 3x
+    Success → delete worktree + branch
+    Failure (after 3x) → preserve worktree, notify user
+    ↓
+[If all merges OK] mysd task-update {id} done for each task
+    ↓
+For wave[1] from updated HEAD — repeat...
 ```
 
-### State Transitions
+### Plan-Checker Auto-Trigger Flow (new — post-plan)
 
 ```
-(none)
-  │ myssd propose
-  ▼
-proposed
-  │ myssd spec
-  ▼
-specced
-  │ myssd design
-  ▼
-designed
-  │ myssd plan
-  ▼
-planned
-  │ myssd execute
-  ▼
-executed
-  │ myssd verify
-  ▼
-verified ──(FAIL)──► executed  (can re-execute and re-verify)
-  │ (PASS)
-  │ myssd archive
-  ▼
-archived
+mysd-planner writes tasks.md
+    ↓
+mysd-planner runs: mysd plan  (state transition)
+    ↓
+SKILL.md /mysd:plan orchestrator receives plan completion
+    ↓
+Task → mysd-plan-checker
+  Input: must_items from spec + tasks from tasks.md
+  Output: uncovered_must_ids[]
+    ↓
+[If uncovered_must_ids is empty]
+  SKILL.md: "All MUST items covered."
+[If not empty]
+  SKILL.md: "Plan-checker: {N} uncovered MUST items.
+             Auto-add suggested tasks? (y/n)"
+  [--auto or user says yes] → mysd-planner adds tasks → re-run plan-checker
+  [user says no] → show gaps, user decides
 ```
+
+### Discuss Update Flow (new — re-entry after spec is set)
+
+```
+User: /mysd:discuss
+    ↓
+SKILL.md: Get topic from user OR offer research mode
+    ↓ [Optional research]
+Task → mysd-researcher (scoped to relevant area)
+    ↓
+SKILL.md: Discussion loop (same pattern as discovery)
+    ↓
+SKILL.md: Determine what changed (spec? design? tasks?)
+    ↓ [Update affected files directly via SKILL.md Write tool]
+mysd spec    (if specs changed → re-specced)
+mysd design  (if design changed → re-designed)
+mysd plan    (if tasks need replanning → re-planned)
+    ↓
+Auto-spawn mysd-plan-checker (same as post-plan flow)
+    ↓
+SKILL.md: "Updated: {list of changed files}. Tasks re-planned."
+```
+
+NOTE: The existing `ValidTransitions` map already supports these re-entries:
+`PhaseSpecced → PhaseDesigned → PhasePlanned` are all valid transitions.
+No state machine changes are needed.
+
+---
+
+## Integration Points: New vs Modified (explicit)
+
+### Modified ExecutionContext (internal/executor/context.go)
+
+```go
+// TaskItem — add dependency tracking
+type TaskItem struct {
+    ID          int      `json:"id"`
+    Name        string   `json:"name"`
+    Description string   `json:"description,omitempty"`
+    Status      string   `json:"status"`
+    Depends     []int    `json:"depends,omitempty"`   // NEW: task IDs this depends on
+    Files       []string `json:"files,omitempty"`     // NEW: files this task touches
+}
+
+// ExecutionContext — add wave groups and worktree support
+type ExecutionContext struct {
+    // ...all existing fields preserved unchanged...
+    WaveGroups  [][]TaskItem `json:"wave_groups,omitempty"`   // NEW: computed wave layers
+    WorktreeDir string       `json:"worktree_dir,omitempty"`  // NEW: default ".worktrees"
+    AutoMode    bool         `json:"auto_mode,omitempty"`     // NEW: skip interactive prompts
+}
+```
+
+### Modified ProjectConfig (internal/config/defaults.go)
+
+```go
+type ProjectConfig struct {
+    // ...all existing fields preserved unchanged...
+    WorktreeDir string `yaml:"worktree_dir" mapstructure:"worktree_dir"` // NEW, default ".worktrees"
+    AutoMode    bool   `yaml:"auto_mode" mapstructure:"auto_mode"`       // NEW, default false
+}
+```
+
+Extended `DefaultModelMap` — add new roles (config.go):
+```go
+// Add to each profile tier (quality/balanced/budget):
+"researcher":      "claude-sonnet-4-5" / "claude-sonnet-4-5" / "claude-haiku-3-5"
+"advisor":         "claude-sonnet-4-5" / "claude-sonnet-4-5" / "claude-haiku-3-5"
+"proposal-writer": "claude-sonnet-4-5" / "claude-sonnet-4-5" / "claude-haiku-3-5"
+"plan-checker":    "claude-sonnet-4-5" / "claude-sonnet-4-5" / "claude-haiku-3-5"
+```
+
+### Modified TasksFrontmatterV2 (internal/spec/schema.go)
+
+```go
+type TaskEntry struct {
+    ID          int        `yaml:"id"`
+    Name        string     `yaml:"name"`
+    Description string     `yaml:"description,omitempty"`
+    Status      ItemStatus `yaml:"status"`
+    Depends     []int      `yaml:"depends,omitempty"`   // NEW
+    Files       []string   `yaml:"files,omitempty"`     // NEW
+}
+```
+
+### New Binary Commands
+
+| Command | Binary Behavior | SKILL.md Role |
+|---------|-----------------|---------------|
+| `mysd model` | Output current profile JSON (`--context-only`), or print formatted text | Display/format output |
+| `mysd model set {profile}` | Write `model_profile` to `.claude/mysd.yaml` | Ask user which profile to set |
+| `mysd model resolve {agent}` | Call `config.ResolveModel(agent, profile, overrides)`, output JSON | Display resolved model name |
+| `mysd lang set {locale}` | Write `response_language`/`document_language` to mysd.yaml AND `locale` to openspec/config.yaml | Ask user for locale choice interactively |
+
+### State Machine: No Changes Required
+
+The existing `ValidTransitions` map is sufficient. `discuss` is a re-entry point, not a new phase. It runs existing transitions (`specced → designed → planned`) without adding new states.
+
+```
+Current ValidTransitions already handle all v1.1 flows:
+PhaseSpecced  → PhaseDesigned   (re-design after discuss)
+PhaseDesigned → PhasePlanned    (re-plan after discuss or plan-checker adds tasks)
+PhasePlanned  → PhaseExecuted   (normal execution path, single or wave)
+PhaseVerified → PhaseExecuted   (re-execute after failed verify — unchanged)
+```
+
+---
 
 ## Scaling Considerations
 
-This is a local developer CLI tool. "Scaling" means complexity growth, not user count.
+This is a CLI tool on a single developer machine. Scaling = codebase size + task parallelism, not user traffic.
 
 | Scale | Architecture Adjustments |
 |-------|--------------------------|
-| v1 (single agent, sequential tasks) | Current design — orchestrator runs tasks one at a time, single AI call per task |
-| v2 (parallel agent waves) | `engine/wave.go` dispatches independent tasks concurrently via goroutines; tasks with no shared spec sections run in parallel |
-| v3 (multi-project / workspace) | `config.go` supports workspace-level `.ssd.toml`; state manager tracks multiple active changes |
+| Small repo (< 10k LOC) | No changes needed — all features work as designed |
+| Large repo (> 100k LOC) | mysd-researcher needs bounded glob/grep scope; scanning all files causes token overflow. Use targeted directory patterns instead of recursive full-scan. |
+| Many parallel tasks (> 10) | Worktree creation at `.worktrees/` can consume significant disk space temporarily. `internal/worktree/` must clean up aggressively on success. |
+| Long session with discuss | `discovery-state.json` research summary grows stale across days. Add `research_ttl` field or `--force-research` flag in a later iteration. |
 
 ### Scaling Priorities
 
-1. **First bottleneck:** Sequential task execution is slow for large plans. Fix: implement wave-based parallelism in `engine/wave.go` (goroutines + channels). Tasks with no overlapping spec dependencies run concurrently.
-2. **Second bottleneck:** Verification of many MUST items is slow. Fix: batch verification queries; run independent MUST checks in parallel goroutines.
+1. **First bottleneck:** Git worktree creation on Windows has 260-char path limit. Mitigated by short `.worktrees/T{id}/` paths (already in design).
+2. **Second bottleneck:** N parallel mysd-advisor agents × large gray area lists can exhaust context tokens. Cap advisor parallelism at `config.AgentCount` or a sensible default (5).
+
+---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Embed Spec Logic in Commands
+### Anti-Pattern 1: Binary Driving Interactive Prompts
 
-**What people do:** Parse `proposal.md` directly inside `cmd/propose.go`; string-match MUST/SHOULD inline.
-**Why it's wrong:** Commands become untestable monoliths. Changing OpenSpec format requires touching command files.
-**Do this instead:** `cmd/propose.go` calls `spec.ParseChange(dir)`. All format knowledge lives in `internal/spec/`.
+**What people do:** Add `fmt.Scanln()` or `bufio.Scanner` interactive input to cmd/ functions.
 
-### Anti-Pattern 2: Infer Phase from Filesystem
+**Why it is wrong:** Breaks the binary-as-context-provider pattern. The binary is called with `--context-only` by SKILL.md scripts; reading stdin causes it to hang. Also makes unit testing impossible.
 
-**What people do:** Check "if design.md exists, phase is designed." No explicit state file.
-**Why it's wrong:** Partial writes, interrupted commands, and manual edits create ambiguous states. No way to resume.
-**Do this instead:** Maintain explicit `.ssd-state.json` as the authoritative phase record. Filesystem content is data; state file is the workflow cursor.
+**Do this instead:** All interactive prompts live in SKILL.md orchestrators. The binary receives user decisions as CLI arguments. Example: `mysd lang set zh-TW` — the locale was selected by the SKILL.md asking the user, then passed as an argument.
 
-### Anti-Pattern 3: Plugin Contains Business Logic
+### Anti-Pattern 2: Plan-Checker Reading Planner Artifacts Directly
 
-**What people do:** Write spec parsing and verification logic inside `commands/*.md` agent instructions.
-**Why it's wrong:** Logic duplicated between plugin and binary. Plugin updates require re-deploying Markdown files; not testable.
-**Do this instead:** Plugin commands are wrappers that invoke `myssd` binary. Binary owns all logic. Plugin owns presentation and Claude Code integration.
+**What people do:** mysd-plan-checker reads mysd-planner's output `tasks.md` independently, then cross-checks against spec files.
 
-### Anti-Pattern 4: Single Agent for All Tasks
+**Why it is wrong:** Breaks verifier independence principle established in Phase 3 (mysd-verifier does not read executor artifacts). Creates tight coupling between agents.
 
-**What people do:** One monolithic "do everything" agent that reads all tasks and implements them in one shot.
-**Why it's wrong:** Large context leads to incomplete implementations. No task-level auditability. Cannot resume from partial failure.
-**Do this instead:** Orchestrator dispatches one agent invocation per task. Each agent receives task + relevant spec context only. Completion tracked per-task in `tasks.md`.
+**Do this instead:** `mysd plan --context-only` outputs both the tasks AND the coverage gaps as JSON. mysd-plan-checker receives this structured JSON as its input context, not raw filesystem paths.
 
-### Anti-Pattern 5: Verify by Re-running Code
+### Anti-Pattern 3: Worktree Branches From Diverged HEAD
 
-**What people do:** Verification = run tests. PASS if tests pass.
-**Why it's wrong:** Tests may not cover all MUST requirements. Spec requirements that aren't tested (yet) are silently skipped.
-**Do this instead:** Goal-backward verification starts from spec MUST items and asks "is this requirement satisfied in the codebase?" Tests are evidence, not the only evidence. AI-driven requirement tracing covers gaps.
+**What people do:** Create wave 1 worktrees while wave 0 merges are still in progress, resulting in branches starting from different HEAD snapshots.
 
-## Integration Points
+**Why it is wrong:** When wave 0 merges complete, wave 1 branches are now behind. Merging them requires rebasing, which complicates the AI auto-resolve flow.
 
-### External Services
+**Do this instead:** All worktrees in a wave are created from the same HEAD snapshot. Complete the full wave (all merges resolved) THEN create the next wave's worktrees from the updated HEAD.
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| Claude Code (slash commands) | Plugin Markdown files in `commands/` directory; invoke binary via Bash tool | Plugin installed to `~/.claude/plugins/` or `.claude/` scoped |
-| Claude Code (subagents) | Agent Markdown files in `agents/` directory with frontmatter; orchestrator spawns them | Agents receive injected spec context via system prompt additions |
-| Claude Code (hooks) | `hooks/hooks.json` with PostToolUse or PreToolUse matchers | Optional: enforce spec-alignment check before Write/Edit tools |
-| MCP Server (optional v2) | Go binary exposes MCP stdio server; Claude Code connects via `.mcp.json` | Enables richer tool calls (read spec, check state) as MCP tools instead of shell invocation |
+### Anti-Pattern 4: Embedding Research Metadata in proposal.md Frontmatter
 
-### Internal Boundaries
+**What people do:** Add `research_enabled: true`, `gray_areas: [...]`, and `research_summary: "..."` to the YAML frontmatter of proposal.md.
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| `cmd/` ↔ `internal/engine/` | Direct Go function calls; cmd passes parsed config | No interface abstraction needed at v1; add if multiple execution backends needed |
-| `cmd/` ↔ `internal/spec/` | Direct Go function calls; returns typed structs | Parser is the only consumer of raw Markdown |
-| `internal/engine/` ↔ `internal/spec/` | Engine receives `spec.Change` struct; never reads files | Dependency direction: engine depends on spec, not reverse |
-| `internal/engine/` ↔ `internal/verify/` | Separate pipeline invocations; both read parsed spec | No direct coupling; both are orchestrated by cmd layer |
-| `internal/state/` ↔ all | State is read/written by cmd layer; internal packages do not write state | Prevents hidden state transitions inside engine or verify |
-| Plugin ↔ Binary | Shell exec: `myssd <command> --change <name>` | Binary reads `.ssd-state.json` for context; no in-process coupling |
+**Why it is wrong:** Research state is ephemeral orchestration context, not spec content. Pollutes OpenSpec format and breaks compatibility with other OpenSpec tools.
 
-## Suggested Build Order
+**Do this instead:** Use the sidecar `discovery-state.json` pattern (same as existing `verification-status.json`). proposal.md body references conclusions from research, but not the process metadata.
 
-Dependencies drive this order — each layer depends on the one before it.
+### Anti-Pattern 5: New Cobra Commands for Pure-Orchestration Flows
 
-```
-1. Storage schema         .specs/ directory conventions, file layout docs
-        │
-        ▼
-2. internal/spec/         Parser + schema structs + writer
-   (parse, validate,      Foundation: everything depends on spec types
-    scaffold)
-        │
-        ▼
-3. internal/state/        WorkflowState struct + read/write + lock
-   (phase tracking)       Needed before any command can enforce transitions
-        │
-        ▼
-4. cmd/ skeleton          Cobra root + all commands registered (thin stubs)
-   (CLI wiring)           Enables integration testing of CLI surface early
-        │
-        ▼
-5. internal/engine/       Context builder + single-agent runner
-   (execution)            Depends on spec (for context) and state (for phase)
-        │
-        ▼
-6. internal/verify/       MUST collector + verifier + reporter
-   (verification)         Depends on spec (for requirements), engine patterns
-        │
-        ▼
-7. plugin/                Slash commands + agents (Markdown)
-   (Claude Code layer)    Written after binary commands are stable; thin wrappers
-        │
-        ▼
-8. internal/engine/wave   Parallel task dispatch (v2 — after v1 proven)
-   (parallelism)
-```
+**What people do:** Add `cmd/discuss.go` with a full cobra command that drives the discussion loop.
+
+**Why it is wrong:** Discussion is an AI-driven interactive loop that cannot be expressed as a stateless CLI invocation. Attempting to do so produces a command that either runs non-interactively (useless) or reads stdin (breaks the context-provider pattern).
+
+**Do this instead:** discuss and fix are SKILL.md-only flows. If the discuss flow needs to read binary state, it calls `mysd status --context-only` or `mysd execute --context-only` (which already exist). Binary state mutations use existing commands (`mysd spec`, `mysd plan`).
+
+---
+
+## Build Order Recommendation
+
+Dependencies flow downward. Build in this order to avoid blocked work:
+
+**Phase 1 — Schema Foundation (no cross-package deps)**
+1. `internal/spec/` — add `Depends`/`Files` to `TaskEntry` and `TasksFrontmatterV2`
+2. `internal/config/` — add new agent roles to `DefaultModelMap`, add `WorktreeDir`/`AutoMode`
+3. `internal/planchecker/` — new package, depends only on `internal/spec/` types
+
+**Phase 2 — Executor Extension**
+4. `internal/executor/` — add `BuildWaveGroups`, extend `ExecutionContext` with wave data
+5. `cmd/execute.go` — consume wave groups, add `--auto` flag
+
+**Phase 3 — Worktree Support**
+6. `internal/worktree/` — new package (depends only on `os/exec` stdlib for git)
+7. `plugin/agents/mysd-executor.md` — add worktree isolation instructions
+
+**Phase 4 — New Binary Commands**
+8. `cmd/model.go` — model profile read/write/resolve
+9. `cmd/lang.go` — locale setting (writes two yaml files)
+10. `cmd/scan.go` + `internal/scanner/` — language-agnostic refactor, scaffold-only flag
+11. `cmd/plan.go` — output coverage JSON after state transition (uses planchecker)
+
+**Phase 5 — New SKILL.md Orchestrators**
+12. `plugin/commands/mysd-discuss.md`
+13. `plugin/commands/mysd-fix.md`
+14. `plugin/commands/mysd-model.md`
+15. `plugin/commands/mysd-lang.md`
+
+**Phase 6 — New Agent Definitions**
+16. `plugin/agents/mysd-researcher.md`
+17. `plugin/agents/mysd-advisor.md`
+18. `plugin/agents/mysd-proposal-writer.md`
+19. `plugin/agents/mysd-plan-checker.md`
+
+**Phase 7 — Discovery Integration (depends on Phase 6 complete)**
+20. `internal/discovery/` — DiscoveryContext, DiscoveryState, BuildDiscoveryContext
+21. Modify `plugin/commands/mysd-propose.md` — add research mode flow
+22. Modify `plugin/commands/mysd-spec.md` — add research mode flow
+23. Modify `plugin/commands/mysd-ff.md` + `mysd-ffe.md` — auto mode, research-once pattern
+
+**Phase 8 — Plan-Checker Integration (depends on Phase 3 + Phase 6 complete)**
+24. Modify `plugin/commands/mysd-plan.md` — auto-spawn plan-checker after plan completes
+
+---
 
 ## Sources
 
-- [Claude Code Plugins Reference](https://code.claude.com/docs/en/plugins-reference) — authoritative plugin directory structure, agent frontmatter schema, hook events (HIGH confidence)
-- [OpenSpec Workflow](https://openspec.pro/workflow/) — proposal/spec/design/tasks artifact model (HIGH confidence)
-- [OpenSpec GitHub Workflows doc](https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md) — command set and flow patterns (HIGH confidence)
-- [Structuring Go Code for CLI Applications](https://www.bytesizego.com/blog/structure-go-cli-app) — cmd/internal/pkg organization patterns (HIGH confidence)
-- [Go CLI Applications with Cobra and Viper](https://www.glukhov.org/post/2025/11/go-cli-applications-with-cobra-and-viper/) — Cobra command hierarchy, flag inheritance (HIGH confidence)
-- [AI Workflow Patterns in Go](https://dasroot.net/posts/2026/02/ai-workflow-patterns-go-cli-tools-agents/) — goroutine-based orchestration, agent dispatch patterns (MEDIUM confidence)
-- [mcp-go](https://github.com/mark3labs/mcp-go) — Go MCP server stdlib stdio integration (MEDIUM confidence, for v2 MCP path)
-- [GitHub spec-kit](https://github.com/github/spec-kit) — parallel SDD toolkit for comparison (MEDIUM confidence)
+- Direct codebase analysis — v1.0 source at `/d/work_data/project/go/mysd` (HIGH confidence)
+  - `internal/executor/context.go` — ExecutionContext schema
+  - `internal/spec/schema.go` — TaskEntry, TasksFrontmatterV2
+  - `internal/state/transitions.go` — ValidTransitions map
+  - `internal/config/defaults.go` + `config.go` — ProjectConfig, DefaultModelMap
+  - `plugin/commands/mysd-execute.md` — SKILL.md orchestration pattern (binary-as-context-provider)
+  - `plugin/agents/mysd-executor.md` — subagent input contract
+  - `plugin/commands/mysd-ff.md` — fast-forward orchestration + Task tool pattern
+  - `plugin/agents/mysd-planner.md` — planner agent input contract
+- `.specs/changes/interactive-discovery/proposal.md` — v1.1 feature specification (HIGH confidence)
+- `.planning/PROJECT.md` — milestone context, constraints, key decisions (HIGH confidence)
 
 ---
-*Architecture research for: AI-assisted Spec-Driven Development CLI (my-ssd)*
-*Researched: 2026-03-23*
+*Architecture research for: mysd v1.1 — Interactive Discovery, Worktree Parallel Execution, Subagent Orchestration*
+*Researched: 2026-03-25*

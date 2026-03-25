@@ -1,8 +1,25 @@
 # Feature Research
 
-**Domain:** AI-assisted Spec-Driven Development (SDD) CLI tooling — Claude Code plugin
-**Researched:** 2026-03-23
-**Confidence:** HIGH (primary sources: OpenSpec, GSD repos, GitHub Spec Kit, BMAD-METHOD docs, intent-driven.dev)
+**Domain:** AI-powered CLI tool for Spec-Driven Development — v1.1 milestone: interactive discovery, parallel execution, subagent orchestration, language-agnostic scanning
+**Researched:** 2026-03-25
+**Confidence:** HIGH (proposal.md is authoritative; existing codebase verified directly)
+
+---
+
+## Context: What Already Exists (v1.0 — Do Not Rebuild)
+
+The following are already shipped and must be treated as stable foundations:
+
+| Existing Feature | Location | Notes |
+|-----------------|----------|-------|
+| propose → spec → design → plan → execute → verify → archive | `cmd/` | Full pipeline with phase gates |
+| OpenSpec-compatible parser (brownfield) | `internal/spec/` | Delta specs, RFC 2119 keywords |
+| Single/wave execution modes | `cmd/execute.go`, `internal/executor/` | Wave is basic — no `depends`/`files` handling |
+| Model profile system (quality/balanced/budget) | `internal/config/config.go` | `ResolveModel` + `DefaultModelMap`; config only, no CLI |
+| ff/ffe fast-forward commands | `cmd/ff.go`, `cmd/ffe.go` | Already imply auto behavior |
+| /mysd:scan (Go packages only) | `internal/scanner/scanner.go` | `PackageInfo` is Go-specific (`GoFiles`, `TestFiles`) |
+| status dashboard, capture, init | `cmd/` | status is read-only; init creates scaffold |
+| 14 SKILL.md commands + 8 agent definitions | `plugin/` | mysd-executor, mysd-planner, etc. |
 
 ---
 
@@ -10,139 +27,155 @@
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete.
+Non-negotiable for v1.1. Missing these = milestone feels incomplete.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Structured spec artifacts** (proposal + specs/ + design + tasks) | Every SDD tool (OpenSpec, GitHub Spec Kit, BMAD) organizes changes this way — users trained to expect this folder structure | MEDIUM | Must map to OpenSpec's `proposal.md / specs/ / design.md / tasks.md`; my-ssd stores under `.specs/` |
-| **Linear workflow commands** (propose → spec → design → plan → execute → verify → archive) | Users of OpenSpec, GitHub Spec Kit, BMAD all expect a named command per phase — the phase gate is the UX | MEDIUM | GSD maps to new-project/plan-phase/execute-phase/verify-work; OpenSpec maps to propose/apply/archive |
-| **Single-agent execution** (default) | Most users start simple; multi-agent is a power feature — if default is complex, users abandon | LOW | Convention over config: run sequentially unless parallelism is explicitly triggered |
-| **Spec as source of truth** | The core claim of every SDD tool; AI must read and acknowledge spec before writing code | LOW | Enforced via pre-execution alignment step — not optional |
-| **Claude Code slash commands** | This is a Claude Code plugin; slash commands ARE the UX — no slash commands = no plugin | LOW | `/mysd:propose`, `/mysd:execute`, etc. — the primary interface |
-| **Spec status tracking** (PENDING / IN_PROGRESS / DONE / BLOCKED) | Users need to know what state a spec is in across sessions | LOW | Stored in spec metadata header; machine-readable |
-| **Archive / history** | Completed specs must be retrievable; OpenSpec has `/opsx:archive` and bulk-archive | LOW | Move completed specs to `.specs/archive/`; retain full artifact folder |
-| **RFC 2119 keyword support** (MUST / SHOULD / MAY) | Required for goal-backward verification — verification logic parses MUST items | MEDIUM | Parser must distinguish MUST (required) from SHOULD (preferred) from MAY (optional) |
-| **Brownfield support** (run on existing projects) | Most real projects are not greenfield; OpenSpec explicitly calls this out as a design goal | MEDIUM | `/mysd:onboard` equivalent — reads existing code, generates baseline context without reverse-engineering full specs |
-| **Session continuity** (cross-session state) | Long projects span days; tool must recover current position without user explaining history | MEDIUM | GSD's `STATE.md` + `HANDOFF.json` pattern; at minimum a `.specs/STATE.md` |
-| **Convention over configuration** | Power users want zero-config defaults; forcing config before first run kills adoption | LOW | Sensible defaults for all paths, naming, and behavior — config optional |
-
----
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| `/mysd:discuss` command | Users need ad-hoc spec updates outside the main workflow; gap is visible in v1.0 — no path to update spec mid-project without re-running the full pipeline | MEDIUM | Existing spec/design/tasks parsers; re-plan trigger; plan-checker |
+| `/mysd:fix` command | Bug fixes are the most common unplanned work; no current path for code-only targeted repairs | MEDIUM | Worktree isolation; existing mysd-executor agent |
+| `/mysd:model` CLI | Model profile exists in config but has no CLI surface; editing `mysd.yaml` manually to change profile is friction | LOW | Existing `ResolveModel` + `config.Load`; no new agents |
+| `/mysd:lang` CLI | `response_language` / `document_language` in config but no CLI surface; locale sync with `openspec/config.yaml` is manual | LOW | Existing config system; new `openspec/config.yaml` writer |
+| Task dependency + file overlap detection | Wave mode currently distributes tasks without checking `depends` or `files` — causes ordering bugs and race conditions on shared files | HIGH | Extends `TaskItem` schema + `tasks.md` format; planner must write `depends`/`files`; topological sort + overlap algorithm |
+| Plan-checker auto-trigger | Every plan should be validated for MUST coverage; easy to miss requirements silently | MEDIUM | New `mysd-plan-checker` agent definition; existing MUST parser |
+| Scan upgrade to language-agnostic | `/mysd:scan` only detects Go files; non-Go projects get no output at all | HIGH | Rewrite `internal/scanner/scanner.go`; language detection by extension + module file; `openspec/config.yaml` writer |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the product apart. Not required, but valued.
+Features that set mysd apart from generic AI coding assistants and from v1.0.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Goal-backward verification** | Unlike OpenSpec (no built-in verifier) and GitHub Spec Kit (no automated post-execution check), my-ssd verifies that every MUST item in the spec was satisfied after execution — closes the feedback loop | HIGH | Parses spec for MUST items → generates checklist → runs verification agent → updates spec status automatically |
-| **Spec feedback loop** (verification results written back to spec) | Spec is a living document, not a one-shot prompt; failed MUST items stay open, passed items get marked done — no other tool does this automatically | HIGH | Requires bidirectional spec I/O: read before execution, write after verification |
-| **Delta Specs** (ADDED / MODIFIED / REMOVED semantics) | Uniquely OpenSpec-derived — lets AI understand the *change type* not just the requirement, enabling smarter diffs and rollback reasoning | MEDIUM | Parse delta markers; use them to scope execution and verification narrowly |
-| **Single Go binary, no runtime dependency** | Every competing tool (OpenSpec, GSD, BMAD) requires Node.js; Go binary = `curl | install` UX; zero friction for non-Node projects | MEDIUM | Cross-compile for macOS/Linux/Windows; distribute via GitHub releases |
-| **Tight spec-execution coupling** (pre-execution alignment gate) | Tools like OpenSpec and GitHub Spec Kit are spec-first but leave execution to ad-hoc AI prompting; my-ssd makes the alignment step non-bypassable | LOW | Before any execute command, agent must confirm it has read and understood the spec — structured checkpoint |
-| **Multi-agent wave execution** (opt-in parallel) | GSD has this but OpenSpec doesn't; for complex tasks, parallel execution cuts wall-clock time significantly | HIGH | Dependency analysis → wave grouping → dispatch parallel agents with isolated contexts; default OFF |
-| **OpenSpec format compatibility** (zero-migration path) | Existing OpenSpec users can point my-ssd at their `openspec/` dir and get execution + verification for free — no re-tooling | MEDIUM | Format parser must handle both OpenSpec's directory layout and my-ssd's `.specs/` layout |
-| **Brownfield codebase onboarding** (map-then-spec) | `/mysd:onboard` generates `STACK.md`, `ARCHITECTURE.md`, `CONVENTIONS.md` from existing code before any spec is written — prevents AI from ignoring existing patterns | HIGH | Run static analysis + AI summarization on existing codebase; output feeds all subsequent spec generation |
-| **Atomic git commits per task** | GSD does this; OpenSpec doesn't enforce it; traceable task→commit mapping makes bisect and rollback practical | LOW | Each executed task triggers `git commit` with structured message; requires git in PATH |
-
----
+| Feature | Value Proposition | Complexity | Depends On |
+|---------|-------------------|------------|------------|
+| Interactive Discovery — dual-mode (research + general) | Most AI tools ask clarifying questions linearly; mysd spawns parallel `mysd-advisor` agents per gray area and brings back comparison tables — significantly higher spec quality; dual-loop conversation model (deep dive within area + discover new areas) | HIGH | New `mysd-researcher` + `mysd-advisor` agent definitions; Codebase Scout (orchestrator grep/glob); scope guardrail in SKILL.md conversation flow |
+| Worktree-based parallel execution with AI conflict resolution | Git worktrees give each task a fully isolated working copy; AI resolves merge conflicts and validates with `go build`/`go test` (or language-appropriate equivalent); 3-retry before user notification; partial failure policy (one wave task failing does not block others) | HIGH | Task dependency + file overlap detection (prerequisite); `git worktree` CLI; branch naming `mysd/{change}/T{id}-{slug}`; `.worktrees/T{id}/` short paths for Windows compat |
+| Shared research result across auto/ff/ffe | Research done once in `propose` stage and reused by `spec`, `plan`, etc. — avoids repeated AI calls for the same context; ff/ffe imply `--auto` and inherit the shared research | MEDIUM | Interactive Discovery (research mode); existing ff/ffe commands |
+| Subagent architecture with per-stage orchestration | Each workflow stage has a dedicated orchestrator (SKILL.md) + specialized subagents; clear separation of concerns vs. monolithic agents; `mysd-proposal-writer` and `mysd-spec-writer` per capability area improve output quality | MEDIUM | New agent `.md` definitions under `plugin/agents/`; existing Task tool pattern in SKILL.md |
+| Codebase Scout (zero new Go code) | Before propose/spec/discuss, orchestrator does targeted grep/glob to surface reusable patterns and integration points — grounds AI proposals in actual code; no new subagent needed | LOW | Orchestrator-level grep/glob steps in SKILL.md; no changes to Go binary |
+| Scope guardrail in discovery | Prevents scope creep during gray-area exploration; redirects expansion ideas to deferred notes instead of silently widening scope — enforces discipline that most AI tools lack | LOW | Discovery loop logic in SKILL.md; no new Go code |
+| `--auto` flag for non-interactive workflows | `propose`/`spec`/`discuss` can run without prompting; ff/ffe implicitly set `--auto`; combined with research reuse this enables fully automated propose→archive runs | MEDIUM | Interactive Discovery (research mode must produce shareable output); ff/ffe integration |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that seem good but create problems.
-
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| **GUI / web dashboard** | Visualizing spec status and history looks appealing | Massive scope expansion; the target user is a developer comfortable with CLI and file-based workflows; adds maintenance burden for a non-CLI surface | Rich terminal output (`/mysd:status`) with color-coded phase progress; let files be the UI |
-| **Full reverse-engineering of entire codebase into specs** | Users want "generate specs for everything I have" on brownfield projects | AI-generated specs from existing code are often inaccurate (intent-driven.dev research confirms this); specs that diverge from reality are worse than no specs — false confidence | Incremental spec authoring: write specs for upcoming changes only; use `/mysd:onboard` only for conventions/stack, not for full reverse-engineering |
-| **Multi-AI-tool support** (Cursor, Copilot, Gemini CLI) | Broader compatibility sounds like more value | Each tool has different context injection mechanics; supporting N tools in v1 multiplies complexity without validating the core spec-execution loop | v1 is Claude Code only; abstract the plugin interface so other runtimes can be added after core is proven |
-| **Team collaboration features** (shared spec review, multi-user approval) | Looks like enterprise value | Solo developer + AI is the validated use case; multi-user workflows require auth, concurrency control, conflict resolution — entirely different product | Version control (git) handles multi-person collaboration on spec files; the tool doesn't need to own it |
-| **Real-time spec sync** (auto-update specs as code changes) | Spec drift is real; auto-sync seems like the fix | Specs describe intent; code describes implementation; auto-sync from code back to specs inverts the causality — the spec should drive code, not vice versa | After execution, run verification to mark MUST items as satisfied or failed; never auto-rewrite spec intent from code output |
-| **57-command surface** (GSD-style comprehensive command set) | More commands = more power | Every additional command is surface area to maintain, document, and keep consistent; GSD's breadth is also its onboarding problem | Minimal command set covering the core loop: `propose → spec → design → plan → execute → verify → archive`; add commands only when validated need exists |
-| **Configuration-heavy setup** | Power users want to customize everything | Forces decisions before any value is delivered; kills the "try it in 5 minutes" experience | Convention over configuration: all defaults work out of the box; `mysd.yaml` exists but is never required |
+| Interactive discovery in design stage | Users want AI involvement at every phase | `design.md` records architectural decisions made after spec is settled; adding discovery here creates feedback loops between spec and design, causing spec churn | Keep design as decision-recording only; all discovery in propose/spec/discuss |
+| GUI / Web dashboard for worktree status | Visual appeal, easier monitoring | Violates CLI-first constraint; adds runtime server dependency; out-of-scope per PROJECT.md | lipgloss-styled terminal summary; `mysd status` extended for worktree state |
+| MCP server for subagent coordination | Seems like the "AI-native" integration pattern | Always-running process, infrastructure complexity, breaks single-binary deployment; already proven unnecessary in v1.0 | Binary-called-from-SKILL.md pattern (validated v1.0 architecture) |
+| Real-time streaming output from parallel tasks | Feels more responsive during execution | Interleaved output from N worktrees is unreadable; requires TUI event loop (bubbletea) which is explicitly out of scope | Per-task progress written to `.worktrees/T{id}/.progress`; lipgloss summary printed after wave completes |
+| Model selection per individual task | Fine-grained cost control | Cognitive overhead; defeats the purpose of model profiles; hard to reason about token costs | `ModelOverrides` map in config for per-agent-role overrides (already in `ProjectConfig`) |
+| Auto-push worktree branches to remote | Convenient for team review | Out of scope — mysd is a single-developer tool; adds git remote as execution dependency | Local merge only; user pushes when ready |
+| Auto-rewrite spec intent from code output | Prevent spec drift by keeping spec in sync with code | Inverts causality — spec drives code, not vice versa; auto-sync from code to spec destroys the spec-as-source-of-truth guarantee | After execution, verify that MUST items were satisfied; update spec STATUS field only, never intent |
 
 ---
 
 ## Feature Dependencies
 
 ```
-[Spec Artifacts (proposal/specs/design/tasks)]
-    └──required by──> [Workflow Commands]
-                           └──required by──> [Pre-Execution Alignment Gate]
-                                                  └──required by──> [Goal-Backward Verification]
-                                                                         └──required by──> [Spec Feedback Loop]
+[Interactive Discovery]
+    └──requires──> [mysd-researcher agent definition]
+    └──requires──> [mysd-advisor agent definition (x N parallel)]
+    └──requires──> [Codebase Scout (grep/glob in orchestrator SKILL.md)]
+    └──enhances──> [/mysd:propose SKILL.md]
+    └──enhances──> [/mysd:spec SKILL.md]
+    └──enhances──> [/mysd:discuss SKILL.md]
+    └──produces──> [Shared Research Result]
+                        └──consumed-by──> [Auto Mode / ff / ffe]
 
-[RFC 2119 Keyword Support]
-    └──required by──> [Goal-Backward Verification]
-                           └──required by──> [Spec Feedback Loop]
+[/mysd:discuss]
+    └──requires──> [existing spec/design/tasks parsers]
+    └──triggers──> [re-plan: mysd plan re-run]
+    └──triggers──> [Plan-checker auto-run]
+    └──can-use──> [Interactive Discovery (optional research mode)]
 
-[Delta Specs (ADDED/MODIFIED/REMOVED)]
-    └──enhances──> [Goal-Backward Verification]  (scope verification to the change type)
-    └──enhances──> [Spec Feedback Loop]          (mark delta items individually)
+[Plan-checker]
+    └──requires──> [mysd-plan-checker agent definition]
+    └──requires──> [existing MUST requirement parser]
+    └──triggered-by──> [/mysd:plan completion]
+    └──triggered-by──> [/mysd:discuss → re-plan path]
 
-[Brownfield Onboarding (map-then-spec)]
-    └──required by──> [OpenSpec Format Compatibility]  (must understand existing layout)
-    └──enhances──> [Workflow Commands]                 (context feeds spec generation quality)
+[Task Dependency + File Overlap Detection]
+    └──requires──> [TaskItem schema extended: depends[] + files[]]
+    └──requires──> [tasks.md format extended (planner writes depends/files)]
+    └──requires──> [topological sort + file-overlap algorithm in execute orchestrator]
+    └──enables──> [Worktree Parallel Execution (correct wave layering)]
+    └──MUST precede──> [Worktree Parallel Execution]
 
-[Session Continuity (STATE.md)]
-    └──required by──> [Multi-Agent Wave Execution]  (wave state must survive restarts)
-    └──enhances──> [Workflow Commands]              (resume mid-workflow)
+[Worktree Parallel Execution]
+    └──requires──> [Task Dependency + File Overlap Detection]
+    └──requires──> [git worktree CLI (system dependency, standard git)]
+    └──requires──> [mysd-executor agent (existing, extended for worktree context)]
+    └──extends──> [existing wave execution in /mysd:execute SKILL.md]
+    └──provides-isolation-for──> [/mysd:fix]
 
-[Multi-Agent Wave Execution]
-    └──requires──> [Session Continuity]
-    └──requires──> [Atomic Git Commits]   (rollback must be per-task, not per-wave)
-    └──conflicts with──> [Single Go Binary constraint]  (spawning sub-agents requires Claude Code's agent API, not a Go subprocess — integration boundary must be clear)
+[/mysd:fix]
+    └──requires──> [Worktree Parallel Execution isolation machinery]
+    └──reuses──> [mysd-executor agent (existing)]
+    └──redirects-spec-issues-to──> [/mysd:discuss]
 
-[Atomic Git Commits]
-    └──enhances──> [Multi-Agent Wave Execution]
-    └──independent of──> [Goal-Backward Verification]  (can verify without commits, but commits help audit trail)
+[--auto flag]
+    └──requires──> [Interactive Discovery (research mode must produce shareable output)]
+    └──integrates-with──> [ff/ffe (already imply --auto behavior)]
 
-[Single Go Binary]
-    └──conflicts with──> [Node.js ecosystem tooling]  (cannot use npm packages; MCP/plugin integration is via file I/O and slash commands, not Node modules)
+[Scan Upgrade (language-agnostic)]
+    └──replaces──> [existing Go-only scanner.go]
+    └──requires──> [language detection: extension mapping + module file detection]
+    └──requires──> [openspec/config.yaml writer (new)]
+    └──enables──> [/mysd:init refactored as scan --scaffold-only]
+
+[/mysd:model]
+    └──requires──> [existing ResolveModel + config.Load]
+    └──independent (no new agents, no schema change)
+
+[/mysd:lang]
+    └──requires──> [existing config system]
+    └──requires──> [openspec/config.yaml writer (shared with Scan Upgrade)]
+
+[Subagent Definitions (researcher, advisor, proposal-writer, plan-checker)]
+    └──required-by──> [Interactive Discovery]
+    └──required-by──> [Plan-checker]
+    └──enhances──> [/mysd:propose (proposal-writer replaces inline writing)]
+    └──enhances──> [/mysd:spec (spec-writer becomes per-capability-area spawn)]
 ```
 
 ### Dependency Notes
 
-- **Goal-Backward Verification requires RFC 2119 Keyword Support:** The verifier needs to know which items are MUST (non-negotiable) vs SHOULD (preferred) to build the correct checklist; without this parsing, verification is guesswork.
-- **Spec Feedback Loop requires Goal-Backward Verification:** Writing results back to the spec is only meaningful after verification has produced structured pass/fail outcomes; the feedback loop is the output of verification, not a separate feature.
-- **Multi-Agent Wave Execution conflicts with Single Go Binary at the agent-spawn boundary:** Go binary manages orchestration state and file I/O; actual agent spawning uses Claude Code's native subagent API (`.claude/agents/`); the Go binary cannot spawn Claude agents directly — it prepares context and dispatches instructions via Claude Code's plugin mechanism.
-- **Brownfield Onboarding enhances all Workflow Commands:** Once `CONVENTIONS.md` and `ARCHITECTURE.md` are generated by onboarding, all subsequent spec-generation steps use them as grounding context, preventing the AI from inventing patterns that contradict the existing codebase.
-- **OpenSpec Format Compatibility requires Brownfield Onboarding logic:** Recognizing and reading an existing OpenSpec `openspec/` directory is a specialization of the brownfield problem — same parser, different entry path.
+- **Task Dependency + File Overlap Detection must be built before Worktree Parallel Execution.** Worktree isolation without correct topological ordering will produce incorrect merge sequences and corrupt shared state even with AI conflict resolution.
+- **Interactive Discovery requires Codebase Scout.** The researcher agent needs grounded starting points (actual code patterns found by grep/glob) before formulating questions; without this, researcher output hallucinates integration points.
+- **/mysd:discuss triggers plan-checker.** Because discuss updates spec and auto-triggers re-plan, plan-checker must be complete before /mysd:discuss is considered done.
+- **Scan Upgrade and /mysd:lang share the `openspec/config.yaml` writer.** Both features write to `openspec/config.yaml`; the writer should be implemented once (in Go binary) and reused.
+- **Auto mode depends on Interactive Discovery producing a shareable research result.** Without this, ff/ffe cannot reuse research across stages and would either re-run research (wasteful) or skip it (lower quality).
+- **/mysd:fix reuses worktree isolation.** Fix is not an independent worktree implementation — it calls the same machinery as parallel execution but with a single task and interactive repair loop.
 
 ---
 
 ## MVP Definition
 
-### Launch With (v1)
+This is a subsequent milestone (v1.1), not greenfield. "Launch with" = required for milestone closure.
 
-Minimum viable product — what's needed to validate that spec-to-execution-to-verification is tighter than using OpenSpec + GSD separately.
+### Launch With (v1.1 milestone)
 
-- [ ] **Spec Artifacts** (proposal.md, specs/, design.md, tasks.md) — the container for all work; without this, there is nothing to drive execution from
-- [ ] **Core Workflow Commands** (`/mysd:propose`, `/mysd:execute`, `/mysd:verify`, `/mysd:archive`) — the minimum loop; propose and execute are necessary to produce output; verify is the entire differentiating value; archive closes the loop
-- [ ] **Pre-Execution Alignment Gate** — forces AI to read and acknowledge the spec before writing any code; this is the single most important behavior change over plain AI coding
-- [ ] **RFC 2119 Keyword Parsing** (MUST / SHOULD / MAY) — required for goal-backward verification; the parser is simple but must be correct
-- [ ] **Goal-Backward Verification** — generates checklist from spec MUST items, runs post-execution check, marks items pass/fail; this is the core differentiator vs OpenSpec
-- [ ] **Spec Feedback Loop** — writes verification results back into spec status; makes spec a living document rather than a one-shot artifact
-- [ ] **Session Continuity** (STATE.md) — without this, multi-session projects lose progress; low complexity but high user value
-- [ ] **Archive / History** — completed specs move to `.specs/archive/`; essential for project cleanliness
-- [ ] **Single Go Binary** — the deployment story; without this, installation friction is identical to OpenSpec/GSD
-- [ ] **OpenSpec Format Compatibility** — required for brownfield adoption by existing OpenSpec users; parser for existing `openspec/` layouts
+- [ ] Task dependency + file overlap detection (`depends` + `files` in `TaskItem`; planner writes them; topological sort + overlap algorithm in execute orchestrator) — foundation for correct parallel execution
+- [ ] Worktree parallel execution with AI conflict resolution, 3-retry policy, partial failure handling — core new execution capability
+- [ ] Interactive Discovery dual-mode (research + general) in propose/spec/discuss — primary user-facing value of v1.1
+- [ ] `/mysd:discuss` with auto re-plan + plan-checker trigger — closes the spec-update gap left in v1.0
+- [ ] Plan-checker (`mysd-plan-checker` agent, auto-triggered after every plan) — mandatory MUST coverage quality gate
+- [ ] New subagent definitions: `mysd-researcher`, `mysd-advisor`, `mysd-proposal-writer`, `mysd-plan-checker` — required by discovery and plan-checker
+- [ ] `/mysd:fix` with worktree isolation — targeted code-only repair path
+- [ ] Scan upgrade to language-agnostic (extension detection + module file detection + `openspec/config.yaml` writer) — unblocks non-Go users
+- [ ] `/mysd:model` CLI (show/set/resolve) — surfaces existing config capability
+- [ ] `/mysd:lang` CLI (interactive locale + `openspec/config.yaml` sync) — surfaces existing config + locale sync
+- [ ] Model profile table extended for new agents (researcher, advisor, proposal-writer, plan-checker) — required for model profile system to be complete
 
-### Add After Validation (v1.x)
+### Add After Validation (v1.1.x)
 
-Features to add once core loop is working and users are reporting specific pain points.
-
-- [ ] **Delta Specs** (ADDED / MODIFIED / REMOVED) — add when users report that verification scope is too broad for incremental changes; MEDIUM complexity
-- [ ] **Brownfield Codebase Onboarding** (`/mysd:onboard`) — add when users report that AI is ignoring existing patterns during spec execution; HIGH complexity
-- [ ] **Atomic Git Commits per Task** — add when users report difficulty bisecting failures; LOW complexity once execution scaffolding is in place
-- [ ] **`/mysd:design` and `/mysd:plan` commands** — expand the workflow from the 4-command MVP to the full 7-command suite once the core loop is validated
+- [ ] `--auto` flag polish across propose/spec/discuss — trigger: interactive discovery + research reuse works stably in v1.1
+- [ ] Codebase Scout refinement (smarter grep patterns per detected language) — trigger: scanner upgrade shipped and language is known
+- [ ] Incremental scan update mode (add new specs without overwriting existing ones) — trigger: users report scan overwriting manual edits
 
 ### Future Consideration (v2+)
 
-Features to defer until product-market fit is established.
-
-- [ ] **Multi-Agent Wave Execution** — defer until single-agent execution is reliable; wave orchestration adds significant complexity; validate that users hit single-agent performance limits before building this
-- [ ] **Multi-Runtime Support** (OpenCode, Gemini CLI) — defer until Claude Code integration is proven; abstracting the plugin interface should be designed for early but not implemented until v1 is stable
-- [ ] **Spec Templates / Profiles** — defer until patterns in user-generated specs reveal what should be standardized
+- [ ] Multi-language model profile differentiation (different defaults for Python vs Go projects) — defer: language-agnostic scan baseline is enough for v1.1
+- [ ] Worktree progress streaming to terminal — defer: per-task `.progress` file pattern is sufficient; TUI is explicitly out of scope
+- [ ] Support for AI tools beyond Claude Code — explicitly out of scope for v1.x
 
 ---
 
@@ -150,65 +183,117 @@ Features to defer until product-market fit is established.
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Spec Artifacts (4-artifact structure) | HIGH | MEDIUM | P1 |
-| Core Workflow Commands (propose/execute/verify/archive) | HIGH | MEDIUM | P1 |
-| Pre-Execution Alignment Gate | HIGH | LOW | P1 |
-| RFC 2119 Keyword Parsing | HIGH | LOW | P1 |
-| Goal-Backward Verification | HIGH | HIGH | P1 |
-| Spec Feedback Loop | HIGH | MEDIUM | P1 |
-| Session Continuity (STATE.md) | HIGH | LOW | P1 |
-| Archive / History | MEDIUM | LOW | P1 |
-| Single Go Binary | HIGH | MEDIUM | P1 |
-| OpenSpec Format Compatibility | HIGH | MEDIUM | P1 |
-| Delta Specs | MEDIUM | MEDIUM | P2 |
-| Atomic Git Commits per Task | MEDIUM | LOW | P2 |
-| Brownfield Codebase Onboarding | HIGH | HIGH | P2 |
-| `/mysd:design` + `/mysd:plan` commands | MEDIUM | LOW | P2 |
-| Multi-Agent Wave Execution | MEDIUM | HIGH | P3 |
-| Multi-Runtime Support | LOW | HIGH | P3 |
-| Spec Templates / Profiles | LOW | MEDIUM | P3 |
+| Task dependency + file overlap detection | HIGH | HIGH | P1 — prerequisite for correct parallel execution |
+| Worktree parallel execution | HIGH | HIGH | P1 — core v1.1 capability |
+| Interactive Discovery (propose/spec/discuss) | HIGH | HIGH | P1 — primary user-facing value |
+| /mysd:discuss + auto re-plan | HIGH | MEDIUM | P1 — closes major v1.0 workflow gap |
+| Plan-checker | HIGH | LOW | P1 — every plan needs MUST coverage check |
+| New subagent definitions (researcher, advisor, proposal-writer, plan-checker) | HIGH | MEDIUM | P1 — required by discovery and plan-checker |
+| /mysd:fix | MEDIUM | MEDIUM | P1 — unblocks targeted repairs without full re-execute |
+| Scan upgrade (language-agnostic) | HIGH | HIGH | P1 — non-Go users get nothing from scan currently |
+| /mysd:model CLI | MEDIUM | LOW | P2 — config works; CLI is convenience surface |
+| /mysd:lang CLI | MEDIUM | LOW | P2 — config works; CLI + locale sync is convenience |
+| --auto flag | MEDIUM | MEDIUM | P2 — ff/ffe already work; --auto is an enhancement |
+| Codebase Scout | MEDIUM | LOW | P2 — orchestrator grep/glob, no new Go code |
+| Model profile extended for new agents | LOW | LOW | P3 — existing defaults are usable as fallback |
 
 **Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible
+- P1: Must have for v1.1 milestone closure
+- P2: Should have, add when P1 is stable
 - P3: Nice to have, future consideration
+
+---
+
+## Complexity Notes by Feature Group
+
+### HIGH Complexity — Requires Careful Phase Ordering
+
+**Task Dependency + Worktree Parallel Execution** (one logical unit across two features):
+- Schema change: `TaskItem` and `tasks.md` format must carry `depends []int` and `files []string`
+- Planner agent must be updated to write these fields; existing tasks.md files are backward-compatible (empty = no deps)
+- Wave layering algorithm: topological sort of tasks by `depends`, then file-overlap check within each layer to split tasks into separate waves
+- Git worktree lifecycle: `git worktree add .worktrees/T{id} -b mysd/{change}/T{id}-{slug}` → execute → merge by task ID order (`--no-ff`) → cleanup
+- Merge conflict resolution in SKILL.md: AI reads both versions, resolves, runs build+test, retries up to 3x before notifying user
+- Partial failure policy: one failing task must not block others in the same wave
+- Windows path constraint: `.worktrees/T{id}/` short path convention (git has 260-char path limit on Windows without long path enabled)
+
+**Interactive Discovery** (research mode):
+- Spawning `mysd-researcher` to scan codebase AND domain context, then `mysd-advisor` x N in parallel per gray area
+- Dual-loop conversation model: within-area deep dive (can drill further) + cross-area new area discovery loop
+- Scope guardrail: redirect scope expansion to deferred notes, not inline discussion
+- Shared research result: proposal orchestrator stores research output for reuse by spec, plan stages in same ff/ffe run
+- Each command that supports research (propose/spec/discuss) must interactively ask "use research mode?" unless `--auto` is set
+
+**Scan Upgrade (language-agnostic)**:
+- Replace Go-specific `PackageInfo` struct; new `FileInfo` or `ModuleInfo` abstraction
+- Language detection: file extension mapping (`.py`, `.ts`, `.js`, `.rb`, `.rs`, `.java`, `.cs`, etc.) + module file detection (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`)
+- `openspec/config.yaml` writer: new Go function, shared by scan and lang commands
+- Incremental update: if `config.yaml` exists, update specs; never overwrite config
+- Interactive locale prompt on first `config.yaml` creation (only when building new config)
+
+### MEDIUM Complexity
+
+**/mysd:discuss**:
+- Must update spec/design/tasks — three separate file writers, three parsers already exist
+- Must trigger re-plan (invoke plan command path or instruct orchestrator to re-run `/mysd:plan`)
+- Must trigger plan-checker after re-plan
+- Optional research mode (same interactive prompt as propose/spec)
+
+**/mysd:fix**:
+- Isolated from spec workflow — code-only repair, no spec writes
+- Reuses worktree isolation machinery (must be built after worktree execution)
+- Redirect: if user raises a spec-level issue, fix must route them to `/mysd:discuss`
+- Interactive repair loop: AI attempts fix, validates, retries up to 3x
+
+**New Subagent Definitions** (`plugin/agents/*.md`):
+- `mysd-proposal-writer`: replaces inline proposal writing in `/mysd:propose` SKILL.md; receives research context
+- `mysd-spec-writer`: changes from one shared agent to per-capability-area spawn (already implied by proposal)
+- `mysd-advisor`: stateless per gray-area analysis; receives one gray area question; outputs comparison table + recommendation
+- `mysd-researcher`: receives change context + codebase scout output; produces structured question list for discovery
+- `mysd-plan-checker`: receives tasks.md + all MUST items; outputs gap report (uncovered MUST items); offers auto-fill
+
+**--auto flag**:
+- `--auto bool` cobra flag on propose/spec/discuss commands
+- SKILL.md checks flag value: if auto, skip all interactive prompts and use recommended options
+- ff/ffe set `--auto` implicitly (already implied by their fast-forward semantics)
+
+### LOW Complexity
+
+**/mysd:model**: New `cmd/model.go` + SKILL.md; reads/writes existing config via `config.Load`/viper; no schema changes
+**/mysd:lang**: New `cmd/lang.go` + SKILL.md; reads/writes config + writes `openspec/config.yaml`; interactive locale prompt
+**Codebase Scout**: Pure SKILL.md change — orchestrator adds grep/glob steps before spawning researcher; no Go binary changes
+**Scope guardrail**: SKILL.md conversation flow addition in discovery loop; no Go code needed
 
 ---
 
 ## Competitor Feature Analysis
 
-| Feature | OpenSpec | GSD | GitHub Spec Kit | BMAD-METHOD | my-ssd Approach |
-|---------|----------|-----|-----------------|-------------|-----------------|
-| Spec artifacts (4-artifact structure) | YES (proposal/specs/design/tasks) | NO (planning files only) | YES (spec/plan/tasks) | YES (PRD/arch/stories) | YES — full 4-artifact, OpenSpec-compatible |
-| Workflow commands (named phases) | YES (propose/apply/archive) | YES (57 commands) | YES (/specify/plan/tasks/implement) | YES (agent personas) | YES — minimal 7-command set |
-| Pre-execution alignment gate | Partial (AI reads spec, but not enforced) | NO — execution proceeds from plan, not spec | NO — task list drives execution | Partial — agent personas have role constraints | YES — mandatory, non-bypassable |
-| Goal-backward verification | NO | YES (Nyquist Layer + goal-backward planning) | NO | Partial (QA agent persona) | YES — spec MUST items → verification checklist |
-| Spec feedback loop (write results back) | NO | NO | NO | NO | YES — differentiator |
-| RFC 2119 keyword support | NO (plain language specs) | NO | NO | NO | YES — MUST/SHOULD/MAY parsed and acted on |
-| Delta Specs | NO | NO | NO | NO | YES (ported from OpenSpec design) |
-| Brownfield support | YES (/opsx:onboard, custom profiles) | YES (/gsd:map-codebase) | Partial (incremental spec authoring) | YES (explicit brownfield guide) | YES — /mysd:onboard generates conventions context |
-| Session continuity | Partial (archive preserves history) | YES (STATE.md, HANDOFF.json) | NO | Partial (git-versioned artifacts) | YES — STATE.md pattern from GSD |
-| Multi-agent orchestration | NO | YES (wave execution, parallel agents) | NO | YES (12+ specialized agent personas) | YES — opt-in wave execution (v1.x+) |
-| Archive / history | YES (/opsx:archive, bulk-archive) | YES (/gsd:complete-milestone) | NO | YES (git-versioned artifacts) | YES — archive to `.specs/archive/` |
-| Zero runtime dependency | NO (Node.js required) | NO (Node.js required) | NO (Node.js required) | NO (Node.js required) | YES — single Go binary |
-| Atomic git commits per task | NO | YES | NO | Partial (git-versioned artifacts) | YES (v1.x) |
+| Feature | OpenSpec CLI | GSD system | mysd v1.0 | mysd v1.1 target |
+|---------|-------------|------------|-----------|------------------|
+| Interactive gray area discovery | Manual Q&A | discuss-phase with subagents + research | None (linear propose) | Dual-mode: research + general; parallel advisors per gray area |
+| Parallel task execution | None | Wave mode | Basic wave (no dep check) | Wave with deps + file overlap + worktree isolation |
+| Merge conflict resolution | Manual | Manual | Manual | AI-assisted, 3-retry, build-validated |
+| Language-agnostic scan | None | N/A | Go-only | All major languages via extension + module detection |
+| Ad-hoc spec updates | Manual file edit | /gsd:quick | None | /mysd:discuss with auto re-plan |
+| Targeted bug fix | Manual | /gsd:debug | None | /mysd:fix with worktree isolation |
+| Model profile CLI | None | None | Config-only | /mysd:model show/set/resolve |
+| Locale management | Manual | None | Config-only | /mysd:lang interactive + openspec sync |
+| Plan MUST coverage check | None | Manual | None | Auto plan-checker after every plan |
+| Scope creep prevention | None | Partial | None | Scope guardrail in discovery loop |
 
 ---
 
 ## Sources
 
-- [OpenSpec GitHub Repository](https://github.com/Fission-AI/OpenSpec) — PRIMARY: workflow commands, artifact structure, brownfield support, philosophy
-- [GSD (get-shit-done) GitHub Repository](https://github.com/gsd-build/get-shit-done) — PRIMARY: wave execution, multi-agent orchestration, goal-backward verification, STATE.md, context engineering
-- [GSD User Guide](https://github.com/gsd-build/get-shit-done/blob/main/docs/USER-GUIDE.md) — wave execution mechanics, Nyquist Layer, verification workflows
-- [GitHub Spec Kit announcement](https://github.blog/ai-and-ml/generative-ai/spec-driven-development-with-ai-get-started-with-a-new-open-source-toolkit/) — spec/plan/tasks/implement workflow, multi-agent support, living artifacts
-- [BMAD-METHOD Documentation](https://docs.bmad-method.org/) — specialized agent architecture, PRD/architecture/stories, brownfield guide, adversarial review
-- [SDD Brownfield Guide - intent-driven.dev](https://intent-driven.dev/blog/2026/03/10/spec-driven-development-brownfield/) — brownfield challenges: AI-generated spec inaccuracy, spec drift, incremental authoring recommendation
-- [Spec-Driven Development Is Eating Software Engineering - Medium](https://medium.com/@visrow/spec-driven-development-is-eating-software-engineering-a-map-of-30-agentic-coding-frameworks-6ac0b5e2b484) — 30+ framework landscape map, living vs static spec platforms
-- [SDD 2026: Future of AI Coding or Waterfall? - alexcloudstar.com](https://www.alexcloudstar.com/blog/spec-driven-development-2026/) — anti-features: over-specification, spec drift, agent non-compliance pitfalls
-- [awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) — Claude Code plugin ecosystem patterns: skills, slash commands, hooks, context engineering
-- [Stop Context Rot: GSD Explained](https://hoangyell.com/get-shit-done-explained/) — context window management, atomic commits, XML task format details
-- [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119) — MUST/SHOULD/MAY definitions and usage guidelines
+- `.specs/changes/interactive-discovery/proposal.md` — authoritative v1.1 feature list, HIGH confidence (primary source)
+- `.planning/PROJECT.md` — v1.1 milestone scope, constraints, out-of-scope items, HIGH confidence
+- `internal/scanner/scanner.go` — current Go-only scanner implementation verified directly, HIGH confidence
+- `internal/config/config.go`, `internal/config/defaults.go` — current model profile and config system, HIGH confidence
+- `internal/executor/context.go`, `cmd/execute.go` — current TaskItem schema and execute orchestration, HIGH confidence
+- `plugin/commands/mysd-execute.md` — current wave execution SKILL.md (basic, no dep ordering), HIGH confidence
+- `plugin/agents/` — existing 8 agent definitions (designer, executor, fast-forward, planner, scanner, spec-writer, uat-guide, verifier), HIGH confidence
+- GSD discuss-phase pattern (referenced in proposal motivation as proven approach) — MEDIUM confidence (described in proposal, pattern origin in GSD system)
 
 ---
-*Feature research for: AI-assisted Spec-Driven Development CLI (my-ssd)*
-*Researched: 2026-03-23*
+*Feature research for: mysd v1.1 — Interactive Discovery, Parallel Execution, Subagent Architecture, Language-Agnostic Scan*
+*Researched: 2026-03-25*
