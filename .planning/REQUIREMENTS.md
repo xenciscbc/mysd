@@ -99,14 +99,14 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 - [x] **FEXEC-01**: Wave grouping 演算法依 `depends` 做 topological sort 分層
 - [x] **FEXEC-02**: 同層 tasks 檢查 `files` overlap，有 overlap 拆到不同 wave
 - [ ] **FEXEC-03**: 每個並行 task spawn executor with `isolation: "worktree"`
-- [ ] **FEXEC-04**: Worktree branch 命名 `mysd/{change-name}/T{id}-{task-slug}`
-- [ ] **FEXEC-05**: Worktree 建在 `.worktrees/T{id}/`（短路徑，Windows 相容）
+- [x] **FEXEC-04**: Worktree branch 命名 `mysd/{change-name}/T{id}-{task-slug}`
+- [x] **FEXEC-05**: Worktree 建在 `.worktrees/T{id}/`（短路徑，Windows 相容）
 - [ ] **FEXEC-06**: 合併依 task ID 順序，`git merge --no-ff`
 - [ ] **FEXEC-07**: AI 自動解衝突 → build + test 驗證 → 失敗 AI 修復 → 最多 3 次 → 仍失敗通知使用者
-- [ ] **FEXEC-08**: 成功自動刪除 worktree + branch；失敗保留供檢查
+- [x] **FEXEC-08**: 成功自動刪除 worktree + branch；失敗保留供檢查
 - [ ] **FEXEC-09**: Wave 中一個 task 失敗，其他繼續跑完
-- [ ] **FEXEC-10**: Worktree 建立前檢查磁碟空間（disk space guard）
-- [ ] **FEXEC-11**: Windows worktree 自動設定 `git config core.longpaths true`
+- [x] **FEXEC-10**: Worktree 建立前檢查磁碟空間（disk space guard）
+- [x] **FEXEC-11**: Windows worktree 自動設定 `git config core.longpaths true`
 - [ ] **FEXEC-12**: Executor 遵守 task 的 `skills` 欄位，執行時使用指定的 slash commands
 
 ### Skills Alignment
@@ -202,14 +202,14 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FEXEC-01 | Phase 6 | Complete |
 | FEXEC-02 | Phase 6 | Complete |
 | FEXEC-03 | Phase 6 | Pending |
-| FEXEC-04 | Phase 6 | Pending |
-| FEXEC-05 | Phase 6 | Pending |
+| FEXEC-04 | Phase 6 | Complete |
+| FEXEC-05 | Phase 6 | Complete |
 | FEXEC-06 | Phase 6 | Pending |
 | FEXEC-07 | Phase 6 | Pending |
-| FEXEC-08 | Phase 6 | Pending |
+| FEXEC-08 | Phase 6 | Complete |
 | FEXEC-09 | Phase 6 | Pending |
-| FEXEC-10 | Phase 6 | Pending |
-| FEXEC-11 | Phase 6 | Pending |
+| FEXEC-10 | Phase 6 | Complete |
+| FEXEC-11 | Phase 6 | Complete |
 | FEXEC-12 | Phase 6 | Pending |
 | FCMD-03 | Phase 7 | Pending |
 | FCMD-04 | Phase 7 | Pending |
