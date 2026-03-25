@@ -186,6 +186,52 @@ func TestExecuteTDDFlag(t *testing.T) {
 	assert.True(t, ctx.TDDMode, "--tdd flag should override config tdd: false")
 }
 
+func TestExecuteContextOnly_WaveGroups(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	// Task 2 depends on Task 1 — this creates a wave structure:
+	// Wave 0: [Task 1], Wave 1: [Task 2]
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       2,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Task One", Status: spec.StatusPending, Files: []string{"internal/auth.go"}},
+			{ID: 2, Name: "Task Two", Status: spec.StatusPending, Depends: []int{1}, Files: []string{"cmd/auth.go"}},
+		},
+	}
+	setupTestChange(t, tmpDir, tasks, state.PhasePlanned)
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--context-only"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	output := buf.String()
+	var ctx executor.ExecutionContext
+	require.NoError(t, json.Unmarshal([]byte(output), &ctx), "output must be valid JSON ExecutionContext")
+
+	// wave_groups must be present and non-nil
+	assert.NotNil(t, ctx.WaveGroups, "wave_groups should not be nil")
+	assert.Len(t, ctx.WaveGroups, 2, "should have 2 waves: [Task1], [Task2]")
+	if len(ctx.WaveGroups) == 2 {
+		assert.Len(t, ctx.WaveGroups[0], 1, "wave 0 should have 1 task")
+		assert.Len(t, ctx.WaveGroups[1], 1, "wave 1 should have 1 task")
+		assert.Equal(t, 1, ctx.WaveGroups[0][0].ID, "wave 0 task should be Task 1")
+		assert.Equal(t, 2, ctx.WaveGroups[1][0].ID, "wave 1 task should be Task 2")
+	}
+
+	// has_parallel_opportunity should be true (tasks have Depends/Files)
+	assert.True(t, ctx.HasParallelOpp, "has_parallel_opportunity should be true when tasks have depends/files")
+}
+
 func TestExecuteWaveModeFlag(t *testing.T) {
 	tmpDir := t.TempDir()
 	origDir, err := os.Getwd()
