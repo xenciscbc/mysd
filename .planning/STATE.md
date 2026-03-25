@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: Defining requirements
+status: Ready to plan
 stopped_at: null
-last_updated: "2026-03-25T00:19:00.000Z"
+last_updated: "2026-03-25T00:00:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,101 +19,48 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Defining requirements for v1.1
+**Current focus:** Phase 5 — Schema Foundation & Plan-Checker
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-25 — Milestone v1.1 started
+Phase: 5 of 9 (Schema Foundation & Plan-Checker)
+Plan: — (not yet planned)
+Status: Ready to plan
+Last activity: 2026-03-25 — v1.1 roadmap created, Phase 5-9 defined
+
+Progress: [░░░░░░░░░░] 0% (v1.1 phases 5-9)
 
 ## Performance Metrics
 
-**Velocity:**
+**Velocity (v1.0 reference):**
+- Total plans completed (v1.0): 18
+- Average duration: ~8 min/plan
+- Total execution time: ~2.4 hours
 
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: 0 hours
+**By Phase (v1.0):**
 
-**By Phase:**
+| Phase | Plans | Avg/Plan |
+|-------|-------|----------|
+| 1. Foundation | 3 | 6 min |
+| 2. Execution Engine | 6 | 10 min |
+| 3. Verification & Feedback Loop | 5 | 6 min |
+| 4. Plugin Layer & Distribution | 4 | 14 min |
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| - | - | - | - |
-
-**Recent Trend:**
-
-- Last 5 plans: —
-- Trend: —
-
-*Updated after each plan completion*
-| Phase 01-foundation P01 | 10 | 2 tasks | 18 files |
-| Phase 01-foundation P02 | 5 | 2 tasks | 10 files |
-| Phase 01-foundation P03 | 4 | 2 tasks | 15 files |
-| Phase 02-execution-engine P01 | 25 | 2 tasks | 10 files |
-| Phase 02 P02 | 5 | 2 tasks | 5 files |
-| Phase 02-execution-engine P04 | 5 | 1 tasks | 3 files |
-| Phase 02-execution-engine P03 | 18 | 2 tasks | 7 files |
-| Phase 02-execution-engine P06 | 4 | 2 tasks | 3 files |
-| Phase 02-execution-engine P05 | 15 | 2 tasks | 15 files |
-| Phase 03 P02 | 10 | 1 tasks | 2 files |
-| Phase 03-verification-feedback-loop P01 | 4 | 2 tasks | 9 files |
-| Phase 03 P03 | 3 | 2 tasks | 4 files |
-| Phase 03 P04 | 7 | 2 tasks | 5 files |
-| Phase 03-verification-feedback-loop P05 | 6 | 2 tasks | 3 files |
-| Phase 04-plugin-layer-distribution P01 | 22 | 2 tasks | 6 files |
-| Phase 04-plugin-layer-distribution P02 | 5 | 2 tasks | 13 files |
-| Phase 04-plugin-layer-distribution P03 | 15 | 2 tasks | 27 files |
+**v1.1 metrics:** Not yet started
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+Recent decisions affecting v1.1 work:
 
-- Init: Go binary (not Node.js) for zero-runtime deployment
-- Init: Thin Claude Code plugin layer — all business logic in Go binary
-- Init: `.specs/` directory (compatible with OpenSpec `openspec/` structure)
-- Init: Convention over configuration — defaults work out of the box
-- [Phase 01-01]: OpenSpec brownfield fixtures placed under openspec/ subdirectory — matches real OpenSpec project structure
-- [Phase 01-01]: RFC 2119 keyword matching is strictly case-sensitive (uppercase-only regex); lowercase 'must'/'should'/'may' are not RFC 2119
-- [Phase 01-01]: ParseProposal returns zero-value frontmatter (not error) when no frontmatter found — enables brownfield OPSX-04 compatibility
-- [Phase 01-02]: Instance viper (viper.New()) instead of global viper for full test isolation
-- [Phase 01-02]: charmbracelet/x/term for TTY detection — already a transitive dependency via lipgloss, avoids new direct dependency
-- [Phase 01-03]: init_cmd.go naming convention avoids Go init() function confusion
-- [Phase 01-03]: propose defaults to .specs specDir when DetectSpecDir returns ErrNoSpecDir — enables first-time bootstrapping without prior mysd init
-- [Phase 02-01]: ParseTasksV2 returns (frontmatter, body, error) triplet — enables write-back without re-parsing body content
-- [Phase 02-01]: BuildContextFromParts accepts pre-loaded data — decouples filesystem I/O from context construction for test isolation
-- [Phase 02-01]: AlignmentPath normalizes separators to forward slashes — spec paths are cross-platform conventions, not OS-native paths
-- [Phase 02]: ModelProfile defaults to balanced; quality/budget are explicit opt-in via mysd.yaml
-- [Phase 02]: RenderStatus writes to io.Writer for testability; BuildStatusSummary separates aggregation from rendering
-- [Phase 02-04]: context-only JSON output includes model resolved via ResolveModel; plan --context-only includes research_enabled, check_enabled, test_generation booleans
-- [Phase 02-03]: status.go uses spec.ParseTasks (not ParseTasksV2) to match BuildStatusSummary signature accepting []spec.Task
-- [Phase 02-03]: ff/ffe save state after each transition so partial runs leave consistent state at last completed phase
-- [Phase 02-06]: setupTestChange writes V2 YAML frontmatter + markdown checkbox body for dual-parser compatibility
-- [Phase 02-05]: SKILL.md orchestrator pattern: thin files that run --context-only, delegate to agents via Task tool, then call binary for state transition
-- [Phase 02-05]: Alignment gate enforced by prompt ordering — alignment.md must be written before any implementation code, creating a hard structural blocker
-- [Phase 02-05]: mysd-capture performs conversation analysis in AI layer (not binary) per Pitfall 6 — binary only scaffolds directory if name provided
-- [Phase 03]: UATItem.Status is plain string not spec.ItemStatus — UAT statuses diverge from spec lifecycle statuses
-- [Phase 03]: ReadUAT returns zero-value on missing file — enables first-time use without pre-existing UAT file
-- [Phase 03-01]: StableID uses CRC32 hash of requirement text (not sequential counter) — stable across re-parses
-- [Phase 03-01]: VerificationStatus sidecar (verification-status.json) does not modify spec.md — avoids merge conflicts in brownfield
-- [Phase 03-01]: BuildVerificationContextFromParts is a pure function (no I/O) — mirrors BuildContextFromParts pattern for test isolation
-- [Phase 03]: runVerifyContextOnly and runVerifyWriteResults are testable functions separate from cobra RunE — accepts io.Writer for test isolation
-- [Phase 03]: moveDir tries os.Rename first (atomic), falls back to recursive copy + RemoveAll for Windows cross-volume (Pitfall 2)
-- [Phase 03]: ARCHIVED-STATE.json snapshot is best-effort (warning logged, not fatal) — archive proceeds even if snapshot write fails
-- [Phase 03-04]: mysd-verifier agent reads ONLY spec files and filesystem evidence — alignment.md explicitly prohibited (D-12)
-- [Phase 03-04]: mysd-archive.md has no agent — archive is a pure binary gate operation with user-readable error guidance only
-- [Phase 03-05]: Integration tests rely on already-completed Plans 01-03 implementations — no new production code in Plan 05
-- [Phase 03-05]: Empty verification map as MUST gate trigger: cmd integration tests avoid importing verifier.StableID by using absent-from-map check
-- [Phase 04-01]: WalkDir root-skip guard (path \!= root) required: WalkDir calls root with name '.' which triggers hidden-dir skip, aborting entire walk
-- [Phase 04-01]: SetVersion in cmd package (not main.go) keeps rootCmd mutation encapsulated; version/commit/date vars in main.go for GoReleaser ldflags
-- [Phase 04-02]: UpdateTracking derives project root from filepath.Dir(specsDir) — handles both .specs/ and openspec/ conventions
-- [Phase 04-02]: timeline.md wrapped in mermaid code fence for direct rendering in GitHub/GitLab
-- [Phase 04-03]: Plugin manifest uses minimal schema (metadata only) — commands/agents/hooks arrays not in plugin.json per current Claude Code format
-- [Phase 04-03]: GoReleaser release.github omitted — auto-detected from git remote, no hardcoded owner placeholder needed
+- [Phase 04-03]: Plugin manifest uses minimal schema — no nested arrays in plugin.json
+- [Phase 03-01]: VerificationStatus sidecar pattern (not modifying spec files) — discovery-state.json should follow same pattern
+- [Phase 02-05]: SKILL.md orchestrator pattern: thin files + agent delegation via Task tool
+- [Phase 02-05]: Alignment gate enforced by prompt ordering — same pattern applies to new agents
+- [v1.1 roadmap]: plan-checker uses deterministic Go string matching on satisfies IDs (not AI inference)
+- [v1.1 roadmap]: subagent cannot spawn subagent — only top-level SKILL.md may use Task tool; manual audit required before Phase 8 closes
+- [v1.1 roadmap]: worktree paths kept short as T{id} only (no change name in path) for Windows MAX_PATH mitigation
 
 ### Pending Todos
 
@@ -121,12 +68,13 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 2: Verify Claude Code subagent invocation API from Go binary (exact mechanism not pinned in research)
-- Phase 3: Verification prompting strategy to avoid AI self-verification blindness needs phase research
-- Phase 4: GoReleaser cask config + Apple Developer ID signing has version-specific gotchas (formulae deprecated June 2025)
+- Phase 6: Windows worktree MAX_PATH needs CI validation — `git config core.longpaths true` mitigation must be empirically verified
+- Phase 9: Interactive Discovery dual-loop requires focused design review of termination conditions before writing agent prompts
+- Phase 5: Verify whether `golang.org/x/term` IsTerminal is already imported in v1.0 binary (needed for Phase 7 interactive commands)
+- Phase 8: All 9 agent definitions require manual audit for Task tool references before Phase 8 can close
 
 ## Session Continuity
 
 Last session: 2026-03-24T03:37:43.312Z
-Stopped at: Completed 04-03-PLAN.md
+Stopped at: v1.0 complete. v1.1 roadmap created (Phases 5-9)
 Resume file: None

@@ -188,13 +188,68 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated during roadmap creation) | | |
+| FSCHEMA-01 | Phase 5 | Pending |
+| FSCHEMA-02 | Phase 5 | Pending |
+| FSCHEMA-03 | Phase 5 | Pending |
+| FSCHEMA-04 | Phase 5 | Pending |
+| FSCHEMA-05 | Phase 5 | Pending |
+| FSCHEMA-06 | Phase 5 | Pending |
+| FSCHEMA-07 | Phase 5 | Pending |
+| FAGENT-04 | Phase 5 | Pending |
+| FMODEL-01 | Phase 5 | Pending |
+| FMODEL-02 | Phase 5 | Pending |
+| FMODEL-03 | Phase 5 | Pending |
+| FEXEC-01 | Phase 6 | Pending |
+| FEXEC-02 | Phase 6 | Pending |
+| FEXEC-03 | Phase 6 | Pending |
+| FEXEC-04 | Phase 6 | Pending |
+| FEXEC-05 | Phase 6 | Pending |
+| FEXEC-06 | Phase 6 | Pending |
+| FEXEC-07 | Phase 6 | Pending |
+| FEXEC-08 | Phase 6 | Pending |
+| FEXEC-09 | Phase 6 | Pending |
+| FEXEC-10 | Phase 6 | Pending |
+| FEXEC-11 | Phase 6 | Pending |
+| FEXEC-12 | Phase 6 | Pending |
+| FCMD-03 | Phase 7 | Pending |
+| FCMD-04 | Phase 7 | Pending |
+| FCMD-05 | Phase 7 | Pending |
+| FSCAN-01 | Phase 7 | Pending |
+| FSCAN-02 | Phase 7 | Pending |
+| FSCAN-03 | Phase 7 | Pending |
+| FSCAN-04 | Phase 7 | Pending |
+| FSCAN-05 | Phase 7 | Pending |
+| SKILL-01 | Phase 7 | Pending |
+| SKILL-02 | Phase 7 | Pending |
+| SKILL-03 | Phase 7 | Pending |
+| SKILL-04 | Phase 7 | Pending |
+| FCMD-01 | Phase 8 | Pending |
+| FCMD-02 | Phase 8 | Pending |
+| FAGENT-01 | Phase 8 | Pending |
+| FAGENT-02 | Phase 8 | Pending |
+| FAGENT-03 | Phase 8 | Pending |
+| FAGENT-05 | Phase 8 | Pending |
+| FAGENT-06 | Phase 8 | Pending |
+| FAGENT-07 | Phase 8 | Pending |
+| FAUTO-01 | Phase 8 | Pending |
+| FAUTO-02 | Phase 8 | Pending |
+| FAUTO-03 | Phase 8 | Pending |
+| FAUTO-04 | Phase 8 | Pending |
+| DISC-01 | Phase 9 | Pending |
+| DISC-02 | Phase 9 | Pending |
+| DISC-03 | Phase 9 | Pending |
+| DISC-04 | Phase 9 | Pending |
+| DISC-05 | Phase 9 | Pending |
+| DISC-06 | Phase 9 | Pending |
+| DISC-07 | Phase 9 | Pending |
+| DISC-08 | Phase 9 | Pending |
+| DISC-09 | Phase 9 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 45 total
-- Mapped to phases: 0
-- Unmapped: 45 (pending roadmap)
+- Mapped to phases: 45
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-25 after v1.1 milestone requirements definition*
+*Last updated: 2026-03-25 — v1.1 roadmap created, all 45 requirements mapped to Phases 5-9*
