@@ -22,7 +22,7 @@
 **Milestone Goal:** 讓 mysd 具備互動式需求探索、model profile 分層、並行執行及修復機制
 
 - [x] **Phase 5: Schema Foundation & Plan-Checker** - 擴展 TaskEntry schema + 新增 plan-checker 基礎設施 + model profile 分層 (completed 2026-03-25)
-- [ ] **Phase 6: Executor Wave Grouping & Worktree Engine** - Topological sort wave 分層 + git worktree 並行執行引擎
+- [x] **Phase 6: Executor Wave Grouping & Worktree Engine** - Topological sort wave 分層 + git worktree 並行執行引擎 (completed 2026-03-25)
 - [ ] **Phase 7: New Binary Commands & Scanner Refactor** - model/lang 新指令 + 通用掃描器 + skills 對應流程
 - [ ] **Phase 8: SKILL.md Orchestrators & Agent Definitions** - 4 個新 agent + discuss/fix 指令 + auto mode
 - [ ] **Phase 9: Interactive Discovery Integration** - propose/spec/discuss 的互動式探索雙模式整合
@@ -58,8 +58,8 @@ Plans:
 Plans:
 - [x] 06-01-PLAN.md — Wave grouping algorithm (Kahn's topological sort + file overlap split) + ExecutionContext extension
 - [x] 06-02-PLAN.md — Worktree lifecycle package (create/remove/disk space/longpaths) + CLI subcommand
-- [ ] 06-03-PLAN.md — cmd layer wiring (execute + plan context-only emit real wave_groups)
-- [ ] 06-04-PLAN.md — SKILL.md execute orchestrator rewrite + executor agent worktree isolation
+- [x] 06-03-PLAN.md — cmd layer wiring (execute + plan context-only emit real wave_groups)
+- [x] 06-04-PLAN.md — SKILL.md execute orchestrator rewrite + executor agent worktree isolation
 **UI hint**: no
 
 ### Phase 7: New Binary Commands & Scanner Refactor
@@ -109,7 +109,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 3. Verification & Feedback Loop | v1.0 | 5/5 | Complete | 2026-03-24 |
 | 4. Plugin Layer & Distribution | v1.0 | 4/4 | Complete | 2026-03-24 |
 | 5. Schema Foundation & Plan-Checker | v1.1 | 2/2 | Complete   | 2026-03-25 |
-| 6. Executor Wave Grouping & Worktree Engine | v1.1 | 2/4 | In Progress|  |
+| 6. Executor Wave Grouping & Worktree Engine | v1.1 | 4/4 | Complete   | 2026-03-25 |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 0/TBD | Not started | - |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/TBD | Not started | - |
 | 9. Interactive Discovery Integration | v1.1 | 0/TBD | Not started | - |
