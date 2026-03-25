@@ -22,8 +22,27 @@ You receive a context JSON with:
 - `pending_tasks`: Tasks not yet done
 - `tdd_mode`: If true, write tests BEFORE implementation
 - `atomic_commits`: If true, commit after each task
-- `execution_mode`: "single" (all tasks) or "wave" (assigned_task only)
+- `execution_mode`: "sequential" (all tasks) or "wave" (assigned_task only)
 - `assigned_task`: In wave mode, the single task assigned to this agent instance
+- `worktree_path`: (wave mode only) Absolute path to the worktree directory. If set, ALL file operations and Bash commands must execute in this directory.
+- `branch`: (wave mode only) Git branch name for this worktree. Already checked out — do NOT switch branches.
+- `isolation`: "worktree" or "none". If "worktree", operate exclusively within worktree_path.
+- `assigned_task.skills`: Array of slash command names (e.g., `["/mysd:scan"]`). If non-empty, prefer using these skills for the task.
+
+---
+
+## Worktree Isolation Mode
+
+When `isolation` is `"worktree"`:
+- **ALL Bash commands** must use `cd {worktree_path} &&` prefix or explicitly set the working directory to `{worktree_path}`
+- **ALL file reads/writes** operate on files within `{worktree_path}/` — use full paths like `{worktree_path}/src/auth.go`
+- `git add` and `git commit` happen inside the worktree (already on the correct branch — do NOT run `git checkout`)
+- `mysd task-update {id} done` is called from within the worktree directory: `cd {worktree_path} && mysd task-update {id} done`
+- Do NOT modify files outside the worktree directory
+- Do NOT switch branches — the worktree branch is already checked out
+
+When `isolation` is `"none"` (or not set):
+- Normal execution in repo root (existing behavior, unchanged)
 
 ---
 
@@ -136,6 +155,14 @@ If `tdd_mode` is false, implement the task directly:
 - Satisfy all MUST requirements that this task covers
 - Follow existing code patterns and conventions
 
+### Step 3b: Apply Skills (if assigned)
+
+If `assigned_task.skills` is non-empty:
+- For each skill in the list, use it as the primary approach for this task
+- Skills are slash commands (e.g., `/mysd:scan`) that provide specialized behavior for specific task types
+- Invoke the skill before or during implementation to leverage its specialized logic
+- If a skill is not available or not applicable to the current task context, note it in the completion summary and proceed with standard implementation
+
 ### Step 4: Mark Task Done
 
 After implementation (and tests pass if tdd_mode):
@@ -197,4 +224,7 @@ After all tasks are complete, provide a summary:
 - MUST requirements satisfied
 - SHOULD requirements included
 - Any deviations from the spec with justification
+- Worktree: `{worktree_path}` (if running in isolation mode)
+- Branch: `{branch}` (if running in isolation mode)
+- Skills used: `{list of skills applied, or "none"}` (FEXEC-12)
 - Next step: "Run `mysd status` to review progress"
