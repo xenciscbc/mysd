@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/xenciscbc/mysd/internal/config"
+	"github.com/xenciscbc/mysd/internal/executor"
 	"github.com/xenciscbc/mysd/internal/output"
 	"github.com/xenciscbc/mysd/internal/planchecker"
 	"github.com/xenciscbc/mysd/internal/roadmap"
@@ -63,24 +64,42 @@ func runPlan(cmd *cobra.Command, args []string) error {
 			reqTexts = append(reqTexts, fmt.Sprintf("[%s] %s", r.Keyword, r.Text))
 		}
 
+		// Compute wave groups from tasks (if available)
+		var waveGroups [][]executor.TaskItem
+		var hasParallelOpp bool
+		tasksPath := filepath.Join(changeDir, "tasks.md")
+		if fm, _, parseErr := spec.ParseTasksV2(tasksPath); parseErr == nil {
+			var taskItems []executor.TaskItem
+			for _, t := range fm.Tasks {
+				taskItems = append(taskItems, executor.TaskItem{
+					ID:      t.ID,
+					Name:    t.Name,
+					Status:  string(t.Status),
+					Depends: t.Depends,
+					Files:   t.Files,
+				})
+			}
+			waveGroups, _ = executor.BuildWaveGroups(taskItems)
+			hasParallelOpp = executor.HasParallelOpportunity(taskItems)
+		}
+
 		ctx := map[string]interface{}{
-			"change_name":      ws.ChangeName,
-			"phase":            ws.Phase,
-			"specs":            reqTexts,
-			"design":           change.Design.Body,
-			"model":            config.ResolveModel("planner", cfg.ModelProfile, cfg.ModelOverrides),
-			"research_enabled": planResearch,
-			"check_enabled":    planCheck,
-			"test_generation":  cfg.TestGeneration,
-			"wave_groups":      [][]int{},       // empty for Phase 5, populated in Phase 6
-			"worktree_dir":     cfg.WorktreeDir, // from ProjectConfig (default ".worktrees")
-			"auto_mode":        cfg.AutoMode,    // from ProjectConfig (default false)
+			"change_name":              ws.ChangeName,
+			"phase":                    ws.Phase,
+			"specs":                    reqTexts,
+			"design":                   change.Design.Body,
+			"model":                    config.ResolveModel("planner", cfg.ModelProfile, cfg.ModelOverrides),
+			"research_enabled":         planResearch,
+			"check_enabled":            planCheck,
+			"test_generation":          cfg.TestGeneration,
+			"wave_groups":              waveGroups,
+			"has_parallel_opportunity": hasParallelOpp,
+			"worktree_dir":             cfg.WorktreeDir, // from ProjectConfig (default ".worktrees")
+			"auto_mode":                cfg.AutoMode,    // from ProjectConfig (default false)
 		}
 
 		if planCheck {
-			tasksPath := filepath.Join(changeDir, "tasks.md")
-			fm, _, parseErr := spec.ParseTasksV2(tasksPath)
-			if parseErr == nil {
+			if fm, _, parseErr := spec.ParseTasksV2(tasksPath); parseErr == nil {
 				var mustIDs []string
 				for _, r := range change.Specs {
 					if r.Keyword == spec.Must && r.ID != "" {
