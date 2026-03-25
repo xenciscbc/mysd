@@ -1,11 +1,12 @@
-# Requirements: my-ssd
+# Requirements: mysd
 
 **Defined:** 2026-03-23
 **Core Value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
 
-## v1 Requirements
+## v1.0 Requirements (Complete)
 
-Requirements for initial release. Each maps to roadmap phases.
+<details>
+<summary>57 requirements — all shipped 2026-03-24</summary>
 
 ### Spec Management
 
@@ -35,163 +36,165 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Workflow Commands
 
-- [x] **WCMD-01**: `/mysd:propose` — create new spec from user description
-- [x] **WCMD-02**: `/mysd:spec` — define detailed requirements with RFC 2119 keywords and scenarios (Given/When/Then)
-- [x] **WCMD-03**: `/mysd:design` — capture technical decisions and architecture choices
-- [x] **WCMD-04**: `/mysd:plan` — break design into executable task list with dependency analysis
-- [x] **WCMD-05**: `/mysd:execute` — run tasks with pre-execution alignment and progress tracking
-- [x] **WCMD-06**: `/mysd:verify` — goal-backward verification of all MUST items
-- [x] **WCMD-07**: `/mysd:archive` — archive completed spec to history
-- [x] **WCMD-08**: `/mysd:status` — show current spec state, progress, and verification results
-- [x] **WCMD-09**: `/mysd:scan` — scan existing project codebase and generate OpenSpec-format spec documents
-- [x] **WCMD-10**: `/mysd:ff` — fast-forward 指令，從 propose 快速推進到 plan 完成（跳過互動確認），讓使用者可直接進入實作階段
-- [x] **WCMD-11**: `/mysd:init` — 初始化專案設定檔（`.claude/mysd.yaml`），互動式設定預設偏好
-- [x] **WCMD-12**: `/mysd:uat` — 產生互動式使用者驗收測試清單（從 spec 中有 UI 相關的項目衍生），可與使用者互動逐項確認
-- [x] **WCMD-13**: `/mysd:capture` — 從當前對話中分析並提取要做的變更，自動進入 propose 的討論模式
-- [x] **WCMD-14**: `/mysd:ffe` — fast-forward execute 指令，從 propose 一氣推進到實作完成（propose → spec → design → plan → execute），跳過所有互動確認
+- [x] **WCMD-01** ~ **WCMD-14**: 14 slash commands (propose, spec, design, plan, execute, verify, archive, status, scan, ff, init, uat, capture, ffe)
 
 ### Roadmap Tracking
 
-- [x] **RMAP-01**: 實作完成後自動產生或更新 `.mysd/roadmap/` 下的追蹤文件
-- [x] **RMAP-02**: 追蹤文件記錄每個 change 的名稱、狀態、開始/完成日期時間
-- [x] **RMAP-03**: 追蹤文件格式可被第三方工具讀取（支援 roadmap 視覺化，如 Mermaid gantt chart）
+- [x] **RMAP-01** ~ **RMAP-03**: Tracking files with Mermaid gantt chart support
 
 ### UAT Acceptance
 
-- [x] **UAT-01**: 驗證階段可選擇產生互動式 UAT 驗收清單（從 spec 的 UI 相關 MUST/SHOULD 項目衍生）
-- [x] **UAT-02**: UAT 清單為可選步驟，不是 archive 的前提條件
-- [x] **UAT-03**: UAT 清單存放於 `.mysd/uat/` 目錄，可跨 session 保留
-- [x] **UAT-04**: 使用者可透過 `/mysd:uat` 獨立觸發 UAT 流程，可重複執行
-- [x] **UAT-05**: UAT 清單記錄每次執行的結果（通過/未通過/跳過）與時間戳
+- [x] **UAT-01** ~ **UAT-05**: Interactive UAT checklist from spec UI items
 
 ### Testing
 
-- [x] **TEST-01**: User can opt into TDD mode — 先產生測試程式碼，再執行實作
-- [x] **TEST-02**: 執行完成後可選擇自動產生對應的測試程式碼（如果語言/框架支援）
-- [x] **TEST-03**: TDD 模式為可選設定，可在專案設定檔中設為預設
+- [x] **TEST-01** ~ **TEST-03**: Optional TDD mode
 
 ### Configuration
 
-- [x] **CONF-01**: 專案設定檔存放於 `.claude/mysd.yaml`，記憶使用者的偏好預設值
-- [x] **CONF-02**: 設定檔支援：執行模式（single/wave）、agent 數量、atomic commits、TDD 模式、測試產出等可選項目的預設值
-- [x] **CONF-03**: 設定檔支援預設回應語言（response_language）和文件產出語言（document_language）
-- [x] **CONF-04**: 所有可選項目在指令執行時可被 flag 覆蓋（flag 優先於設定檔）
+- [x] **CONF-01** ~ **CONF-04**: Project config with convention-over-config defaults
 
 ### OpenSpec Compatibility
 
-- [x] **OPSX-01**: Parser can read existing OpenSpec `openspec/` directory structure
-- [x] **OPSX-02**: Parser can read and write OpenSpec's proposal.md / specs/ / design.md / tasks.md format
-- [x] **OPSX-03**: Delta Specs support matches OpenSpec's ADDED / MODIFIED / REMOVED semantics
-- [x] **OPSX-04**: User can point my-ssd at an existing OpenSpec project and run execute/verify without migration
+- [x] **OPSX-01** ~ **OPSX-04**: Brownfield-compatible OpenSpec parser
 
 ### CLI & Distribution
 
-- [x] **DIST-01**: Single Go binary with zero runtime dependencies
-- [x] **DIST-02**: Cross-platform support (macOS / Linux / Windows)
-- [x] **DIST-03**: Install via `go install` and GitHub releases (precompiled binaries)
-- [x] **DIST-04**: Claude Code plugin integration via slash commands and agent definitions
+- [x] **DIST-01** ~ **DIST-04**: Cross-platform binary + Claude Code plugin
 
 ### State & Session
 
-- [x] **STAT-01**: Project state tracked in `.specs/STATE.json` for cross-session continuity
-- [x] **STAT-02**: State machine enforces valid transitions (proposed → specced → designed → planned → executed → verified → archived)
-- [x] **STAT-03**: User can resume interrupted workflow from last valid state
+- [x] **STAT-01** ~ **STAT-03**: State machine with cross-session continuity
 
-## v2 Requirements
+</details>
 
-Deferred to future release. Tracked but not in current roadmap.
+## v1.1 Requirements
+
+Requirements for Interactive Discovery & Parallel Execution milestone.
+
+### Schema & Foundation
+
+- [ ] **FSCHEMA-01**: TaskEntry 支援 `depends` 欄位標記 task 間依賴關係
+- [ ] **FSCHEMA-02**: TaskEntry 支援 `files` 欄位標記 task 會修改的檔案
+- [ ] **FSCHEMA-03**: TaskEntry 支援 `satisfies` 欄位對應 MUST requirement IDs
+- [ ] **FSCHEMA-04**: TaskEntry 支援 `skills` 欄位標記執行時建議使用的 slash commands
+- [ ] **FSCHEMA-05**: Plan-checker 自動驗證所有 MUST items 都有 task 的 `satisfies` 對應（structured ID matching）
+- [ ] **FSCHEMA-06**: Plan-checker 未通過時顯示缺口，互動式詢問自動補齊或手動調整
+- [ ] **FSCHEMA-07**: openspec/config.yaml writer 可產生/讀取 OpenSpec config（含 project metadata + locale）
+
+### Research & Discovery
+
+- [ ] **DISC-01**: propose 階段支援 4 維度並行 research（Codebase, Domain, Architecture, Pitfalls）
+- [ ] **DISC-02**: spec 階段支援單一 researcher，專注「如何實作 spec」
+- [ ] **DISC-03**: plan 階段支援單一 researcher，整合 spec + design 內容並補充實作細節
+- [ ] **DISC-04**: 每個支援 research 的階段（propose/spec/plan/discuss）在開始時互動式詢問是否使用 research
+- [ ] **DISC-05**: Research 模式支援雙模式 — AI 研究後主導提問 + 使用者主導提問
+- [ ] **DISC-06**: propose/discuss 的 research 產出 gray areas，由 SKILL.md orchestrator 並行 spawn advisor agents 分析（subagent 不 spawn subagent）
+- [ ] **DISC-07**: 雙層循環 — area 內可深挖 + 全部 areas 完成後可發現新 areas，直到使用者滿意
+- [ ] **DISC-08**: Scope guardrail — 防止 scope creep，超出範圍的想法 redirect 到 deferred notes
+- [ ] **DISC-09**: discuss 結論自動更新 spec/design/tasks，更新後自動 re-plan + plan-checker
+
+### Execution Engine
+
+- [ ] **FEXEC-01**: Wave grouping 演算法依 `depends` 做 topological sort 分層
+- [ ] **FEXEC-02**: 同層 tasks 檢查 `files` overlap，有 overlap 拆到不同 wave
+- [ ] **FEXEC-03**: 每個並行 task spawn executor with `isolation: "worktree"`
+- [ ] **FEXEC-04**: Worktree branch 命名 `mysd/{change-name}/T{id}-{task-slug}`
+- [ ] **FEXEC-05**: Worktree 建在 `.worktrees/T{id}/`（短路徑，Windows 相容）
+- [ ] **FEXEC-06**: 合併依 task ID 順序，`git merge --no-ff`
+- [ ] **FEXEC-07**: AI 自動解衝突 → build + test 驗證 → 失敗 AI 修復 → 最多 3 次 → 仍失敗通知使用者
+- [ ] **FEXEC-08**: 成功自動刪除 worktree + branch；失敗保留供檢查
+- [ ] **FEXEC-09**: Wave 中一個 task 失敗，其他繼續跑完
+- [ ] **FEXEC-10**: Worktree 建立前檢查磁碟空間（disk space guard）
+- [ ] **FEXEC-11**: Windows worktree 自動設定 `git config core.longpaths true`
+- [ ] **FEXEC-12**: Executor 遵守 task 的 `skills` 欄位，執行時使用指定的 slash commands
+
+### Skills Alignment
+
+- [ ] **SKILL-01**: Planner 自動依 task 內容推薦 `skills` 欄位
+- [ ] **SKILL-02**: Plan 完成後列出所有 task 與推薦 skills 的對應表，互動式讓使用者確認
+- [ ] **SKILL-03**: 使用者可逐一調整或批次同意推薦的 skills
+- [ ] **SKILL-04**: ffe 模式跳過互動，直接使用推薦值
+
+### New Commands
+
+- [ ] **FCMD-01**: `/mysd:discuss` 隨時補充討論，支援 4 維度並行 research
+- [ ] **FCMD-02**: `/mysd:fix` 互動式修復，可選 research，spawn executor subagent（worktree 隔離），只改 code
+- [ ] **FCMD-03**: `/mysd:model` 顯示/切換 model profile + resolve 特定 agent model
+- [ ] **FCMD-04**: `/mysd:lang` 互動式設定 response_language 和 document_language，同步 mysd.yaml 和 openspec/config.yaml
+- [ ] **FCMD-05**: `/mysd:lang` 使用者可選擇或輸入語言，自動轉換為合法 locale 值
+
+### Scan & Init
+
+- [ ] **FSCAN-01**: `/mysd:scan` 升級為語言無關通用掃描器（不再限 Go）
+- [ ] **FSCAN-02**: Scan 偵測專案語言/模組結構，產生 `openspec/config.yaml` + `openspec/specs/` 下的 spec 文件
+- [ ] **FSCAN-03**: 已存在 `openspec/config.yaml` 時只增量更新 specs，不覆蓋 config
+- [ ] **FSCAN-04**: 首次建立 config.yaml 時互動式詢問 locale
+- [ ] **FSCAN-05**: `/mysd:init` 改為 `scan --scaffold-only`，只建空結構 + 互動式設定 locale
+
+### Subagent Architecture
+
+- [ ] **FAGENT-01**: 新增 `mysd-researcher` agent definition（研究 codebase/domain）
+- [ ] **FAGENT-02**: 新增 `mysd-advisor` agent definition（gray area 分析，帶比較表）
+- [ ] **FAGENT-03**: 新增 `mysd-proposal-writer` agent definition（寫 proposal.md）
+- [ ] **FAGENT-04**: 新增 `mysd-plan-checker` agent definition（驗證 MUST 覆蓋率）
+- [ ] **FAGENT-05**: 所有 agent definitions 確認無 Task tool 呼叫（subagent 不 spawn subagent）
+- [ ] **FAGENT-06**: `mysd-spec-writer` 改為 per capability area spawn
+- [ ] **FAGENT-07**: `mysd-executor` 改為 per task spawn
+
+### Model Profile
+
+- [ ] **FMODEL-01**: Model profile 分層表涵蓋所有新 agents（researcher, advisor, proposal-writer, plan-checker）
+- [ ] **FMODEL-02**: Orchestrator（SKILL.md）動態指定 model 參數給每個 spawned agent
+- [ ] **FMODEL-03**: quality/balanced/budget 三層完整對應表
+
+### Auto Mode
+
+- [ ] **FAUTO-01**: `--auto` flag 支援 propose/spec/discuss/plan
+- [ ] **FAUTO-02**: `--auto` 跳過互動提問，自動選推薦方案
+- [ ] **FAUTO-03**: ff/ffe 隱含 `--auto`
+- [ ] **FAUTO-04**: ff/ffe 不使用 research，直接用 subagent 依照既有 spec 內容完成
+
+## Future Requirements
+
+### Advanced Features
+
+- **FUT-01**: Spec diff — 視覺化比較 spec 變更前後差異
+- **FUT-02**: Multi-change orchestration — 同時進行多個 changes
+- **FUT-03**: Change dependency graph — changes 之間的依賴追蹤
 
 ### Multi-Runtime Support
 
 - **MRUN-01**: Abstract plugin interface for supporting other AI tools (Cursor, Gemini CLI, OpenCode)
 - **MRUN-02**: Plugin generator for each supported runtime
 
-### Advanced Features
-
-- **ADVN-01**: Spec templates / profiles for common project types
-- **ADVN-02**: Brownfield codebase onboarding with AI-assisted architecture mapping (`/mysd:onboard`)
-- **ADVN-03**: Spec diff visualization in terminal
-
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| GUI / Web dashboard | CLI-first tool; developer audience comfortable with terminal; massive scope expansion |
-| Full reverse-engineering of codebase into specs | AI-generated specs from existing code are often inaccurate; incremental spec authoring is safer |
-| Team collaboration features (shared review, multi-user approval) | Solo developer + AI is the target use case; git handles multi-person collaboration |
-| Real-time spec sync (auto-update specs as code changes) | Specs describe intent, code describes implementation; auto-sync inverts causality |
-| 57-command surface (GSD-style) | Every additional command is maintenance burden; minimal command set covering core loop |
-| Configuration-heavy setup | Convention over config; all defaults work out of the box |
+| GUI / Web 介面 | CLI-first，不做視覺化儀表板 |
+| 團隊協作功能 | 專注單人 + AI 場景 |
+| 支援 Claude Code 以外的 AI 工具 | v1 專注 Claude Code |
+| design 階段的 interactive discovery | propose/spec 已夠深入，design 只記錄決策 |
+| GSD 的完整指令集 | 只取核心流程，精簡設計 |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+### v1.0 (Complete)
+
+All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADMAP.md).
+
+### v1.1
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SPEC-01 | Phase 1 | Complete |
-| SPEC-02 | Phase 1 | Complete |
-| SPEC-03 | Phase 1 | Complete |
-| SPEC-04 | Phase 1 | Complete |
-| SPEC-05 | Phase 3 | Complete |
-| SPEC-06 | Phase 3 | Complete |
-| SPEC-07 | Phase 1 | Complete |
-| EXEC-01 | Phase 2 | Complete |
-| EXEC-02 | Phase 2 | Complete |
-| EXEC-03 | Phase 2 | Complete |
-| EXEC-04 | Phase 2 | Complete |
-| EXEC-05 | Phase 2 | Complete |
-| VRFY-01 | Phase 3 | Complete |
-| VRFY-02 | Phase 3 | Complete |
-| VRFY-03 | Phase 3 | Complete |
-| VRFY-04 | Phase 3 | Complete |
-| VRFY-05 | Phase 3 | Complete |
-| WCMD-01 | Phase 2 | Complete |
-| WCMD-02 | Phase 2 | Complete |
-| WCMD-03 | Phase 2 | Complete |
-| WCMD-04 | Phase 2 | Complete |
-| WCMD-05 | Phase 2 | Complete |
-| WCMD-06 | Phase 3 | Complete |
-| WCMD-07 | Phase 3 | Complete |
-| WCMD-08 | Phase 2 | Complete |
-| WCMD-09 | Phase 4 | Complete |
-| WCMD-10 | Phase 2 | Complete |
-| WCMD-11 | Phase 2 | Complete |
-| TEST-01 | Phase 2 | Complete |
-| TEST-02 | Phase 2 | Complete |
-| TEST-03 | Phase 2 | Complete |
-| CONF-01 | Phase 1 | Complete |
-| CONF-02 | Phase 1 | Complete |
-| CONF-03 | Phase 1 | Complete |
-| CONF-04 | Phase 1 | Complete |
-| OPSX-01 | Phase 1 | Complete |
-| OPSX-02 | Phase 1 | Complete |
-| OPSX-03 | Phase 1 | Complete |
-| OPSX-04 | Phase 1 | Complete |
-| DIST-01 | Phase 1 | Complete |
-| DIST-02 | Phase 1 | Complete |
-| DIST-03 | Phase 4 | Complete |
-| DIST-04 | Phase 4 | Complete |
-| STAT-01 | Phase 1 | Complete |
-| STAT-02 | Phase 1 | Complete |
-| STAT-03 | Phase 1 | Complete |
-| WCMD-12 | Phase 3 | Complete |
-| UAT-01 | Phase 3 | Complete |
-| UAT-02 | Phase 3 | Complete |
-| UAT-03 | Phase 3 | Complete |
-| UAT-04 | Phase 3 | Complete |
-| UAT-05 | Phase 3 | Complete |
-| WCMD-13 | Phase 2 | Complete |
-| WCMD-14 | Phase 2 | Complete |
-| RMAP-01 | Phase 4 | Complete |
-| RMAP-02 | Phase 4 | Complete |
-| RMAP-03 | Phase 4 | Complete |
+| (populated during roadmap creation) | | |
 
 **Coverage:**
-- v1 requirements: 57 total
-- Mapped to phases: 57
-- Unmapped: 0 ✓
+- v1.1 requirements: 45 total
+- Mapped to phases: 0
+- Unmapped: 45 (pending roadmap)
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after roadmap creation*
+*Last updated: 2026-03-25 after v1.1 milestone requirements definition*
