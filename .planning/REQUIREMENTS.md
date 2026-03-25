@@ -78,8 +78,8 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 - [x] **FSCHEMA-02**: TaskEntry 支援 `files` 欄位標記 task 會修改的檔案
 - [x] **FSCHEMA-03**: TaskEntry 支援 `satisfies` 欄位對應 MUST requirement IDs
 - [x] **FSCHEMA-04**: TaskEntry 支援 `skills` 欄位標記執行時建議使用的 slash commands
-- [ ] **FSCHEMA-05**: Plan-checker 自動驗證所有 MUST items 都有 task 的 `satisfies` 對應（structured ID matching）
-- [ ] **FSCHEMA-06**: Plan-checker 未通過時顯示缺口，互動式詢問自動補齊或手動調整
+- [x] **FSCHEMA-05**: Plan-checker 自動驗證所有 MUST items 都有 task 的 `satisfies` 對應（structured ID matching）
+- [x] **FSCHEMA-06**: Plan-checker 未通過時顯示缺口，互動式詢問自動補齊或手動調整
 - [x] **FSCHEMA-07**: openspec/config.yaml writer 可產生/讀取 OpenSpec config（含 project metadata + locale）
 
 ### Research & Discovery
@@ -137,7 +137,7 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 - [ ] **FAGENT-01**: 新增 `mysd-researcher` agent definition（研究 codebase/domain）
 - [ ] **FAGENT-02**: 新增 `mysd-advisor` agent definition（gray area 分析，帶比較表）
 - [ ] **FAGENT-03**: 新增 `mysd-proposal-writer` agent definition（寫 proposal.md）
-- [ ] **FAGENT-04**: 新增 `mysd-plan-checker` agent definition（驗證 MUST 覆蓋率）
+- [x] **FAGENT-04**: 新增 `mysd-plan-checker` agent definition（驗證 MUST 覆蓋率）
 - [ ] **FAGENT-05**: 所有 agent definitions 確認無 Task tool 呼叫（subagent 不 spawn subagent）
 - [ ] **FAGENT-06**: `mysd-spec-writer` 改為 per capability area spawn
 - [ ] **FAGENT-07**: `mysd-executor` 改為 per task spawn
@@ -192,10 +192,10 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FSCHEMA-02 | Phase 5 | Complete |
 | FSCHEMA-03 | Phase 5 | Complete |
 | FSCHEMA-04 | Phase 5 | Complete |
-| FSCHEMA-05 | Phase 5 | Pending |
-| FSCHEMA-06 | Phase 5 | Pending |
+| FSCHEMA-05 | Phase 5 | Complete |
+| FSCHEMA-06 | Phase 5 | Complete |
 | FSCHEMA-07 | Phase 5 | Complete |
-| FAGENT-04 | Phase 5 | Pending |
+| FAGENT-04 | Phase 5 | Complete |
 | FMODEL-01 | Phase 5 | Complete |
 | FMODEL-02 | Phase 5 | Complete |
 | FMODEL-03 | Phase 5 | Complete |

@@ -21,7 +21,7 @@
 
 **Milestone Goal:** 讓 mysd 具備互動式需求探索、model profile 分層、並行執行及修復機制
 
-- [ ] **Phase 5: Schema Foundation & Plan-Checker** - 擴展 TaskEntry schema + 新增 plan-checker 基礎設施 + model profile 分層
+- [x] **Phase 5: Schema Foundation & Plan-Checker** - 擴展 TaskEntry schema + 新增 plan-checker 基礎設施 + model profile 分層 (completed 2026-03-25)
 - [ ] **Phase 6: Executor Wave Grouping & Worktree Engine** - Topological sort wave 分層 + git worktree 並行執行引擎
 - [ ] **Phase 7: New Binary Commands & Scanner Refactor** - model/lang 新指令 + 通用掃描器 + skills 對應流程
 - [ ] **Phase 8: SKILL.md Orchestrators & Agent Definitions** - 4 個新 agent + discuss/fix 指令 + auto mode
@@ -42,7 +42,7 @@
 **Plans**: 2 plans
 Plans:
 - [x] 05-01-PLAN.md — Schema extension + model profile + openspec config writer
-- [ ] 05-02-PLAN.md — Plan-checker package + cmd wiring + agent definition
+- [x] 05-02-PLAN.md — Plan-checker package + cmd wiring + agent definition
 
 ### Phase 6: Executor Wave Grouping & Worktree Engine
 **Goal**: 依賴關係正確的 tasks 自動分組為波次，每個波次內的 tasks 可在獨立 git worktree 中並行執行，衝突由 AI 自動解決
@@ -103,7 +103,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 2. Execution Engine | v1.0 | 6/6 | Complete | 2026-03-24 |
 | 3. Verification & Feedback Loop | v1.0 | 5/5 | Complete | 2026-03-24 |
 | 4. Plugin Layer & Distribution | v1.0 | 4/4 | Complete | 2026-03-24 |
-| 5. Schema Foundation & Plan-Checker | v1.1 | 1/2 | In Progress|  |
+| 5. Schema Foundation & Plan-Checker | v1.1 | 2/2 | Complete   | 2026-03-25 |
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 0/TBD | Not started | - |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 0/TBD | Not started | - |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/TBD | Not started | - |

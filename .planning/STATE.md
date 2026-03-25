@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: Ready to execute
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-25T07:14:03.667Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-25T07:20:48.222Z"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -45,6 +45,7 @@ Plan: 2 of 2
 
 **v1.1 metrics:** Not yet started
 | Phase 05-schema-foundation-plan-checker P01 | 18 | 3 tasks | 9 files |
+| Phase 05 P02 | 20 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 05-01]: New fields appended at END of structs (D-11/D-12) for stable YAML field order — additive-only extension pattern
 - [Phase 05-01]: Budget profile new roles (researcher/advisor/proposal-writer/plan-checker) use sonnet-4-5, not haiku — new subagent roles require quality model (D-06)
 - [Phase 05-01]: ReadOpenSpecConfig returns zero-value (not error) for absent file — convention-over-config pattern from Phase 1
+- [Phase 05]: CheckCoverage is pure function — all filesystem I/O stays in cmd layer, package has zero I/O dependencies
+- [Phase 05]: mysd-plan-checker agent excludes Task tool (D-03) and Bash tool — leaf agent resolves gaps via Edit only
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T07:14:03.662Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-25T07:20:48.214Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
