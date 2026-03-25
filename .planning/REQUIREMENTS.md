@@ -96,8 +96,8 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### Execution Engine
 
-- [ ] **FEXEC-01**: Wave grouping 演算法依 `depends` 做 topological sort 分層
-- [ ] **FEXEC-02**: 同層 tasks 檢查 `files` overlap，有 overlap 拆到不同 wave
+- [x] **FEXEC-01**: Wave grouping 演算法依 `depends` 做 topological sort 分層
+- [x] **FEXEC-02**: 同層 tasks 檢查 `files` overlap，有 overlap 拆到不同 wave
 - [ ] **FEXEC-03**: 每個並行 task spawn executor with `isolation: "worktree"`
 - [ ] **FEXEC-04**: Worktree branch 命名 `mysd/{change-name}/T{id}-{task-slug}`
 - [ ] **FEXEC-05**: Worktree 建在 `.worktrees/T{id}/`（短路徑，Windows 相容）
@@ -199,8 +199,8 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FMODEL-01 | Phase 5 | Complete |
 | FMODEL-02 | Phase 5 | Complete |
 | FMODEL-03 | Phase 5 | Complete |
-| FEXEC-01 | Phase 6 | Pending |
-| FEXEC-02 | Phase 6 | Pending |
+| FEXEC-01 | Phase 6 | Complete |
+| FEXEC-02 | Phase 6 | Complete |
 | FEXEC-03 | Phase 6 | Pending |
 | FEXEC-04 | Phase 6 | Pending |
 | FEXEC-05 | Phase 6 | Pending |
