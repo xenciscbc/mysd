@@ -94,3 +94,52 @@ func TestBuildContext_JSONMarshal(t *testing.T) {
 	assert.Contains(t, m, "execution_mode")
 	assert.Contains(t, m, "agent_count")
 }
+
+// TestBuildContextFromParts_NewFields verifies new fields are copied from TaskEntry to TaskItem.
+func TestBuildContextFromParts_NewFields(t *testing.T) {
+	tasks := []spec.TaskEntry{
+		{
+			ID:        1,
+			Name:      "Build auth",
+			Status:    spec.StatusPending,
+			Depends:   []int{2, 3},
+			Files:     []string{"auth.go"},
+			Satisfies: []string{"REQ-01"},
+			Skills:    []string{"/mysd:execute"},
+		},
+	}
+	cfg := config.Defaults()
+
+	ctx := BuildContextFromParts("my-change", tasks, nil, cfg)
+
+	require.Len(t, ctx.Tasks, 1)
+	ti := ctx.Tasks[0]
+	assert.Equal(t, []int{2, 3}, ti.Depends)
+	assert.Equal(t, []string{"auth.go"}, ti.Files)
+	assert.Equal(t, []string{"REQ-01"}, ti.Satisfies)
+	assert.Equal(t, []string{"/mysd:execute"}, ti.Skills)
+
+	// Also check PendingTasks
+	require.Len(t, ctx.PendingTasks, 1)
+	pt := ctx.PendingTasks[0]
+	assert.Equal(t, []int{2, 3}, pt.Depends)
+	assert.Equal(t, []string{"REQ-01"}, pt.Satisfies)
+}
+
+// TestTaskItemJSON_OmitEmpty verifies TaskItem with nil new fields does NOT emit those keys in JSON.
+func TestTaskItemJSON_OmitEmpty(t *testing.T) {
+	ti := TaskItem{
+		ID:     1,
+		Name:   "A",
+		Status: "pending",
+	}
+
+	data, err := json.Marshal(ti)
+	require.NoError(t, err)
+
+	output := string(data)
+	assert.NotContains(t, output, `"depends"`)
+	assert.NotContains(t, output, `"files"`)
+	assert.NotContains(t, output, `"satisfies"`)
+	assert.NotContains(t, output, `"skills"`)
+}

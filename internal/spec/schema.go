@@ -78,6 +78,10 @@ type TaskEntry struct {
 	Name        string     `yaml:"name"`
 	Description string     `yaml:"description,omitempty"`
 	Status      ItemStatus `yaml:"status"`
+	Depends     []int      `yaml:"depends,omitempty"`   // FSCHEMA-01: task dependency IDs
+	Files       []string   `yaml:"files,omitempty"`     // FSCHEMA-02: files touched by this task
+	Satisfies   []string   `yaml:"satisfies,omitempty"` // FSCHEMA-03: requirement IDs satisfied
+	Skills      []string   `yaml:"skills,omitempty"`    // FSCHEMA-04: slash commands used
 }
 
 // TasksFrontmatterV2 extends TasksFrontmatter with a per-task Tasks slice,

@@ -31,10 +31,14 @@ type RequirementItem struct {
 
 // TaskItem is a flattened task for JSON output.
 type TaskItem struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Status      string `json:"status"`
+	ID          int      `json:"id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description,omitempty"`
+	Status      string   `json:"status"`
+	Depends     []int    `json:"depends,omitempty"`
+	Files       []string `json:"files,omitempty"`
+	Satisfies   []string `json:"satisfies,omitempty"`
+	Skills      []string `json:"skills,omitempty"`
 }
 
 // BuildContextFromParts constructs an ExecutionContext from pre-loaded parts.
@@ -60,6 +64,10 @@ func BuildContextFromParts(
 			Name:        t.Name,
 			Description: t.Description,
 			Status:      string(t.Status),
+			Depends:     t.Depends,
+			Files:       t.Files,
+			Satisfies:   t.Satisfies,
+			Skills:      t.Skills,
 		})
 	}
 
@@ -70,6 +78,10 @@ func BuildContextFromParts(
 			Name:        t.Name,
 			Description: t.Description,
 			Status:      string(t.Status),
+			Depends:     t.Depends,
+			Files:       t.Files,
+			Satisfies:   t.Satisfies,
+			Skills:      t.Skills,
 		})
 	}
 

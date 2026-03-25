@@ -221,3 +221,50 @@ func TestParseTasksV2_EmptyTasks(t *testing.T) {
 	assert.Equal(t, 0, fm.Total)
 	assert.Contains(t, body, "No tasks yet.")
 }
+
+// oldTasksContent is a tasks.md without new fields (backward compat test).
+const oldTasksContent = `---
+spec-version: "1"
+total: 2
+completed: 0
+tasks:
+  - id: 1
+    name: "Old task A"
+    status: pending
+  - id: 2
+    name: "Old task B"
+    status: pending
+---
+
+## Tasks
+
+Old format tasks.
+`
+
+// TestParseTasksV2_BackwardCompat_NoNewFields verifies old tasks.md round-trips without adding new field keys.
+func TestParseTasksV2_BackwardCompat_NoNewFields(t *testing.T) {
+	path := writeTempTasksFile(t, oldTasksContent)
+
+	// Parse: new fields should be nil
+	fm, body, err := ParseTasksV2(path)
+	require.NoError(t, err)
+	require.Len(t, fm.Tasks, 2)
+
+	assert.Nil(t, fm.Tasks[0].Depends, "Depends should be nil for old format task")
+	assert.Nil(t, fm.Tasks[0].Files, "Files should be nil for old format task")
+	assert.Nil(t, fm.Tasks[0].Satisfies, "Satisfies should be nil for old format task")
+	assert.Nil(t, fm.Tasks[0].Skills, "Skills should be nil for old format task")
+
+	// Write back
+	err = WriteTasks(path, fm, body)
+	require.NoError(t, err)
+
+	// Re-read raw content: must NOT contain new field keys
+	raw, err := os.ReadFile(path)
+	require.NoError(t, err)
+	output := string(raw)
+	assert.NotContains(t, output, "depends:")
+	assert.NotContains(t, output, "files:")
+	assert.NotContains(t, output, "satisfies:")
+	assert.NotContains(t, output, "skills:")
+}

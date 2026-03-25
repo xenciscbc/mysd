@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
 )
 
 func TestRFC2119Keywords(t *testing.T) {
@@ -58,4 +60,48 @@ func TestErrVariables(t *testing.T) {
 	assert.NotNil(t, ErrNoSpecDir)
 	assert.NotNil(t, ErrInvalidTransition)
 	assert.Contains(t, ErrNoSpecDir.Error(), "spec")
+}
+
+// TestTaskEntryNewFields_YAMLRoundTrip verifies TaskEntry with new fields marshals/unmarshals correctly.
+func TestTaskEntryNewFields_YAMLRoundTrip(t *testing.T) {
+	entry := TaskEntry{
+		ID:     1,
+		Name:   "Build auth",
+		Status: StatusPending,
+		Depends:   []int{2, 3},
+		Files:     []string{"auth.go", "handler.go"},
+		Satisfies: []string{"REQ-01", "REQ-02"},
+		Skills:    []string{"/mysd:execute"},
+	}
+
+	data, err := yaml.Marshal(entry)
+	require.NoError(t, err)
+
+	var got TaskEntry
+	require.NoError(t, yaml.Unmarshal(data, &got))
+
+	assert.Equal(t, entry.ID, got.ID)
+	assert.Equal(t, entry.Name, got.Name)
+	assert.Equal(t, entry.Depends, got.Depends)
+	assert.Equal(t, entry.Files, got.Files)
+	assert.Equal(t, entry.Satisfies, got.Satisfies)
+	assert.Equal(t, entry.Skills, got.Skills)
+}
+
+// TestTaskEntryNewFields_OmitEmpty verifies TaskEntry without new fields does NOT emit those keys.
+func TestTaskEntryNewFields_OmitEmpty(t *testing.T) {
+	entry := TaskEntry{
+		ID:     1,
+		Name:   "A",
+		Status: StatusPending,
+	}
+
+	data, err := yaml.Marshal(entry)
+	require.NoError(t, err)
+
+	output := string(data)
+	assert.NotContains(t, output, "depends:")
+	assert.NotContains(t, output, "files:")
+	assert.NotContains(t, output, "satisfies:")
+	assert.NotContains(t, output, "skills:")
 }
