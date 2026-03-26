@@ -23,7 +23,7 @@
 
 - [x] **Phase 5: Schema Foundation & Plan-Checker** - 擴展 TaskEntry schema + 新增 plan-checker 基礎設施 + model profile 分層 (completed 2026-03-25)
 - [x] **Phase 6: Executor Wave Grouping & Worktree Engine** - Topological sort wave 分層 + git worktree 並行執行引擎 (completed 2026-03-25)
-- [ ] **Phase 7: New Binary Commands & Scanner Refactor** - model/lang 新指令 + 通用掃描器 + skills 對應流程
+- [x] **Phase 7: New Binary Commands & Scanner Refactor** - model/lang 新指令 + 通用掃描器 + skills 對應流程 (completed 2026-03-26)
 - [ ] **Phase 8: SKILL.md Orchestrators & Agent Definitions** - 4 個新 agent + discuss/fix 指令 + auto mode
 - [ ] **Phase 9: Interactive Discovery Integration** - propose/spec/discuss 的互動式探索雙模式整合
 
@@ -110,6 +110,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 4. Plugin Layer & Distribution | v1.0 | 4/4 | Complete | 2026-03-24 |
 | 5. Schema Foundation & Plan-Checker | v1.1 | 2/2 | Complete   | 2026-03-25 |
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 4/4 | Complete   | 2026-03-25 |
-| 7. New Binary Commands & Scanner Refactor | v1.1 | 4/5 | In Progress|  |
+| 7. New Binary Commands & Scanner Refactor | v1.1 | 5/5 | Complete   | 2026-03-26 |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/TBD | Not started | - |
 | 9. Interactive Discovery Integration | v1.1 | 0/TBD | Not started | - |
