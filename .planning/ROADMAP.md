@@ -127,10 +127,18 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 
 ### Phase 10: Self-Update Command — /mysd:update binary version check + plugin file sync
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** 使用者執行 `/mysd:update` 即可檢查並更新 mysd binary 至最新 GitHub Release 版本，同時透過 manifest 差異比對同步 plugin 檔案（commands + agents），支援 --check 僅查詢和 --force 跳過確認
+**Requirements**: UPD-01, UPD-02, UPD-03, UPD-04, UPD-05, UPD-06, UPD-07
 **Depends on:** Phase 9
-**Plans:** 0 plans
-
+**Success Criteria** (what must be TRUE):
+  1. 執行 `mysd update --check` 輸出 JSON 包含 current_version、latest_version、update_available 欄位，不執行任何更新
+  2. 執行 `mysd update --force` 從 GitHub Release 下載對應平台 binary，驗證 SHA256 checksum 後就地替換；Windows 使用 rename-then-replace 模式
+  3. 更新失敗時自動 rollback — 將 .old binary rename 回原位
+  4. Plugin 同步透過 plugin-manifest.json 三方比對決定 add/update/delete；無舊 manifest 時只 add/update 不 delete（向後相容）
+  5. 版本檢查網路失敗不阻止 plugin 同步繼續執行
+  6. `/mysd:update` SKILL.md 薄 wrapper 呼叫 binary 並格式化顯示結果，支援 `argument-hint: "[--check] [--force]"`
+**Plans**: 3 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Version check (GitHub API + semver) + binary self-update (download, checksum, platform replace, rollback)
+- [ ] 10-02-PLAN.md — Plugin manifest diff + sync executor + GoReleaser config update
+- [ ] 10-03-PLAN.md — Cobra update command (JSON output, --check/--force) + SKILL.md wrapper + plugin distribution
