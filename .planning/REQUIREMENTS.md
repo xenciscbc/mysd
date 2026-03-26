@@ -150,8 +150,8 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### Auto Mode
 
-- [ ] **FAUTO-01**: `--auto` flag 支援 propose/spec/discuss/plan
-- [ ] **FAUTO-02**: `--auto` 跳過互動提問，自動選推薦方案
+- [x] **FAUTO-01**: `--auto` flag 支援 propose/spec/discuss/plan
+- [x] **FAUTO-02**: `--auto` 跳過互動提問，自動選推薦方案
 - [ ] **FAUTO-03**: ff/ffe 隱含 `--auto`
 - [ ] **FAUTO-04**: ff/ffe 不使用 research，直接用 subagent 依照既有 spec 內容完成
 
@@ -231,8 +231,8 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FAGENT-05 | Phase 8 | Complete |
 | FAGENT-06 | Phase 8 | Complete |
 | FAGENT-07 | Phase 8 | Complete |
-| FAUTO-01 | Phase 8 | Pending |
-| FAUTO-02 | Phase 8 | Pending |
+| FAUTO-01 | Phase 8 | Complete |
+| FAUTO-02 | Phase 8 | Complete |
 | FAUTO-03 | Phase 8 | Pending |
 | FAUTO-04 | Phase 8 | Pending |
 | DISC-01 | Phase 9 | Pending |
