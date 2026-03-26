@@ -149,3 +149,86 @@ func TestHasParallelOpportunity_HasFiles(t *testing.T) {
 	}
 	assert.True(t, HasParallelOpportunity(tasks))
 }
+
+// TestFilterBlockedTasks covers dependency failure propagation behavior.
+
+// TestFilterBlockedTasks_EmptyFailedIDs verifies all tasks returned when failedIDs is empty.
+func TestFilterBlockedTasks_EmptyFailedIDs(t *testing.T) {
+	tasks := []TaskItem{
+		{ID: 1, Name: "T1"},
+		{ID: 2, Name: "T2"},
+		{ID: 3, Name: "T3"},
+	}
+	result := FilterBlockedTasks(tasks, []int{})
+	assert.Len(t, result, 3)
+}
+
+// TestFilterBlockedTasks_DirectDependency verifies that a direct dependent of a failed task is blocked.
+func TestFilterBlockedTasks_DirectDependency(t *testing.T) {
+	tasks := []TaskItem{
+		{ID: 1, Name: "T1"},
+		{ID: 2, Name: "T2", Depends: []int{1}},
+		{ID: 3, Name: "T3"},
+	}
+	// T1 failed → T2 blocked; T3 is independent and should remain
+	result := FilterBlockedTasks(tasks, []int{1})
+	require.Len(t, result, 1)
+	assert.Equal(t, 3, result[0].ID)
+}
+
+// TestFilterBlockedTasks_TransitivePropagation verifies T1 fail propagates through T2 to block T3.
+func TestFilterBlockedTasks_TransitivePropagation(t *testing.T) {
+	tasks := []TaskItem{
+		{ID: 1, Name: "T1"},
+		{ID: 2, Name: "T2", Depends: []int{1}},
+		{ID: 3, Name: "T3", Depends: []int{2}},
+		{ID: 4, Name: "T4"},
+	}
+	// T1 failed → T2 blocked → T3 transitively blocked; T4 independent
+	result := FilterBlockedTasks(tasks, []int{1})
+	require.Len(t, result, 1)
+	assert.Equal(t, 4, result[0].ID)
+}
+
+// TestFilterBlockedTasks_MultipleFailures verifies that multiple failures block all downstream.
+func TestFilterBlockedTasks_MultipleFailures(t *testing.T) {
+	tasks := []TaskItem{
+		{ID: 1, Name: "T1"},
+		{ID: 2, Name: "T2"},
+		{ID: 3, Name: "T3", Depends: []int{1}},
+		{ID: 4, Name: "T4", Depends: []int{2}},
+	}
+	// T1 and T2 both failed → T3 and T4 both blocked → empty result
+	result := FilterBlockedTasks(tasks, []int{1, 2})
+	assert.Empty(t, result)
+}
+
+// TestFilterBlockedTasks_FailedExcluded verifies failed tasks themselves are excluded from result.
+func TestFilterBlockedTasks_FailedExcluded(t *testing.T) {
+	tasks := []TaskItem{
+		{ID: 1, Name: "T1"},
+		{ID: 2, Name: "T2"},
+		{ID: 3, Name: "T3"},
+	}
+	// T1 failed; T2 and T3 are independent — only T2 and T3 returned
+	result := FilterBlockedTasks(tasks, []int{1})
+	require.Len(t, result, 2)
+	for _, r := range result {
+		assert.NotEqual(t, 1, r.ID, "failed task must not appear in result")
+	}
+}
+
+// TestFilterBlockedTasks_NoDependencies verifies independent tasks are unaffected by failure.
+func TestFilterBlockedTasks_NoDependencies(t *testing.T) {
+	tasks := []TaskItem{
+		{ID: 1, Name: "T1"},
+		{ID: 2, Name: "T2"},
+		{ID: 3, Name: "T3"},
+	}
+	// T1 failed but T2 and T3 have no deps → T2 and T3 returned
+	result := FilterBlockedTasks(tasks, []int{1})
+	require.Len(t, result, 2)
+	ids := []int{result[0].ID, result[1].ID}
+	assert.Contains(t, ids, 2)
+	assert.Contains(t, ids, 3)
+}
