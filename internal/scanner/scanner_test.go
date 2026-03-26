@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/xenciscbc/mysd/internal/scanner"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xenciscbc/mysd/internal/scanner"
 )
 
 // writeFile creates a file with given content in a temp directory.
@@ -17,12 +17,11 @@ func writeFile(t *testing.T, path, content string) {
 	require.NoError(t, os.WriteFile(path, []byte(content), 0644))
 }
 
-func TestBuildScanContext_BasicGoProject(t *testing.T) {
+func TestBuildScanContext_GoProject(t *testing.T) {
 	root := t.TempDir()
 
-	// cmd/ package with main.go
+	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/myapp\n\ngo 1.21\n")
 	writeFile(t, filepath.Join(root, "cmd", "main.go"), "package main\n")
-	// internal/foo/ package with foo.go and foo_test.go
 	writeFile(t, filepath.Join(root, "internal", "foo", "foo.go"), "package foo\n")
 	writeFile(t, filepath.Join(root, "internal", "foo", "foo_test.go"), "package foo_test\n")
 
@@ -30,55 +29,109 @@ func TestBuildScanContext_BasicGoProject(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, root, ctx.RootDir)
-	assert.Len(t, ctx.Packages, 2, "expected 2 packages: cmd and internal/foo")
-	assert.GreaterOrEqual(t, ctx.TotalFiles, 3)
+	assert.Equal(t, "go", ctx.PrimaryLanguage)
+	assert.Contains(t, ctx.Files, ".go", "Files map should have .go key")
+	assert.GreaterOrEqual(t, ctx.Files[".go"], 3, "should have at least 3 .go files")
+	assert.NotNil(t, ctx.Modules, "Modules must not be nil")
+	assert.GreaterOrEqual(t, len(ctx.Modules), 1, "Go project should detect at least one module")
+}
+
+func TestBuildScanContext_NodeProject(t *testing.T) {
+	root := t.TempDir()
+
+	writeFile(t, filepath.Join(root, "package.json"), `{"name":"myapp","version":"1.0.0"}`)
+	writeFile(t, filepath.Join(root, "src", "index.js"), "console.log('hello');\n")
+	writeFile(t, filepath.Join(root, "src", "app.ts"), "export const x = 1;\n")
+
+	ctx, err := scanner.BuildScanContext(root, nil)
+	require.NoError(t, err)
+
+	assert.Equal(t, "nodejs", ctx.PrimaryLanguage)
+	assert.Contains(t, ctx.Files, ".js", "Files map should have .js key")
+	assert.Contains(t, ctx.Files, ".ts", "Files map should have .ts key")
+}
+
+func TestBuildScanContext_PythonProject(t *testing.T) {
+	root := t.TempDir()
+
+	writeFile(t, filepath.Join(root, "pyproject.toml"), "[project]\nname = \"myapp\"\n")
+	writeFile(t, filepath.Join(root, "myapp", "__init__.py"), "")
+	writeFile(t, filepath.Join(root, "myapp", "main.py"), "print('hello')\n")
+
+	ctx, err := scanner.BuildScanContext(root, nil)
+	require.NoError(t, err)
+
+	assert.Equal(t, "python", ctx.PrimaryLanguage)
+	assert.Contains(t, ctx.Files, ".py", "Files map should have .py key")
+}
+
+func TestBuildScanContext_UnknownProject(t *testing.T) {
+	root := t.TempDir()
+
+	writeFile(t, filepath.Join(root, "readme.txt"), "just a text file\n")
+	writeFile(t, filepath.Join(root, "notes.md"), "# Notes\n")
+
+	ctx, err := scanner.BuildScanContext(root, nil)
+	require.NoError(t, err)
+
+	assert.Equal(t, "unknown", ctx.PrimaryLanguage)
+}
+
+func TestBuildScanContext_ConfigExists(t *testing.T) {
+	root := t.TempDir()
+
+	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/myapp\n\ngo 1.21\n")
+	writeFile(t, filepath.Join(root, "openspec", "config.yaml"), "project: myapp\nlocale: en-US\n")
+
+	ctx, err := scanner.BuildScanContext(root, nil)
+	require.NoError(t, err)
+
+	assert.True(t, ctx.ConfigExists, "config_exists should be true when openspec/config.yaml exists")
+}
+
+func TestBuildScanContext_ConfigNotExists(t *testing.T) {
+	root := t.TempDir()
+
+	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/myapp\n\ngo 1.21\n")
+
+	ctx, err := scanner.BuildScanContext(root, nil)
+	require.NoError(t, err)
+
+	assert.False(t, ctx.ConfigExists, "config_exists should be false when openspec/config.yaml absent")
 }
 
 func TestBuildScanContext_ExcludeDirs(t *testing.T) {
 	root := t.TempDir()
 
+	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/myapp\n\ngo 1.21\n")
 	writeFile(t, filepath.Join(root, "vendor", "lib", "lib.go"), "package lib\n")
 	writeFile(t, filepath.Join(root, "internal", "bar", "bar.go"), "package bar\n")
 
 	ctx, err := scanner.BuildScanContext(root, []string{"vendor"})
 	require.NoError(t, err)
 
-	for _, pkg := range ctx.Packages {
-		assert.NotContains(t, pkg.Dir, "vendor", "vendor dir should be excluded")
+	// vendor files should not be counted
+	for _, mod := range ctx.Modules {
+		assert.NotContains(t, mod.Dir, "vendor", "vendor dir should be excluded from modules")
 	}
-	assert.Len(t, ctx.Packages, 1, "only internal/bar should remain")
+
+	// Files count should only include internal/bar/bar.go (not vendor)
+	assert.Equal(t, 1, ctx.Files[".go"], "only 1 .go file should be counted (vendor excluded)")
 }
 
 func TestBuildScanContext_SkipHiddenDirs(t *testing.T) {
 	root := t.TempDir()
 
-	// .git/ directory with a go file (should be skipped)
+	// .git/ with a go file (should be skipped)
 	writeFile(t, filepath.Join(root, ".git", "hooks", "hook.go"), "package hooks\n")
 	// src/ with a real go file
+	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/myapp\n\ngo 1.21\n")
 	writeFile(t, filepath.Join(root, "src", "app.go"), "package src\n")
 
 	ctx, err := scanner.BuildScanContext(root, nil)
 	require.NoError(t, err)
 
-	assert.Len(t, ctx.Packages, 1, "only src package expected")
-	assert.Equal(t, "src", ctx.Packages[0].Name)
-}
-
-func TestBuildScanContext_ExistingSpecsDetected(t *testing.T) {
-	root := t.TempDir()
-
-	// Go package "auth"
-	writeFile(t, filepath.Join(root, "auth", "auth.go"), "package auth\n")
-
-	// .specs/changes/auth directory to simulate existing spec
-	require.NoError(t, os.MkdirAll(filepath.Join(root, ".specs", "changes", "auth"), 0755))
-
-	ctx, err := scanner.BuildScanContext(root, nil)
-	require.NoError(t, err)
-
-	require.Len(t, ctx.Packages, 1)
-	assert.True(t, ctx.Packages[0].HasSpec, "auth package should have HasSpec=true")
-	assert.Contains(t, ctx.ExistingSpecs, "auth")
+	assert.Equal(t, 1, ctx.Files[".go"], "only src/app.go should be counted (.git skipped)")
 }
 
 func TestBuildScanContext_EmptyProject(t *testing.T) {
@@ -87,21 +140,26 @@ func TestBuildScanContext_EmptyProject(t *testing.T) {
 	ctx, err := scanner.BuildScanContext(root, nil)
 	require.NoError(t, err)
 
-	assert.Empty(t, ctx.Packages)
+	assert.Equal(t, "unknown", ctx.PrimaryLanguage)
 	assert.Equal(t, 0, ctx.TotalFiles)
+	assert.NotNil(t, ctx.Files)
+	assert.NotNil(t, ctx.Modules, "Modules must not be nil even for empty project")
+	assert.NotNil(t, ctx.ExcludedDirs, "ExcludedDirs must not be nil")
+	assert.Len(t, ctx.Modules, 0)
 }
 
-func TestBuildScanContext_TestFilesTracked(t *testing.T) {
+func TestBuildScanContext_ExistingSpecs(t *testing.T) {
 	root := t.TempDir()
 
-	writeFile(t, filepath.Join(root, "mypkg", "foo.go"), "package mypkg\n")
-	writeFile(t, filepath.Join(root, "mypkg", "foo_test.go"), "package mypkg_test\n")
+	writeFile(t, filepath.Join(root, "go.mod"), "module example.com/myapp\n\ngo 1.21\n")
+
+	// Simulate openspec/changes/{name}/ spec dirs
+	require.NoError(t, os.MkdirAll(filepath.Join(root, "openspec", "specs"), 0755))
+	require.NoError(t, os.MkdirAll(filepath.Join(root, "openspec", "changes", "auth-feature"), 0755))
+	writeFile(t, filepath.Join(root, "openspec", "changes", "auth-feature", "proposal.md"), "# Auth Feature\n")
 
 	ctx, err := scanner.BuildScanContext(root, nil)
 	require.NoError(t, err)
 
-	require.Len(t, ctx.Packages, 1)
-	pkg := ctx.Packages[0]
-	assert.Contains(t, pkg.GoFiles, "foo.go")
-	assert.Contains(t, pkg.TestFiles, "foo_test.go")
+	assert.Contains(t, ctx.ExistingSpecs, "auth-feature", "ExistingSpecs should contain auth-feature")
 }

@@ -1,5 +1,5 @@
-// Package scanner provides codebase analysis for the mysd scan command.
-// It walks a Go project directory tree and produces structured JSON metadata
+// Package scanner provides language-agnostic codebase analysis for the mysd scan command.
+// It walks a project directory tree and produces structured JSON metadata
 // for AI agent consumption (e.g., /mysd:scan spec generation).
 package scanner
 
@@ -8,48 +8,72 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/xenciscbc/mysd/internal/spec"
 )
 
 // ScanContext is the JSON-serializable output of BuildScanContext.
-// It contains all Go package metadata for the scanned codebase.
+// It is language-agnostic — primary_language indicates the detected stack,
+// and files/modules provide universal metadata for any language.
 type ScanContext struct {
-	RootDir       string        `json:"root_dir"`
-	Packages      []PackageInfo `json:"packages"`
-	ExistingSpecs []string      `json:"existing_specs"`
-	ExcludedDirs  []string      `json:"excluded_dirs"`
-	TotalFiles    int           `json:"total_files"`
+	RootDir         string         `json:"root_dir"`
+	PrimaryLanguage string         `json:"primary_language"` // "go" | "nodejs" | "python" | "unknown"
+	Files           map[string]int `json:"files"`            // extension -> count, e.g. {".go": 42}
+	Modules         []ModuleInfo   `json:"modules"`          // language-agnostic module list
+	ExistingSpecs   []string       `json:"existing_specs"`
+	ExcludedDirs    []string       `json:"excluded_dirs"`
+	TotalFiles      int            `json:"total_files"`
+	ConfigExists    bool           `json:"config_exists"` // openspec/config.yaml exists?
 }
 
-// PackageInfo contains metadata about a single Go package directory.
-type PackageInfo struct {
-	Name      string   `json:"name"`
-	Dir       string   `json:"dir"`
-	GoFiles   []string `json:"go_files"`
-	TestFiles []string `json:"test_files"`
-	HasSpec   bool     `json:"has_spec"`
+// ModuleInfo contains metadata about a single module/package directory.
+type ModuleInfo struct {
+	Name string `json:"name"` // module/package name (relative path)
+	Dir  string `json:"dir"`  // absolute path
 }
 
-// BuildScanContext walks the directory tree rooted at root, collecting Go package
-// information. Directories in exclude are skipped; hidden directories (names starting
-// with ".") are always skipped.
+// detectPrimaryLanguage checks for well-known marker files to determine the primary
+// programming language of the project. Returns "go", "nodejs", "python", or "unknown".
+func detectPrimaryLanguage(root string) string {
+	markers := []struct {
+		file string
+		lang string
+	}{
+		{"go.mod", "go"},
+		{"package.json", "nodejs"},
+		{"requirements.txt", "python"},
+		{"pyproject.toml", "python"},
+	}
+	for _, m := range markers {
+		if _, err := os.Stat(filepath.Join(root, m.file)); err == nil {
+			return m.lang
+		}
+	}
+	return "unknown"
+}
+
+// BuildScanContext walks the directory tree rooted at root, collecting language-agnostic
+// file and module metadata. Directories in exclude are skipped; hidden directories
+// (names starting with ".") are always skipped.
 //
-// Returns a ScanContext with all packages found, with HasSpec=true for packages
-// that have an existing spec under the detected specs directory.
+// Returns a ScanContext with:
+//   - PrimaryLanguage detected from marker files
+//   - Files map of extension -> count (all files, all languages)
+//   - Modules list based on the detected language
+//   - ConfigExists indicating whether openspec/config.yaml is present
+//   - ExistingSpecs listing change names found in openspec/changes/
 func BuildScanContext(root string, exclude []string) (ScanContext, error) {
 	excludeSet := make(map[string]bool, len(exclude))
 	for _, d := range exclude {
 		excludeSet[d] = true
 	}
 
-	// pkgFiles maps relative package dir (forward slashes) -> {goFiles, testFiles}
-	type pkgFiles struct {
-		goFiles   []string
-		testFiles []string
-		absDir    string
-	}
-	pkgMap := make(map[string]*pkgFiles)
+	primaryLanguage := detectPrimaryLanguage(root)
+	files := make(map[string]int)
+
+	// dirMap tracks which directories have source files (for module detection)
+	// maps relDir -> dirInfo
+	dirMap := make(map[string]*dirInfo)
+
+	totalFiles := 0
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
@@ -58,8 +82,6 @@ func BuildScanContext(root string, exclude []string) (ScanContext, error) {
 		if d.IsDir() {
 			name := d.Name()
 			// Skip hidden dirs (e.g., .git, .specs), but NOT the root itself.
-			// WalkDir calls the root with name "." which starts with "." —
-			// we must not skip it or the entire walk is aborted.
 			if path != root && strings.HasPrefix(name, ".") {
 				return filepath.SkipDir
 			}
@@ -70,84 +92,42 @@ func BuildScanContext(root string, exclude []string) (ScanContext, error) {
 			return nil
 		}
 
-		// Only process .go files
-		if !strings.HasSuffix(d.Name(), ".go") {
-			return nil
+		// Count all files by extension
+		ext := strings.ToLower(filepath.Ext(d.Name()))
+		if ext != "" {
+			files[ext]++
 		}
+		totalFiles++
 
+		// Track directory membership for module detection
 		absDir := filepath.Dir(path)
 		relDir, err := filepath.Rel(root, absDir)
 		if err != nil {
 			return err
 		}
-		// Normalize to forward slashes for cross-platform consistency
 		relDir = filepath.ToSlash(relDir)
-		// Use "." for root-level files; but root-level Go packages are rare
-		// in multi-package projects. Keep as-is.
 
-		if pkgMap[relDir] == nil {
-			pkgMap[relDir] = &pkgFiles{absDir: absDir}
+		if dirMap[relDir] == nil {
+			dirMap[relDir] = &dirInfo{absDir: absDir}
 		}
+		dirMap[relDir].fileNames = append(dirMap[relDir].fileNames, d.Name())
 
-		fileName := d.Name()
-		if strings.HasSuffix(fileName, "_test.go") {
-			pkgMap[relDir].testFiles = append(pkgMap[relDir].testFiles, fileName)
-		} else {
-			pkgMap[relDir].goFiles = append(pkgMap[relDir].goFiles, fileName)
-		}
 		return nil
 	})
 	if err != nil {
 		return ScanContext{}, err
 	}
 
-	// Build PackageInfo list (unsorted — order follows WalkDir which is lexical)
-	packages := make([]PackageInfo, 0, len(pkgMap))
-	for relDir, pf := range pkgMap {
-		goFiles := pf.goFiles
-		if goFiles == nil {
-			goFiles = []string{}
-		}
-		testFiles := pf.testFiles
-		if testFiles == nil {
-			testFiles = []string{}
-		}
-		packages = append(packages, PackageInfo{
-			Name:      relDir,
-			Dir:       pf.absDir,
-			GoFiles:   goFiles,
-			TestFiles: testFiles,
-		})
-	}
+	// Build Modules based on detected language
+	modules := buildModules(primaryLanguage, dirMap)
 
-	// Detect existing specs directory for HasSpec detection
-	var specsDir string
-	specsDir, _, specsErr := spec.DetectSpecDir(root)
-	if specsErr != nil {
-		// No specs dir — normal for first-time scan; all HasSpec=false
-		specsDir = ""
-	}
+	// Detect existing specs in openspec/changes/
+	existingSpecs := detectExistingSpecs(root)
 
-	var existingSpecs []string
-
-	if specsDir != "" {
-		absSpecsDir := filepath.Join(root, specsDir)
-		changesDir := filepath.Join(absSpecsDir, "changes")
-
-		for i := range packages {
-			pkgName := packages[i].Name
-			specPath := filepath.Join(changesDir, pkgName)
-			if info, err := os.Stat(specPath); err == nil && info.IsDir() {
-				packages[i].HasSpec = true
-				existingSpecs = append(existingSpecs, pkgName)
-			}
-		}
-	}
-
-	// Count total files
-	totalFiles := 0
-	for _, pkg := range packages {
-		totalFiles += len(pkg.GoFiles) + len(pkg.TestFiles)
+	// Check openspec/config.yaml existence
+	configExists := false
+	if _, err := os.Stat(filepath.Join(root, "openspec", "config.yaml")); err == nil {
+		configExists = true
 	}
 
 	excludedDirs := exclude
@@ -156,10 +136,89 @@ func BuildScanContext(root string, exclude []string) (ScanContext, error) {
 	}
 
 	return ScanContext{
-		RootDir:       root,
-		Packages:      packages,
-		ExistingSpecs: existingSpecs,
-		ExcludedDirs:  excludedDirs,
-		TotalFiles:    totalFiles,
+		RootDir:         root,
+		PrimaryLanguage: primaryLanguage,
+		Files:           files,
+		Modules:         modules,
+		ExistingSpecs:   existingSpecs,
+		ExcludedDirs:    excludedDirs,
+		TotalFiles:      totalFiles,
+		ConfigExists:    configExists,
 	}, nil
+}
+
+// dirInfo holds per-directory metadata for module detection.
+type dirInfo struct {
+	absDir    string
+	fileNames []string
+}
+
+// buildModules constructs the module list based on primary language and directory contents.
+func buildModules(primaryLanguage string, dirMap map[string]*dirInfo) []ModuleInfo {
+	modules := []ModuleInfo{}
+
+	for relDir, info := range dirMap {
+		if shouldIncludeAsModule(primaryLanguage, info.fileNames) {
+			modules = append(modules, ModuleInfo{
+				Name: relDir,
+				Dir:  info.absDir,
+			})
+		}
+	}
+
+	return modules
+}
+
+// shouldIncludeAsModule returns true if a directory's files qualify it as a module
+// for the given primary language.
+func shouldIncludeAsModule(primaryLanguage string, fileNames []string) bool {
+	fileSet := make(map[string]bool, len(fileNames))
+	for _, f := range fileNames {
+		fileSet[f] = true
+	}
+
+	switch primaryLanguage {
+	case "go":
+		// Go module: directory containing .go files
+		for _, f := range fileNames {
+			if strings.HasSuffix(f, ".go") {
+				return true
+			}
+		}
+	case "nodejs":
+		// Node.js module: directory containing index.js/index.ts or package.json
+		if fileSet["index.js"] || fileSet["index.ts"] || fileSet["package.json"] {
+			return true
+		}
+	case "python":
+		// Python module: directory containing __init__.py
+		if fileSet["__init__.py"] {
+			return true
+		}
+	default:
+		// Unknown: include top-level directories that have source files
+		return len(fileNames) > 0
+	}
+
+	return false
+}
+
+// detectExistingSpecs finds change names in openspec/changes/ directory.
+func detectExistingSpecs(root string) []string {
+	specs := []string{}
+	changesDir := filepath.Join(root, "openspec", "changes")
+
+	entries, err := os.ReadDir(changesDir)
+	if err != nil {
+		// openspec/changes/ not present — normal for first-time scan
+		return specs
+	}
+
+	for _, e := range entries {
+		if e.IsDir() {
+			specs = append(specs, e.Name())
+		}
+	}
+
+	return specs
 }
