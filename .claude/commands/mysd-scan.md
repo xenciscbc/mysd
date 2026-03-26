@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Scan existing codebase and generate OpenSpec-format spec documents for discovered modules.
+argument-hint: ""
 allowed-tools:
   - Bash
   - Read

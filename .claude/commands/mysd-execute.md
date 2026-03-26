@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: "[Renamed] Use /mysd:apply instead. This command redirects to apply."
+argument-hint: ""
 allowed-tools:
   - Bash
 ---

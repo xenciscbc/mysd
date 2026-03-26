@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Set response language and OpenSpec locale for the project.
+argument-hint: ""
 allowed-tools:
   - Bash
   - Read

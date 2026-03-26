@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Goal-backward verification of all MUST items. Invokes independent verifier agent.
+argument-hint: ""
 allowed-tools:
   - Bash
   - Read
