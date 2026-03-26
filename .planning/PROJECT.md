@@ -41,6 +41,16 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 - ✓ GoReleaser 跨平台 binary 發佈（Linux/macOS/Windows）— Phase 4
 - ✓ Roadmap tracking 自動記錄 change lifecycle（tracking.yaml + Mermaid timeline）— Phase 4
 
+### Validated (Phase 8)
+
+- ✓ 新增 3 個 agent 定義（mysd-researcher 4維度研究、mysd-advisor 灰區分析、mysd-proposal-writer）— Phase 8
+- ✓ SKILL.md orchestrator 架構升級 — executor/spec-writer 改為 per-task/per-spec-file spawn 模型 — Phase 8
+- ✓ /mysd:discuss 互動討論指令（可選 4 維度並行研究 + spec 更新 + 自動 re-plan）— Phase 8
+- ✓ /mysd:fix 雙路徑修復指令（merge conflict vs. implementation failure 自動偵測）— Phase 8
+- ✓ /mysd:plan 3 段式流水線（research → design → plan）+ --auto flag — Phase 8
+- ✓ /mysd:apply per-task spawn + ff/ffe 直接 pipeline orchestration — Phase 8
+- ✓ FAGENT-05 全面合規 — 12 個 agent definitions 零 Task tool 違規 — Phase 8
+
 ### Active
 
 ## Current Milestone: v1.1 Interactive Discovery & Parallel Execution
@@ -72,7 +82,7 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 - 技術棧：Go 1.25, Cobra CLI, Viper config, lipgloss output, yaml.v3, adrg/frontmatter
 - Module path: `github.com/xenciscbc/mysd`
 - Distribution: `go install github.com/xenciscbc/mysd@latest` + GitHub Releases via GoReleaser
-- Plugin: 14 SKILL.md commands, 8 agent definitions, SessionStart hook
+- Plugin: 19 SKILL.md commands, 12 agent definitions, SessionStart hook
 - 目標用戶：獨立開發者（solo developer），使用 AI 輔助開發，希望有結構化的 spec 驅動流程而非 vibecoding
 - Spec 存放位置：專案內的 `.specs/` 目錄（相容 OpenSpec 的 `openspec/` 結構）
 
