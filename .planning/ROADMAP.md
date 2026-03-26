@@ -139,6 +139,6 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
   6. `/mysd:update` SKILL.md 薄 wrapper 呼叫 binary 並格式化顯示結果，支援 `argument-hint: "[--check] [--force]"`
 **Plans**: 3 plans
 Plans:
-- [ ] 10-01-PLAN.md — Version check (GitHub API + semver) + binary self-update (download, checksum, platform replace, rollback)
+- [x] 10-01-PLAN.md — Version check (GitHub API + semver) + binary self-update (download, checksum, platform replace, rollback)
 - [ ] 10-02-PLAN.md — Plugin manifest diff + sync executor + GoReleaser config update
 - [ ] 10-03-PLAN.md — Cobra update command (JSON output, --check/--force) + SKILL.md wrapper + plugin distribution
