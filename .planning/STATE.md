@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-26T04:35:27.243Z"
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-03-26T04:40:00.857Z"
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 16
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 08 (skill-md-orchestrators-agent-definitions) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 
 ## Performance Metrics
@@ -58,6 +58,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 07 P05 | 5 | 3 tasks | 5 files |
 | Phase 08 P02 | 4 | 2 tasks | 5 files |
 | Phase 08-skill-md-orchestrators-agent-definitions P01 | 5 | 1 tasks | 7 files |
+| Phase 08 P04 | 2 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 08-02]: mysd-spec-writer: capability_area + auto_mode added; Discuss step and state transition removed — SKILL.md orchestrator responsibilities
 - [Phase 08-01]: All 4 new/synced agent definitions have zero Task tool references in allowed-tools — enforces leaf agent constraint (D-17)
 - [Phase 08-01]: Plugin sync pattern: .claude/agents/ is authoritative dev copy, plugin/agents/ is distribution copy with identical content
+- [Phase 08]: auto_mode in discuss skips research entirely (FAUTO-02: ff/ffe-style auto = no interaction) — propagated to all spawned agents
+- [Phase 08]: discuss source detection (D-06): change-name > file-path > dir-path > active change > auto-detect (gstack/context, not .claude/plans/) > create new
 
 ### Pending Todos
 
@@ -129,6 +132,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:35:27.237Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-26T04:40:00.850Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None

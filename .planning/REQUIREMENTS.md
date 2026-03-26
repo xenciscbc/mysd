@@ -118,7 +118,7 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### New Commands
 
-- [ ] **FCMD-01**: `/mysd:discuss` 隨時補充討論，支援 4 維度並行 research
+- [x] **FCMD-01**: `/mysd:discuss` 隨時補充討論，支援 4 維度並行 research
 - [ ] **FCMD-02**: `/mysd:fix` 互動式修復，可選 research，spawn executor subagent（worktree 隔離），只改 code
 - [x] **FCMD-03**: `/mysd:model` 顯示/切換 model profile + resolve 特定 agent model
 - [x] **FCMD-04**: `/mysd:lang` 互動式設定 response_language 和 document_language，同步 mysd.yaml 和 openspec/config.yaml
@@ -223,7 +223,7 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | SKILL-02 | Phase 7 | Complete |
 | SKILL-03 | Phase 7 | Complete |
 | SKILL-04 | Phase 7 | Complete |
-| FCMD-01 | Phase 8 | Pending |
+| FCMD-01 | Phase 8 | Complete |
 | FCMD-02 | Phase 8 | Pending |
 | FAGENT-01 | Phase 8 | Complete |
 | FAGENT-02 | Phase 8 | Complete |
