@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-03-26T01:49:19.132Z"
+stopped_at: Completed 07-04-PLAN.md
+last_updated: "2026-03-26T01:55:05.798Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 07 (new-binary-commands-scanner-refactor) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Plan: 4 of 5
 | Phase 07 P01 | 8 | 1 tasks | 2 files |
 | Phase 07 P02 | 6 | 2 tasks | 6 files |
 | Phase 07 P03 | 2 | 2 tasks | 2 files |
+| Phase 07 P04 | 7 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,7 @@ Recent decisions affecting v1.1 work:
 - [Phase 07]: ScanContext replaced PackageInfo — language-agnostic struct with PrimaryLanguage/Files/Modules (D-02 no backward compat)
 - [Phase 07]: scaffoldOpenSpecDir idempotent via os.MkdirAll — init removed --force flag, delegates to scaffold
 - [Phase 07]: Plain text fmt.Fprintf for model table (not lipgloss) — satisfies D-11 without TTY dependency
+- [Phase 07]: lang set uses defer rollback pattern (write mysd.yaml first, rollback if openspec write fails) — safer on Windows than write-then-rename
 
 ### Pending Todos
 
@@ -118,6 +120,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-26T01:49:19.126Z
-Stopped at: Completed 07-03-PLAN.md
+Last session: 2026-03-26T01:55:05.792Z
+Stopped at: Completed 07-04-PLAN.md
 Resume file: None
