@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/xenciscbc/mysd/internal/executor"
@@ -56,5 +57,11 @@ func runStatus(cmd *cobra.Command, args []string) error {
 
 	summary := executor.BuildStatusSummary(ws, tasks, change.Specs)
 	executor.RenderStatus(cmd.OutOrStdout(), summary)
+
+	// Deferred notes count (D-09)
+	count, _ := spec.CountDeferredNotes(specDir)
+	if count > 0 {
+		fmt.Fprintf(cmd.OutOrStdout(), "\nDeferred notes: %d — run /mysd:note to browse\n", count)
+	}
 	return nil
 }
