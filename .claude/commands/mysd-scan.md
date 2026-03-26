@@ -1,6 +1,6 @@
 ---
 model: claude-sonnet-4-5
-description: Scan existing codebase and generate OpenSpec-format spec documents for discovered packages.
+description: Scan existing codebase and generate OpenSpec-format spec documents for discovered modules.
 allowed-tools:
   - Bash
   - Read
@@ -10,7 +10,7 @@ allowed-tools:
 
 # /mysd:scan — Scan Codebase and Generate Specs
 
-You are the mysd scan orchestrator. Your job is to scan the existing codebase, present the results to the user for confirmation, then invoke the scanner agent to generate OpenSpec-format spec documents for each confirmed package.
+You are the mysd scan orchestrator. Your job is to scan the existing codebase, present the results to the user for confirmation, then invoke the scanner agent to generate OpenSpec-format spec documents for each confirmed module.
 
 ## Step 1: Run Scan Context
 
@@ -23,65 +23,70 @@ Optionally, if the user has specified directories to exclude, add `--exclude ven
 
 Parse the JSON output. It contains:
 - `root_dir`: The project root directory
-- `packages`: Array of Go packages found, each with:
-  - `name`: Package name
+- `primary_language`: Detected language ("go", "nodejs", "python", "unknown")
+- `files`: Map of file extension to count, e.g. {".go": 42, ".ts": 10}
+- `modules`: Array of discovered modules, each with:
+  - `name`: Module/package name
   - `dir`: Relative directory path
-  - `go_files`: Array of `.go` source files
-  - `test_files`: Array of `_test.go` files
-  - `has_spec`: Boolean — true if `.specs/changes/{name}/` already exists
-- `existing_specs`: Array of spec directories that already exist
-- `excluded_dirs`: Array of directories excluded from the scan
-- `total_files`: Total number of Go files found
+- `existing_specs`: Array of spec names that already exist
+- `excluded_dirs`: Array of directories excluded from scan
+- `total_files`: Total files found
+- `config_exists`: Boolean — true if openspec/config.yaml already exists
 
 If this returns an error, report it to the user and stop.
 
-## Step 2: Present Results and Request User Confirmation (D-02)
+## Step 2: Present Results and Request User Confirmation
 
 Present the scan results to the user in a clear, readable format:
 
 ```
-Scan complete. Found {total_packages} packages in {root_dir}.
+Scan complete. Found {total_files} files in {root_dir}.
+Primary language: {primary_language}
 
-Packages to scan (no spec yet):
-  - {package.name} ({package.dir}) — {len(go_files)} files
+File types:
+  .go: 42 files
+  .md: 10 files
+  ...
 
-Packages already have specs (will be skipped):
-  - {package.name} ({package.dir}) — spec exists at .specs/changes/{package.name}/
+Modules to scan (no spec yet):
+  - {module.name} ({module.dir})
+
+Already have specs (will be skipped):
+  - {spec_name}
 
 Excluded directories: {excluded_dirs or "none"}
 ```
 
 Then ask:
 ```
-Proceed with spec generation for the listed packages?
-Type 'yes' to proceed, or list package names to exclude (comma-separated).
+Proceed with spec generation for the listed modules?
+Type 'yes' to proceed, or list module names to exclude (comma-separated).
 ```
 
 Wait for the user's response before continuing.
 
-If the user types 'yes', proceed with all packages where `has_spec=false`.
-If the user provides a list of exclusions, remove those packages from the list and proceed.
+If the user types 'yes', proceed with all modules that do not yet have specs.
+If the user provides a list of exclusions, remove those modules from the list and proceed.
 If the user types 'no' or 'cancel', stop and inform the user that no specs were generated.
 
-## Step 3: Invoke Scanner Agent for Each Confirmed Package (D-03)
+## Step 3: Invoke Scanner Agent for Each Confirmed Module
 
-For EACH confirmed package WHERE `has_spec=false`:
+For EACH confirmed module that does NOT already have a spec:
 
 Use the Task tool to invoke the mysd-scanner agent:
 
 ```
-Task: Generate OpenSpec spec for package {package.name}
+Task: Generate OpenSpec spec for module {module.name}
 Agent: mysd-scanner
 Context:
-  package_name: {package.name}
-  package_dir: {package.dir}
-  go_files: {package.go_files}
-  test_files: {package.test_files}
-  specs_dir: .specs
+  module_name: {module.name}
+  module_dir: {module.dir}
+  primary_language: {primary_language}
+  specs_dir: openspec/specs
   root_dir: {root_dir}
 ```
 
-**CRITICAL: Packages with `has_spec=true` MUST be skipped — do NOT invoke the agent for them. Never overwrite an existing spec.**
+**CRITICAL: Modules with existing specs MUST be skipped — do NOT invoke the agent for them. Never overwrite an existing spec.**
 
 Wait for each agent task to complete before invoking the next one, unless running in parallel mode.
 
@@ -93,16 +98,25 @@ After all agent tasks complete, present a clear summary:
 Spec generation complete.
 
 Generated specs:
-  - {package.name}: .specs/changes/{package.name}/proposal.md
-  - {package.name}: .specs/changes/{package.name}/specs/spec.md
+  - {module.name}: openspec/specs/{module.name}/spec.md
   ...
 
 Skipped (already had specs):
-  - {package.name} (existing spec preserved)
+  - {spec_name} (existing spec preserved)
 
 Next steps:
   - Review the generated specs with /mysd:spec to refine requirements
   - Run /mysd:ff to fast-forward through design and planning
 ```
 
-If any agent tasks failed, report which packages failed and suggest the user re-run `/mysd:scan` for those packages.
+If any agent tasks failed, report which modules failed and suggest the user re-run `/mysd:scan` for those modules.
+
+## Step 5: Locale Setup (if needed)
+
+If `config_exists` is false, after spec generation is complete, prompt the user:
+
+```
+No openspec config found. Set your preferred language with /mysd:lang
+```
+
+This ensures the locale is configured before spec writing begins.
