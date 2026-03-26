@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-03-26T01:37:21.240Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-26T01:44:36.855Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 11
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 07 (new-binary-commands-scanner-refactor) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Plan: 2 of 5
 | Phase 06 P03 | 2 | 2 tasks | 2 files |
 | Phase 06-executor-wave-grouping-worktree-engine P04 | 3 | 2 tasks | 2 files |
 | Phase 07 P01 | 8 | 1 tasks | 2 files |
+| Phase 07 P02 | 6 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 07]: Skills 推薦邏輯在 mysd-planner agent 層，確認流程在 SKILL.md 層，預設 accept-all
 - [Phase 07]: `mysd model` table 輸出（lipgloss），`mysd model set` 直接寫 .claude/mysd.yaml
 - [Phase 07]: FilterBlockedTasks uses BFS over adjacency map (same pattern as BuildWaveGroups) — no new data structures needed
+- [Phase 07]: ScanContext replaced PackageInfo — language-agnostic struct with PrimaryLanguage/Files/Modules (D-02 no backward compat)
+- [Phase 07]: scaffoldOpenSpecDir idempotent via os.MkdirAll — init removed --force flag, delegates to scaffold
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-26T01:37:21.234Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-03-26T01:44:36.849Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
