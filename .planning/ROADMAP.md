@@ -103,7 +103,7 @@ Plans:
   5. `--auto` 完全跳過探索循環直接使用 AI 第一推薦；research summary 寫入 spec 檔案，不需獨立持久化
 **Plans**: 4 plans
 Plans:
-- [ ] 09-01-PLAN.md — DeferredNote CRUD package + mysd note subcommand + status deferred count (TDD)
+- [x] 09-01-PLAN.md — DeferredNote CRUD package + mysd note subcommand + status deferred count (TDD)
 - [ ] 09-02-PLAN.md — propose + discuss SKILL.md discovery pipeline rewrite
 - [ ] 09-03-PLAN.md — plan single researcher fix + spec research + status/note SKILL.md
 - [ ] 09-04-PLAN.md — Plugin sync + full test suite + human verification checkpoint

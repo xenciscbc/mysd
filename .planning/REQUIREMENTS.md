@@ -91,7 +91,7 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 - [ ] **DISC-05**: Research 模式支援雙模式 — AI 研究後主導提問 + 使用者主導提問
 - [ ] **DISC-06**: propose/discuss 的 research 產出 gray areas，由 SKILL.md orchestrator 並行 spawn advisor agents 分析（subagent 不 spawn subagent）
 - [ ] **DISC-07**: 雙層循環 — area 內可深挖 + 全部 areas 完成後可發現新 areas，直到使用者滿意
-- [ ] **DISC-08**: Scope guardrail — 防止 scope creep，超出範圍的想法 redirect 到 deferred notes
+- [x] **DISC-08**: Scope guardrail — 防止 scope creep，超出範圍的想法 redirect 到 deferred notes
 - [ ] **DISC-09**: discuss 結論自動更新 spec/design/tasks，更新後自動 re-plan + plan-checker
 
 ### Execution Engine
@@ -242,7 +242,7 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | DISC-05 | Phase 9 | Pending |
 | DISC-06 | Phase 9 | Pending |
 | DISC-07 | Phase 9 | Pending |
-| DISC-08 | Phase 9 | Pending |
+| DISC-08 | Phase 9 | Complete |
 | DISC-09 | Phase 9 | Pending |
 
 **Coverage:**
