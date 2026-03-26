@@ -4,12 +4,18 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// isWindows returns true when running on Windows.
+func isWindows() bool {
+	return runtime.GOOS == "windows"
+}
 
 // TestLangRead_ShowsCurrent verifies that mysd lang with both config files present
 // outputs the current response_language and locale values.
@@ -95,9 +101,14 @@ func TestLangSet_UpdatesBothConfigs(t *testing.T) {
 
 // TestLangSet_AtomicRollback verifies that if openspec/config.yaml write fails,
 // .claude/mysd.yaml is rolled back to its original value.
+// Uses a read-only directory to cause the write failure.
+// Skipped on Windows where directory permissions work differently.
 func TestLangSet_AtomicRollback(t *testing.T) {
 	if os.Getuid() == 0 {
 		t.Skip("skipping read-only test: running as root")
+	}
+	if isWindows() {
+		t.Skip("skipping read-only test: Windows directory chmod does not block writes the same way")
 	}
 
 	tmpDir := t.TempDir()
