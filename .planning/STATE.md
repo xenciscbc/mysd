@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-03-26T04:35:04.637Z"
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-26T04:35:27.243Z"
 progress:
   total_phases: 5
   completed_phases: 3
@@ -57,6 +57,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 07 P04 | 7 | 1 tasks | 2 files |
 | Phase 07 P05 | 5 | 3 tasks | 5 files |
 | Phase 08 P02 | 4 | 2 tasks | 5 files |
+| Phase 08-skill-md-orchestrators-agent-definitions P01 | 5 | 1 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 07]: Skills recommendation in planner agent layer, confirmation in SKILL.md layer, default accept-all (D-07 through D-10)
 - [Phase 08-02]: mysd-executor: assigned_task is now the ONLY task input — no pending_tasks list, no execution_mode field; SKILL.md orchestrator handles the loop
 - [Phase 08-02]: mysd-spec-writer: capability_area + auto_mode added; Discuss step and state transition removed — SKILL.md orchestrator responsibilities
+- [Phase 08-01]: All 4 new/synced agent definitions have zero Task tool references in allowed-tools — enforces leaf agent constraint (D-17)
+- [Phase 08-01]: Plugin sync pattern: .claude/agents/ is authoritative dev copy, plugin/agents/ is distribution copy with identical content
 
 ### Pending Todos
 
@@ -126,6 +129,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:34:53.693Z
-Stopped at: Completed 08-02-PLAN.md
+Last session: 2026-03-26T04:35:27.237Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None

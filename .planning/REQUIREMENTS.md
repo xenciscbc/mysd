@@ -134,9 +134,9 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### Subagent Architecture
 
-- [ ] **FAGENT-01**: 新增 `mysd-researcher` agent definition（研究 codebase/domain）
-- [ ] **FAGENT-02**: 新增 `mysd-advisor` agent definition（gray area 分析，帶比較表）
-- [ ] **FAGENT-03**: 新增 `mysd-proposal-writer` agent definition（寫 proposal.md）
+- [x] **FAGENT-01**: 新增 `mysd-researcher` agent definition（研究 codebase/domain）
+- [x] **FAGENT-02**: 新增 `mysd-advisor` agent definition（gray area 分析，帶比較表）
+- [x] **FAGENT-03**: 新增 `mysd-proposal-writer` agent definition（寫 proposal.md）
 - [x] **FAGENT-04**: 新增 `mysd-plan-checker` agent definition（驗證 MUST 覆蓋率）
 - [x] **FAGENT-05**: 所有 agent definitions 確認無 Task tool 呼叫（subagent 不 spawn subagent）
 - [x] **FAGENT-06**: `mysd-spec-writer` 改為 per capability area spawn
@@ -225,9 +225,9 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | SKILL-04 | Phase 7 | Complete |
 | FCMD-01 | Phase 8 | Pending |
 | FCMD-02 | Phase 8 | Pending |
-| FAGENT-01 | Phase 8 | Pending |
-| FAGENT-02 | Phase 8 | Pending |
-| FAGENT-03 | Phase 8 | Pending |
+| FAGENT-01 | Phase 8 | Complete |
+| FAGENT-02 | Phase 8 | Complete |
+| FAGENT-03 | Phase 8 | Complete |
 | FAGENT-05 | Phase 8 | Complete |
 | FAGENT-06 | Phase 8 | Complete |
 | FAGENT-07 | Phase 8 | Complete |
