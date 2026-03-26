@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Execute pending tasks with mandatory alignment gate. Supports single (sequential per-task) and wave (parallel per-task) modes. Usage: /mysd:apply [--auto]
+argument-hint: "[--auto]"
 allowed-tools:
   - Bash
   - Read

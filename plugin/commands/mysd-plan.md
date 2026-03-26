@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Plan orchestrator. Optional single-agent research, then design, then task planning. Usage: /mysd:plan [--research] [--check] [--auto]
+argument-hint: "[--research] [--check] [--auto]"
 allowed-tools:
   - Bash
   - Read

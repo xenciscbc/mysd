@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Full fast-forward with research + plan + apply + archive. Implies --auto. Usage: /mysd:ffe [change-name]
+argument-hint: "[change-name]"
 allowed-tools:
   - Bash
   - Read

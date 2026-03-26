@@ -1,5 +1,7 @@
 ---
+model: claude-sonnet-4-5
 description: Capture changes discussed in the current conversation into a structured proposal. Usage: /mysd:capture [change-name]
+argument-hint: "[change-name]"
 allowed-tools:
   - Bash
   - Read

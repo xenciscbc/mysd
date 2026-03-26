@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Ad-hoc discussion with optional 4-dimension research, gray area exploration, and scope guardrail. Updates specs and triggers re-plan. Usage: /mysd:discuss [topic|change-name|file-path|dir-path] [--auto]
+argument-hint: "[topic|change-name|file|dir] [--auto]"
 allowed-tools:
   - Bash
   - Read

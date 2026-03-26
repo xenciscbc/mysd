@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Show current workflow status dashboard with task progress and next step recommendation.
+argument-hint: ""
 allowed-tools:
   - Bash
   - Read

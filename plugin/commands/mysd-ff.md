@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Fast-forward through plan + apply + archive. Assumes spec is ready. No research. Implies --auto. Usage: /mysd:ff [change-name]
+argument-hint: "[change-name]"
 allowed-tools:
   - Bash
   - Read

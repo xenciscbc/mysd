@@ -1,14 +1,15 @@
 ---
-description: Initialize mysd configuration for the current project.
+model: claude-sonnet-4-5
+description: Initialize mysd project structure (scaffold + locale setup).
+argument-hint: ""
 allowed-tools:
   - Bash
   - Read
-  - Write
 ---
 
-# /mysd:init — Initialize mysd Configuration
+# /mysd:init — Initialize mysd Project
 
-You are the mysd init assistant. Your job is to initialize or display the mysd configuration.
+You are the mysd init assistant. Your job is to scaffold the mysd project structure and configure the locale.
 
 ## Step 1: Run Init Command
 
@@ -17,39 +18,38 @@ Run:
 mysd init
 ```
 
-This creates or displays `.mysd.yaml` in the current project root.
+This creates the scaffold:
+- `.claude/mysd.yaml` — project configuration file
+- `openspec/` — OpenSpec root directory
+- `openspec/specs/` — spec storage directory
 
-## Step 2: Show Current Configuration
+If there are any errors, report them to the user and stop.
 
-Read the configuration file:
+## Step 2: Set Language
+
+Ask the user:
 ```
-.mysd.yaml
+What language should mysd use? (e.g., zh-TW, en-US, ja-JP)
+Press Enter to skip and configure later with /mysd:lang.
 ```
 
-Display the current configuration to the user with explanations of each field:
-- `spec_dir`: Where spec files are stored (default: `.specs`)
-- `model_profile`: AI model profile (`balanced`, `quality`, `budget`)
-- `execution_mode`: How tasks are executed (`single`, `wave`)
-- `agent_count`: Number of parallel agents in wave mode
-- `tdd`: Whether to use test-driven development
-- `atomic_commits`: Whether to commit after each task
-- `test_generation`: Whether to auto-generate tests after execution
+If the user provides a locale, run:
+```
+mysd lang set {user_choice}
+```
 
-## Step 3: Offer Interactive Editing
+This atomically sets `response_language` in `.claude/mysd.yaml` and `locale` in `openspec/config.yaml`.
 
-Ask the user: "Would you like to change any configuration values?"
+If the user presses Enter (skips), continue without setting language.
 
-If yes, for each value they want to change:
-1. Ask for the new value
-2. Update the `.mysd.yaml` file with the new value
+## Step 3: Confirm
 
-Common configuration scenarios:
-- **Quality mode**: Set `model_profile: quality` for complex changes
-- **Wave mode**: Set `execution_mode: wave` and `agent_count: 3` for large task sets
-- **TDD workflow**: Set `tdd: true` for test-first development
-- **Auto-commit**: Set `atomic_commits: true` for granular git history
+Tell the user:
+```
+Project initialized. Run /mysd:scan to discover your codebase and generate specs.
+```
 
-## Step 4: Confirm
-
-Show the final configuration and next steps:
-"Configuration saved. Run `/mysd:propose [name]` to start a new change."
+If language was set, also mention:
+```
+Language set to: {locale}
+```

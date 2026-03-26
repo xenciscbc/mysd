@@ -1,6 +1,7 @@
 ---
 model: claude-sonnet-4-5
 description: Write detailed requirements with optional focused research. Invokes mysd-spec-writer agent. Usage: /mysd:spec [--auto]
+argument-hint: "[--auto]"
 allowed-tools:
   - Bash
   - Read
