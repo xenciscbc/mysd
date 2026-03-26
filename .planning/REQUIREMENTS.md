@@ -111,10 +111,10 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 ### Skills Alignment
 
-- [ ] **SKILL-01**: Planner 自動依 task 內容推薦 `skills` 欄位
-- [ ] **SKILL-02**: Plan 完成後列出所有 task 與推薦 skills 的對應表，互動式讓使用者確認
-- [ ] **SKILL-03**: 使用者可逐一調整或批次同意推薦的 skills
-- [ ] **SKILL-04**: ffe 模式跳過互動，直接使用推薦值
+- [x] **SKILL-01**: Planner 自動依 task 內容推薦 `skills` 欄位
+- [x] **SKILL-02**: Plan 完成後列出所有 task 與推薦 skills 的對應表，互動式讓使用者確認
+- [x] **SKILL-03**: 使用者可逐一調整或批次同意推薦的 skills
+- [x] **SKILL-04**: ffe 模式跳過互動，直接使用推薦值
 
 ### New Commands
 
@@ -138,9 +138,9 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 - [ ] **FAGENT-02**: 新增 `mysd-advisor` agent definition（gray area 分析，帶比較表）
 - [ ] **FAGENT-03**: 新增 `mysd-proposal-writer` agent definition（寫 proposal.md）
 - [x] **FAGENT-04**: 新增 `mysd-plan-checker` agent definition（驗證 MUST 覆蓋率）
-- [ ] **FAGENT-05**: 所有 agent definitions 確認無 Task tool 呼叫（subagent 不 spawn subagent）
-- [ ] **FAGENT-06**: `mysd-spec-writer` 改為 per capability area spawn
-- [ ] **FAGENT-07**: `mysd-executor` 改為 per task spawn
+- [x] **FAGENT-05**: 所有 agent definitions 確認無 Task tool 呼叫（subagent 不 spawn subagent）
+- [x] **FAGENT-06**: `mysd-spec-writer` 改為 per capability area spawn
+- [x] **FAGENT-07**: `mysd-executor` 改為 per task spawn
 
 ### Model Profile
 
@@ -219,18 +219,18 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FSCAN-03 | Phase 7 | Complete |
 | FSCAN-04 | Phase 7 | Complete |
 | FSCAN-05 | Phase 7 | Complete |
-| SKILL-01 | Phase 7 | Pending |
-| SKILL-02 | Phase 7 | Pending |
-| SKILL-03 | Phase 7 | Pending |
-| SKILL-04 | Phase 7 | Pending |
+| SKILL-01 | Phase 7 | Complete |
+| SKILL-02 | Phase 7 | Complete |
+| SKILL-03 | Phase 7 | Complete |
+| SKILL-04 | Phase 7 | Complete |
 | FCMD-01 | Phase 8 | Pending |
 | FCMD-02 | Phase 8 | Pending |
 | FAGENT-01 | Phase 8 | Pending |
 | FAGENT-02 | Phase 8 | Pending |
 | FAGENT-03 | Phase 8 | Pending |
-| FAGENT-05 | Phase 8 | Pending |
-| FAGENT-06 | Phase 8 | Pending |
-| FAGENT-07 | Phase 8 | Pending |
+| FAGENT-05 | Phase 8 | Complete |
+| FAGENT-06 | Phase 8 | Complete |
+| FAGENT-07 | Phase 8 | Complete |
 | FAUTO-01 | Phase 8 | Pending |
 | FAUTO-02 | Phase 8 | Pending |
 | FAUTO-03 | Phase 8 | Pending |

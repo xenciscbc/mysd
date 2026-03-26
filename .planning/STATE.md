@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: Ready to plan
-stopped_at: Completed 07-05-PLAN.md (awaiting human verify at checkpoint)
-last_updated: "2026-03-26T02:21:17.723Z"
+status: Ready to execute
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-03-26T04:35:04.637Z"
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 16
+  completed_plans: 13
 ---
 
 # Project State
@@ -19,11 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Phase 08 — SKILL.md Orchestrators & Agent Definitions (next)
+**Current focus:** Phase 08 — skill-md-orchestrators-agent-definitions
 
 ## Current Position
 
-Phase: 8
+Phase: 08 (skill-md-orchestrators-agent-definitions) — EXECUTING
+Plan: 3 of 5
 Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 
 ## Performance Metrics
@@ -55,6 +56,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 07 P03 | 2 | 2 tasks | 2 files |
 | Phase 07 P04 | 7 | 1 tasks | 2 files |
 | Phase 07 P05 | 5 | 3 tasks | 5 files |
+| Phase 08 P02 | 4 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -91,6 +93,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 07]: Plain text fmt.Fprintf for model table (not lipgloss) — satisfies D-11 without TTY dependency
 - [Phase 07]: lang set uses defer rollback pattern (write mysd.yaml first, rollback if openspec write fails) — safer on Windows than write-then-rename
 - [Phase 07]: Skills recommendation in planner agent layer, confirmation in SKILL.md layer, default accept-all (D-07 through D-10)
+- [Phase 08-02]: mysd-executor: assigned_task is now the ONLY task input — no pending_tasks list, no execution_mode field; SKILL.md orchestrator handles the loop
+- [Phase 08-02]: mysd-spec-writer: capability_area + auto_mode added; Discuss step and state transition removed — SKILL.md orchestrator responsibilities
 
 ### Pending Todos
 
@@ -122,6 +126,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-26T02:03:43.087Z
-Stopped at: Completed 07-05-PLAN.md (awaiting human verify at checkpoint)
+Last session: 2026-03-26T04:34:53.693Z
+Stopped at: Completed 08-02-PLAN.md
 Resume file: None
