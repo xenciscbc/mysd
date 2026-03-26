@@ -83,7 +83,13 @@ Plans:
   2. 執行 `/mysd:fix` 後在 worktree 隔離環境修復程式碼，可選 research 模式，修復完成後 worktree 清理
   3. 所有 9 個 agent definitions（含 4 個新 agent）通過手動 audit：無嵌套 subagent spawning，Task tool 只在 SKILL.md orchestrator 層使用
   4. `ff`/`ffe` 指令隱含 `--auto`，跳過 research，直接依照既有 spec 執行；`--auto` flag 在 propose/spec/discuss/plan 跳過互動
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 08-01-PLAN.md — New agent definitions (researcher, advisor, proposal-writer) + plan-checker sync
+- [ ] 08-02-PLAN.md — Agent rewrites (executor per-task, spec-writer per-spec) + 9-agent Task tool audit
+- [ ] 08-03-PLAN.md — SKILL.md rewrites (plan, apply, propose, status) + --auto flag support
+- [ ] 08-04-PLAN.md — /mysd:discuss SKILL.md orchestrator
+- [ ] 08-05-PLAN.md — /mysd:fix SKILL.md + ff/ffe pipeline rewrites + human audit checkpoint
 
 ### Phase 9: Interactive Discovery Integration
 **Goal**: propose、spec、discuss 三個階段支援互動式探索雙模式，discovery 狀態持久化，scope guardrail 防止 scope creep
@@ -111,5 +117,5 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 5. Schema Foundation & Plan-Checker | v1.1 | 2/2 | Complete   | 2026-03-25 |
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 4/4 | Complete   | 2026-03-25 |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 5/5 | Complete   | 2026-03-26 |
-| 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/TBD | Not started | - |
+| 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 0/5 | Not started | - |
 | 9. Interactive Discovery Integration | v1.1 | 0/TBD | Not started | - |
