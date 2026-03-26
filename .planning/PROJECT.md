@@ -90,7 +90,7 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 ## Context
 
 - **v1.0 shipped** (2026-03-24): 7,555 lines Go, 11 packages, 57 requirements, 18 plans across 4 phases in 2 days
-- **v1.1 complete** (2026-03-26): 9 phases, interactive discovery, deferred notes, 20+ SKILL.md commands, 12 agent definitions
+- **v1.1 complete** (2026-03-26): 10 phases, interactive discovery, deferred notes, self-update command, 21 SKILL.md commands, 12 agent definitions
 - 技術棧：Go 1.25, Cobra CLI, Viper config, lipgloss output, yaml.v3, adrg/frontmatter
 - Module path: `github.com/xenciscbc/mysd`
 - Distribution: `go install github.com/xenciscbc/mysd@latest` + GitHub Releases via GoReleaser
@@ -136,4 +136,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 — Phase 9 complete, v1.1 milestone all phases done*
+*Last updated: 2026-03-26 — Phase 10 complete, v1.1 milestone fully done (10/10 phases)*
