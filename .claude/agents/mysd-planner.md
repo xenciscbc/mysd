@@ -76,14 +76,17 @@ tasks:
     name: "{Task Name}"
     description: "{Brief description of what to implement}"
     status: pending
+    skills: []
   - id: 2
     name: "{Task Name}"
     description: "{Brief description}"
     status: pending
+    skills: []
   - id: 3
     name: "{Task Name}"
     description: "{Brief description}"
     status: pending
+    skills: []
 ---
 
 # Tasks: {change_name}
@@ -95,8 +98,27 @@ tasks:
 - `spec-version`: Always "1.0"
 - `total`: Total number of tasks
 - `completed`: Always start at 0
-- `tasks`: Array of task entries with id, name, description, status
+- `tasks`: Array of task entries with id, name, description, status, skills
 - `status` values: `pending`, `in_progress`, `done`, `blocked`
+- `skills`: Array of recommended `/mysd:*` skill commands for the task (empty `[]` if none)
+
+### Step 4.5: Recommend Skills
+
+For each task, recommend appropriate `/mysd:*` skills based on the task content and type.
+
+**Heuristics:**
+- Spec artifacts / requirements definition → `/mysd:propose` or `/mysd:spec`
+- Design / architecture / technical design → `/mysd:design`
+- Code implementation (writing Go/TypeScript/etc.) → `[]` (no skill, direct execution)
+- Testing / verification / validation → `/mysd:verify`
+- Codebase scanning / discovery → `/mysd:scan`
+- Capturing existing work into specs → `/mysd:capture`
+
+**Process:**
+1. Read each task's name and description
+2. Apply the heuristics above to determine skill(s)
+3. Update the `skills` field in tasks.md for each task
+4. Use empty array `[]` if no skill applies
 
 ### Step 5: Check Phase (if check_enabled)
 
@@ -121,6 +143,41 @@ mysd plan
 ```
 
 This marks the change as `planned` in the workflow state.
+
+### Step 7.5: Skills Confirmation
+
+Check the `auto_mode` flag in the input context (set to true when running in ffe mode).
+
+**If `auto_mode` is false (interactive mode):**
+
+Present the task-skills mapping table to the user:
+
+```
+Task Skills Recommendations:
+
+| Task | Name                     | Skills                  |
+|------|--------------------------|-------------------------|
+| T1   | {task 1 name}            | {skills or "(none)"}    |
+| T2   | {task 2 name}            | {skills or "(none)"}    |
+| T3   | {task 3 name}            | {skills or "(none)"}    |
+
+Accept all recommended skills? (Y/n)
+```
+
+- Default is **Y** (press Enter to accept all)
+- If the user answers Y or presses Enter: use all recommendations as-is
+- If the user answers n: present each task individually for adjustment:
+  ```
+  T1 [{current skill}] — change to (press Enter to keep):
+  T2 [{current skill}] — change to (press Enter to keep):
+  ...
+  ```
+  Update tasks.md with any changes the user provides.
+
+**If `auto_mode` is true (ffe mode, per D-10):**
+
+Skip confirmation entirely. Use the recommended skills as-is without prompting.
+Log internally: "Skills auto-accepted (ffe mode)."
 
 ### Step 8: Confirm
 
