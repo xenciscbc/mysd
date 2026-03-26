@@ -36,7 +36,36 @@ func TestInit_CreatesConfigFile(t *testing.T) {
 	assert.True(t, strings.Contains(content, "execution_mode"), "config should contain execution_mode")
 }
 
-func TestInit_ExistingFile_NoForce_DoesNotOverwrite(t *testing.T) {
+func TestInit_CreatesOpenspecStructure(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"init"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	// Check openspec/ and openspec/specs/ were created
+	info, statErr := os.Stat(filepath.Join(tmpDir, "openspec"))
+	require.NoError(t, statErr)
+	assert.True(t, info.IsDir())
+
+	info, statErr = os.Stat(filepath.Join(tmpDir, "openspec", "specs"))
+	require.NoError(t, statErr)
+	assert.True(t, info.IsDir())
+
+	// openspec/config.yaml should NOT be created by init (per D-06)
+	_, statErr = os.Stat(filepath.Join(tmpDir, "openspec", "config.yaml"))
+	assert.True(t, os.IsNotExist(statErr), "init should not create openspec/config.yaml")
+}
+
+func TestInit_ExistingFile_DoesNotOverwrite(t *testing.T) {
 	tmpDir := t.TempDir()
 	origDir, err := os.Getwd()
 	require.NoError(t, err)
@@ -57,44 +86,33 @@ func TestInit_ExistingFile_NoForce_DoesNotOverwrite(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	// File should not be overwritten
+	// File should not be overwritten (idempotent)
 	data, err := os.ReadFile(filepath.Join(claudeDir, "mysd.yaml"))
 	require.NoError(t, err)
-	assert.Equal(t, existingContent, string(data), "existing config should not be overwritten without --force")
-
-	// Should print a warning
-	output := buf.String()
-	assert.True(t, strings.Contains(strings.ToLower(output), "exist") ||
-		strings.Contains(strings.ToLower(output), "warn") ||
-		strings.Contains(strings.ToLower(output), "already"),
-		"output should contain warning about existing file, got: %s", output)
+	assert.Equal(t, existingContent, string(data), "existing config should not be overwritten by init (idempotent)")
 }
 
-func TestInit_ExistingFile_WithForce_Overwrites(t *testing.T) {
+func TestInit_Idempotent(t *testing.T) {
 	tmpDir := t.TempDir()
 	origDir, err := os.Getwd()
 	require.NoError(t, err)
 	defer func() { _ = os.Chdir(origDir) }()
 	require.NoError(t, os.Chdir(tmpDir))
 
-	// Create existing config
-	claudeDir := filepath.Join(tmpDir, ".claude")
-	require.NoError(t, os.MkdirAll(claudeDir, 0755))
-	existingContent := "existing: content\n"
-	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(existingContent), 0644))
-
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)
 	rootCmd.SetErr(&buf)
-	rootCmd.SetArgs([]string{"init", "--force"})
 
-	err = rootCmd.Execute()
-	require.NoError(t, err)
+	// Run init twice — should not error either time
+	rootCmd.SetArgs([]string{"init"})
+	require.NoError(t, rootCmd.Execute())
 
-	// File should now have default config content
-	data, err := os.ReadFile(filepath.Join(claudeDir, "mysd.yaml"))
-	require.NoError(t, err)
-	content := string(data)
-	assert.NotEqual(t, existingContent, content, "config should be overwritten with --force")
-	assert.True(t, strings.Contains(content, "execution_mode"), "overwritten config should contain execution_mode")
+	buf.Reset()
+	rootCmd.SetArgs([]string{"init"})
+	require.NoError(t, rootCmd.Execute())
+
+	// openspec/ should still exist
+	info, statErr := os.Stat(filepath.Join(tmpDir, "openspec"))
+	require.NoError(t, statErr)
+	assert.True(t, info.IsDir())
 }
