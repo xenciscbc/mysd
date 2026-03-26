@@ -1,6 +1,6 @@
 ---
 model: claude-sonnet-4-5
-description: Break design into an executable task list. Invokes mysd-planner agent. Usage: /mysd:plan [--research] [--check]
+description: Plan orchestrator. Optional 4-dimension research, then design, then task planning. Usage: /mysd:plan [--research] [--check] [--auto]
 allowed-tools:
   - Bash
   - Read
@@ -9,58 +9,101 @@ allowed-tools:
   - Task
 ---
 
-# /mysd:plan — Create Executable Task List
+# /mysd:plan -- Create Executable Task List
 
-You are the mysd plan orchestrator. Your job is to gather context and invoke the planner agent.
+You are the mysd plan orchestrator. Your job is to run the planning pipeline: optional research, then design, then task planning.
 
-## Step 1: Parse Options
+## Step 1: Parse Arguments
 
-Check `$ARGUMENTS` for optional flags:
-- `--research`: Enable research phase before planning (deeper analysis)
-- `--check`: Enable plan check/validation phase after planning
+Check `$ARGUMENTS` for flags:
+- `--research`: Enable 4-dimension research before design
+- `--check`: Enable plan-checker validation after planning
+- `--auto`: Auto mode — skip interactive prompts, use AI recommendations
 
-Build the command accordingly.
+Set `auto_mode` = true if `--auto` is present, false otherwise.
 
-## Step 2: Get Execution Context
+## Step 2: Get Planning Context
 
-Run with appropriate flags:
+Run:
 ```
 mysd plan --context-only [--research] [--check]
 ```
 
 Parse the JSON output. It contains:
-- `change_name`: The current change being worked on
-- `phase`: Current workflow phase
-- `specs`: Array of requirements
-- `design`: Design document body
-- `model`: The model to use for planning
-- `research_enabled`: Whether research mode is active
-- `check_enabled`: Whether plan validation is active
-- `test_generation`: Whether to generate tests post-execution
+- `change_name`, `phase`, `specs`, `design`, `model`
+- `research_enabled`, `check_enabled`, `test_generation`
 
-If this returns an error (e.g., not in designed phase), guide the user to complete `/mysd:design` first.
+If error (not in designed/specced phase), guide user to complete prerequisites.
 
-## Step 3: Invoke Planner Agent
+## Step 3: Research Phase (if research_enabled)
 
-Use the Task tool to invoke the `mysd-planner` agent with the full context JSON:
+If `research_enabled` is true (or `--research` flag present):
 
+Spawn 4 `mysd-researcher` agents in parallel using Task tool, one per dimension:
+
+For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
+  Task: Research {dimension} dimension for {change_name}
+  Agent: mysd-researcher
+  Context: {
+    "change_name": "{change_name}",
+    "dimension": "{dimension}",
+    "topic": "{brief description from specs}",
+    "spec_files": [{spec file paths}],
+    "auto_mode": {auto_mode}
+  }
+
+Collect all 4 research outputs. These become input for the designer.
+
+If `auto_mode` is false, present research findings summary and ask: "Research complete. Proceed to design? (Y/n)"
+
+## Step 4: Design Phase
+
+Use the Task tool to invoke `mysd-designer`:
+
+Task: Create design document for {change_name}
+Agent: mysd-designer
+Context: {
+  "change_name": "{change_name}",
+  "specs": [{spec content}],
+  "research_findings": [{from Step 3, or empty if no research}],
+  "auto_mode": {auto_mode}
+}
+
+The designer produces `design.md`.
+
+After designer completes, run state transition:
 ```
-Task: Invoke mysd-planner agent
+mysd design
+```
+
+## Step 5: Planning Phase
+
+Use the Task tool to invoke `mysd-planner`:
+
+Task: Create task list for {change_name}
 Agent: mysd-planner
-Context: {context JSON from Step 2}
-```
+Context: {full context JSON from Step 2, plus research_findings and design content, plus auto_mode}
 
-Pass the entire context so the agent has specs, design, and all configuration flags.
-
-## Step 4: State Transition
-
-After the agent completes task planning, run:
+After planner completes, run state transition:
 ```
 mysd plan
 ```
 
-This transitions the workflow state to `planned`.
+## Step 6: Plan Check (if check_enabled)
 
-## Step 5: Confirm
+If `check_enabled` is true:
 
-Show the user: "Planning complete. State transitioned to planned. Next: `/mysd:execute`"
+Run:
+```
+mysd plan --check --context-only
+```
+
+Use the Task tool to invoke `mysd-plan-checker`:
+
+Task: Validate plan coverage for {change_name}
+Agent: mysd-plan-checker
+Context: {check output JSON}
+
+## Step 7: Confirm
+
+Show: "Planning complete. Pipeline: {research if enabled} -> design -> plan {-> check if enabled}. Next: `/mysd:apply`"
