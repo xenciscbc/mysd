@@ -120,17 +120,17 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 - [ ] **FCMD-01**: `/mysd:discuss` 隨時補充討論，支援 4 維度並行 research
 - [ ] **FCMD-02**: `/mysd:fix` 互動式修復，可選 research，spawn executor subagent（worktree 隔離），只改 code
-- [ ] **FCMD-03**: `/mysd:model` 顯示/切換 model profile + resolve 特定 agent model
+- [x] **FCMD-03**: `/mysd:model` 顯示/切換 model profile + resolve 特定 agent model
 - [ ] **FCMD-04**: `/mysd:lang` 互動式設定 response_language 和 document_language，同步 mysd.yaml 和 openspec/config.yaml
 - [x] **FCMD-05**: `/mysd:lang` 使用者可選擇或輸入語言，自動轉換為合法 locale 值
 
 ### Scan & Init
 
-- [ ] **FSCAN-01**: `/mysd:scan` 升級為語言無關通用掃描器（不再限 Go）
-- [ ] **FSCAN-02**: Scan 偵測專案語言/模組結構，產生 `openspec/config.yaml` + `openspec/specs/` 下的 spec 文件
-- [ ] **FSCAN-03**: 已存在 `openspec/config.yaml` 時只增量更新 specs，不覆蓋 config
-- [ ] **FSCAN-04**: 首次建立 config.yaml 時互動式詢問 locale
-- [ ] **FSCAN-05**: `/mysd:init` 改為 `scan --scaffold-only`，只建空結構 + 互動式設定 locale
+- [x] **FSCAN-01**: `/mysd:scan` 升級為語言無關通用掃描器（不再限 Go）
+- [x] **FSCAN-02**: Scan 偵測專案語言/模組結構，產生 `openspec/config.yaml` + `openspec/specs/` 下的 spec 文件
+- [x] **FSCAN-03**: 已存在 `openspec/config.yaml` 時只增量更新 specs，不覆蓋 config
+- [x] **FSCAN-04**: 首次建立 config.yaml 時互動式詢問 locale
+- [x] **FSCAN-05**: `/mysd:init` 改為 `scan --scaffold-only`，只建空結構 + 互動式設定 locale
 
 ### Subagent Architecture
 
@@ -211,14 +211,14 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FEXEC-10 | Phase 6 | Complete |
 | FEXEC-11 | Phase 6 | Complete |
 | FEXEC-12 | Phase 6 | Complete |
-| FCMD-03 | Phase 7 | Pending |
+| FCMD-03 | Phase 7 | Complete |
 | FCMD-04 | Phase 7 | Pending |
 | FCMD-05 | Phase 7 | Complete |
-| FSCAN-01 | Phase 7 | Pending |
-| FSCAN-02 | Phase 7 | Pending |
-| FSCAN-03 | Phase 7 | Pending |
-| FSCAN-04 | Phase 7 | Pending |
-| FSCAN-05 | Phase 7 | Pending |
+| FSCAN-01 | Phase 7 | Complete |
+| FSCAN-02 | Phase 7 | Complete |
+| FSCAN-03 | Phase 7 | Complete |
+| FSCAN-04 | Phase 7 | Complete |
+| FSCAN-05 | Phase 7 | Complete |
 | SKILL-01 | Phase 7 | Pending |
 | SKILL-02 | Phase 7 | Pending |
 | SKILL-03 | Phase 7 | Pending |
