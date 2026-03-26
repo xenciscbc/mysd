@@ -119,7 +119,7 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 ### New Commands
 
 - [x] **FCMD-01**: `/mysd:discuss` 隨時補充討論，支援 4 維度並行 research
-- [ ] **FCMD-02**: `/mysd:fix` 互動式修復，可選 research，spawn executor subagent（worktree 隔離），只改 code
+- [x] **FCMD-02**: `/mysd:fix` 互動式修復，可選 research，spawn executor subagent（worktree 隔離），只改 code
 - [x] **FCMD-03**: `/mysd:model` 顯示/切換 model profile + resolve 特定 agent model
 - [x] **FCMD-04**: `/mysd:lang` 互動式設定 response_language 和 document_language，同步 mysd.yaml 和 openspec/config.yaml
 - [x] **FCMD-05**: `/mysd:lang` 使用者可選擇或輸入語言，自動轉換為合法 locale 值
@@ -152,8 +152,8 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 
 - [x] **FAUTO-01**: `--auto` flag 支援 propose/spec/discuss/plan
 - [x] **FAUTO-02**: `--auto` 跳過互動提問，自動選推薦方案
-- [ ] **FAUTO-03**: ff/ffe 隱含 `--auto`
-- [ ] **FAUTO-04**: ff/ffe 不使用 research，直接用 subagent 依照既有 spec 內容完成
+- [x] **FAUTO-03**: ff/ffe 隱含 `--auto`
+- [x] **FAUTO-04**: ff/ffe 不使用 research，直接用 subagent 依照既有 spec 內容完成
 
 ## Future Requirements
 
@@ -224,7 +224,7 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | SKILL-03 | Phase 7 | Complete |
 | SKILL-04 | Phase 7 | Complete |
 | FCMD-01 | Phase 8 | Complete |
-| FCMD-02 | Phase 8 | Pending |
+| FCMD-02 | Phase 8 | Complete |
 | FAGENT-01 | Phase 8 | Complete |
 | FAGENT-02 | Phase 8 | Complete |
 | FAGENT-03 | Phase 8 | Complete |
@@ -233,8 +233,8 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FAGENT-07 | Phase 8 | Complete |
 | FAUTO-01 | Phase 8 | Complete |
 | FAUTO-02 | Phase 8 | Complete |
-| FAUTO-03 | Phase 8 | Pending |
-| FAUTO-04 | Phase 8 | Pending |
+| FAUTO-03 | Phase 8 | Complete |
+| FAUTO-04 | Phase 8 | Complete |
 | DISC-01 | Phase 9 | Pending |
 | DISC-02 | Phase 9 | Pending |
 | DISC-03 | Phase 9 | Pending |

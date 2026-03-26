@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: Ready to execute
-stopped_at: Completed 08-03-PLAN.md
-last_updated: "2026-03-26T04:41:30.124Z"
+status: Phase complete — ready for verification
+stopped_at: "Checkpoint: 08-05 Task 3 human-verify"
+last_updated: "2026-03-26T05:05:58.688Z"
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -60,6 +60,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 08-skill-md-orchestrators-agent-definitions P01 | 5 | 1 tasks | 7 files |
 | Phase 08 P04 | 2 | 1 tasks | 2 files |
 | Phase 08 P03 | 12 | 2 tasks | 10 files |
+| Phase 08-skill-md-orchestrators-agent-definitions P05 | 10 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 08]: discuss source detection (D-06): change-name > file-path > dir-path > active change > auto-detect (gstack/context, not .claude/plans/) > create new
 - [Phase 08]: /mysd:plan redesigned as 3-stage pipeline: researcher(x4 parallel) -> designer -> planner; execute renamed to apply at SKILL.md layer
 - [Phase 08]: /mysd:apply spawns mysd-executor per task; single=sequential, wave=parallel within wave_groups; --auto flag parsed at SKILL.md layer and propagated as auto_mode
+- [Phase 08-05]: fix uses safety valve: auto-detects path (conflict markers vs sidecar failure) but confirms with user before proceeding (D-08)
+- [Phase 08-05]: ff/ffe do not use mysd-fast-forward agent — directly orchestrate designer+planner+executor pipeline with auto_mode hardcoded true (D-24/D-25/FAUTO-03)
 
 ### Pending Todos
 
@@ -135,6 +138,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:41:30.116Z
-Stopped at: Completed 08-03-PLAN.md
+Last session: 2026-03-26T05:05:58.682Z
+Stopped at: Checkpoint: 08-05 Task 3 human-verify
 Resume file: None

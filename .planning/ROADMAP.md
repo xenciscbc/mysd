@@ -24,7 +24,7 @@
 - [x] **Phase 5: Schema Foundation & Plan-Checker** - 擴展 TaskEntry schema + 新增 plan-checker 基礎設施 + model profile 分層 (completed 2026-03-25)
 - [x] **Phase 6: Executor Wave Grouping & Worktree Engine** - Topological sort wave 分層 + git worktree 並行執行引擎 (completed 2026-03-25)
 - [x] **Phase 7: New Binary Commands & Scanner Refactor** - model/lang 新指令 + 通用掃描器 + skills 對應流程 (completed 2026-03-26)
-- [ ] **Phase 8: SKILL.md Orchestrators & Agent Definitions** - 4 個新 agent + discuss/fix 指令 + auto mode
+- [x] **Phase 8: SKILL.md Orchestrators & Agent Definitions** - 4 個新 agent + discuss/fix 指令 + auto mode (completed 2026-03-26)
 - [ ] **Phase 9: Interactive Discovery Integration** - propose/spec/discuss 的互動式探索雙模式整合
 
 ## Phase Details
@@ -89,7 +89,7 @@ Plans:
 - [x] 08-02-PLAN.md — Agent rewrites (executor per-task, spec-writer per-spec) + 9-agent Task tool audit
 - [x] 08-03-PLAN.md — SKILL.md rewrites (plan, apply, propose, status) + --auto flag support
 - [x] 08-04-PLAN.md — /mysd:discuss SKILL.md orchestrator
-- [ ] 08-05-PLAN.md — /mysd:fix SKILL.md + ff/ffe pipeline rewrites + human audit checkpoint
+- [x] 08-05-PLAN.md — /mysd:fix SKILL.md + ff/ffe pipeline rewrites + human audit checkpoint
 
 ### Phase 9: Interactive Discovery Integration
 **Goal**: propose、spec、discuss 三個階段支援互動式探索雙模式，discovery 狀態持久化，scope guardrail 防止 scope creep
@@ -117,5 +117,5 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 5. Schema Foundation & Plan-Checker | v1.1 | 2/2 | Complete   | 2026-03-25 |
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 4/4 | Complete   | 2026-03-25 |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 5/5 | Complete   | 2026-03-26 |
-| 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 4/5 | In Progress|  |
+| 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 5/5 | Complete   | 2026-03-26 |
 | 9. Interactive Discovery Integration | v1.1 | 0/TBD | Not started | - |
