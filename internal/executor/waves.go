@@ -130,3 +130,50 @@ func HasParallelOpportunity(tasks []TaskItem) bool {
 	}
 	return false
 }
+
+// FilterBlockedTasks returns only the tasks that are neither failed nor transitively
+// blocked by a failed task (per D-13). It uses BFS over the adjacency graph to propagate
+// failure through all downstream dependents.
+//
+// failedIDs contains the IDs of tasks that have already failed.
+// The returned slice excludes failed tasks and all tasks that transitively depend on them.
+func FilterBlockedTasks(tasks []TaskItem, failedIDs []int) []TaskItem {
+	// Build adjacency map: id -> list of task IDs that depend on it
+	adj := make(map[int][]int, len(tasks))
+	for _, t := range tasks {
+		for _, dep := range t.Depends {
+			adj[dep] = append(adj[dep], t.ID)
+		}
+	}
+
+	// Seed blocked set with all failed IDs
+	blocked := make(map[int]struct{}, len(failedIDs))
+	queue := make([]int, 0, len(failedIDs))
+	for _, id := range failedIDs {
+		if _, exists := blocked[id]; !exists {
+			blocked[id] = struct{}{}
+			queue = append(queue, id)
+		}
+	}
+
+	// BFS: propagate failure transitively through dependents
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		for _, dependent := range adj[cur] {
+			if _, exists := blocked[dependent]; !exists {
+				blocked[dependent] = struct{}{}
+				queue = append(queue, dependent)
+			}
+		}
+	}
+
+	// Collect tasks not in blocked set
+	result := make([]TaskItem, 0, len(tasks))
+	for _, t := range tasks {
+		if _, isBlocked := blocked[t.ID]; !isBlocked {
+			result = append(result, t)
+		}
+	}
+	return result
+}
