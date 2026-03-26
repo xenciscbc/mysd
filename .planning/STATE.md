@@ -121,6 +121,10 @@ Recent decisions affecting v1.1 work:
 - [Phase 09]: D-04 fix: plan stage uses single mysd-researcher with architecture dimension (not 4 parallel researchers) — requirements already finalized at plan stage, only technical validation needed
 - [Phase 09]: mysd-note SKILL.md is thin wrapper (Bash+Read only, no Task tool) — orchestrator pattern reserved for multi-agent flows; deferred notes count silent when zero
 
+### Roadmap Evolution
+
+- Phase 10 added: Self-Update Command — /mysd:update binary version check + plugin file sync
+
 ### Pending Todos
 
 - [Phase 8] `/mysd:propose` 自動偵測輸入來源（參考 spectra:propose Step 1 設計）：

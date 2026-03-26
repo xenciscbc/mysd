@@ -124,3 +124,13 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 5/5 | Complete   | 2026-03-26 |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 5/5 | Complete   | 2026-03-26 |
 | 9. Interactive Discovery Integration | v1.1 | 3/4 | In Progress|  |
+
+### Phase 10: Self-Update Command — /mysd:update binary version check + plugin file sync
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 9
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 10 to break down)
