@@ -51,6 +51,17 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 - ✓ /mysd:apply per-task spawn + ff/ffe 直接 pipeline orchestration — Phase 8
 - ✓ FAGENT-05 全面合規 — 12 個 agent definitions 零 Task tool 違規 — Phase 8
 
+### Validated (Phase 9)
+
+- ✓ Deferred notes CRUD（.specs/deferred.json）— auto-increment ID、不重用已刪除 ID — Phase 9
+- ✓ /mysd:note 指令（list/add/delete）+ /mysd:status deferred count 顯示 — Phase 9
+- ✓ /mysd:propose 完整 discovery pipeline — 4 維度並行研究 + gray area + advisor + 雙層探索迴圈 — Phase 9
+- ✓ /mysd:discuss 完整 discovery pipeline — 含 D-02 條件式 deferred notes 載入 — Phase 9
+- ✓ /mysd:plan D-04 bug 修正 — 單一 researcher（architecture 維度）取代 4 平行 — Phase 9
+- ✓ /mysd:spec 可選研究步驟（codebase 維度單一 researcher）— Phase 9
+- ✓ Scope guardrail — 超出範圍建議自動存入 deferred notes — Phase 9
+- ✓ User-driven 探索終止 — 無數量限制，二元選擇（continue/done）— Phase 9
+
 ### Active
 
 ## Current Milestone: v1.1 Interactive Discovery & Parallel Execution
@@ -79,10 +90,11 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 ## Context
 
 - **v1.0 shipped** (2026-03-24): 7,555 lines Go, 11 packages, 57 requirements, 18 plans across 4 phases in 2 days
+- **v1.1 complete** (2026-03-26): 9 phases, interactive discovery, deferred notes, 20+ SKILL.md commands, 12 agent definitions
 - 技術棧：Go 1.25, Cobra CLI, Viper config, lipgloss output, yaml.v3, adrg/frontmatter
 - Module path: `github.com/xenciscbc/mysd`
 - Distribution: `go install github.com/xenciscbc/mysd@latest` + GitHub Releases via GoReleaser
-- Plugin: 19 SKILL.md commands, 12 agent definitions, SessionStart hook
+- Plugin: 20 SKILL.md commands, 12 agent definitions, SessionStart hook
 - 目標用戶：獨立開發者（solo developer），使用 AI 輔助開發，希望有結構化的 spec 驅動流程而非 vibecoding
 - Spec 存放位置：專案內的 `.specs/` 目錄（相容 OpenSpec 的 `openspec/` 結構）
 
@@ -124,4 +136,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 — v1.1 milestone started*
+*Last updated: 2026-03-26 — Phase 9 complete, v1.1 milestone all phases done*
