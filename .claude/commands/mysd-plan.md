@@ -1,6 +1,6 @@
 ---
 model: claude-sonnet-4-5
-description: Plan orchestrator. Optional 4-dimension research, then design, then task planning. Usage: /mysd:plan [--research] [--check] [--auto]
+description: Plan orchestrator. Optional single-agent research, then design, then task planning. Usage: /mysd:plan [--research] [--check] [--auto]
 allowed-tools:
   - Bash
   - Read
@@ -16,7 +16,7 @@ You are the mysd plan orchestrator. Your job is to run the planning pipeline: op
 ## Step 1: Parse Arguments
 
 Check `$ARGUMENTS` for flags:
-- `--research`: Enable 4-dimension research before design
+- `--research`: Enable focused research before design
 - `--check`: Enable plan-checker validation after planning
 - `--auto`: Auto mode — skip interactive prompts, use AI recommendations
 
@@ -37,24 +37,31 @@ If error (not in designed/specced phase), guide user to complete prerequisites.
 
 ## Step 3: Research Phase (if research_enabled)
 
-If `research_enabled` is true (or `--research` flag present):
+If `research_enabled` is true (from context JSON) or `--research` flag present:
 
-Spawn 4 `mysd-researcher` agents in parallel using Task tool, one per dimension:
+  If `auto_mode` is false:
+    Ask: "Would you like to run focused research on implementation details? [y/N]"
+    If user declines: skip to Step 4.
 
-For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
-  Task: Research {dimension} dimension for {change_name}
+  If `auto_mode` is true:
+    Skip research entirely. Go to Step 4.
+
+  Spawn ONE `mysd-researcher` agent (single, NOT parallel):
+
+  Task: Research implementation details for {change_name}
   Agent: mysd-researcher
   Context: {
     "change_name": "{change_name}",
-    "dimension": "{dimension}",
-    "topic": "{brief description from specs}",
-    "spec_files": [{spec file paths}],
+    "dimension": "architecture",
+    "topic": "implementation of {change_name} — validate technical feasibility and supplement implementation details",
+    "spec_files": [{all spec file paths from context + design.md path}],
     "auto_mode": {auto_mode}
   }
 
-Collect all 4 research outputs. These become input for the designer.
+  Collect research output. This becomes additional input for the designer in Step 4.
 
-If `auto_mode` is false, present research findings summary and ask: "Research complete. Proceed to design? (Y/n)"
+  If `auto_mode` is false:
+    Present research summary and ask: "Research complete. Proceed to design? (Y/n)"
 
 ## Step 4: Design Phase
 
