@@ -1,5 +1,6 @@
 ---
-description: Fast-forward a change through propose, spec, design, and plan in one command. Usage: /mysd:ff [change-name]
+model: claude-sonnet-4-5
+description: Fast-forward through plan + apply + archive. Assumes spec is ready. No research. Implies --auto. Usage: /mysd:ff [change-name]
 allowed-tools:
   - Bash
   - Read
@@ -8,48 +9,50 @@ allowed-tools:
   - Task
 ---
 
-# /mysd:ff — Fast-Forward Through Planning
+# /mysd:ff -- Fast-Forward (Plan + Apply + Archive)
 
-You are the mysd fast-forward orchestrator. Your job is to run the full planning pipeline automatically.
+You are the mysd fast-forward orchestrator. Run the pipeline: plan (no research) -> apply -> archive. Auto mode is always on.
 
 ## Step 1: Get Change Name
 
-Get the change name from `$ARGUMENTS`. If not provided, ask:
-"What is the name for this change? (use kebab-case, e.g. `add-user-auth`)"
+Get change name from `$ARGUMENTS`. If not provided, check `mysd status` for active change. If none, ask user.
 
-Also ask for a brief description of the change.
+Set `auto_mode = true` (always, per D-19/FAUTO-03).
 
-## Step 2: Scaffold the Change
+## Step 2: Plan Phase (no research, per FAUTO-04)
 
-Run:
-```
-mysd propose {change-name}
-```
+Run: `mysd plan --context-only`
+Parse JSON.
 
-This creates the change directory and sets state to `proposed`.
+Spawn designer:
+  Task: Create design for {change_name} (ff mode)
+  Agent: mysd-designer
+  Context: { "change_name": "...", "specs": [...], "research_findings": [], "auto_mode": true }
 
-## Step 3: Invoke Fast-Forward Agent
+Run: `mysd design`
 
-Use the Task tool to invoke the `mysd-fast-forward` agent with mode "ff":
+Spawn planner:
+  Task: Create task list for {change_name} (ff mode)
+  Agent: mysd-planner
+  Context: { full context JSON, "auto_mode": true }
 
-```
-Task: Invoke mysd-fast-forward agent for fast-forward mode
-Agent: mysd-fast-forward
-Context:
-  mode: "ff"
-  change_name: {change-name}
-  description: {user's description}
-```
+Run: `mysd plan`
 
-The fast-forward agent will:
-1. Write spec files and run `mysd spec`
-2. Write design.md and run `mysd design`
-3. Write tasks.md and run `mysd plan`
+## Step 3: Apply Phase
 
-It stops at the `planned` state — ready for execution review.
+Run: `mysd execute --context-only`
+Parse JSON (tasks, pending_tasks, wave_groups, etc.).
 
-## Step 4: Confirm
+Execute tasks using the same logic as /mysd:apply Step 3:
+- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true
+- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true
 
-After the agent completes, show:
-"Fast-forward complete. Change `{change-name}` is now at planned state.
-Review the generated artifacts, then run `/mysd:execute` to implement."
+Run: `mysd execute` (state transition)
+
+## Step 4: Archive
+
+Run: `mysd archive`
+
+## Step 5: Confirm
+
+Show: "Fast-forward complete. Change `{change_name}` has been planned, executed, and archived."
