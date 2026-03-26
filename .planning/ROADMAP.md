@@ -141,4 +141,4 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 Plans:
 - [x] 10-01-PLAN.md — Version check (GitHub API + semver) + binary self-update (download, checksum, platform replace, rollback)
 - [x] 10-02-PLAN.md — Plugin manifest diff + sync executor + GoReleaser config update
-- [ ] 10-03-PLAN.md — Cobra update command (JSON output, --check/--force) + SKILL.md wrapper + plugin distribution
+- [x] 10-03-PLAN.md — Cobra update command (JSON output, --check/--force) + SKILL.md wrapper + plugin distribution
