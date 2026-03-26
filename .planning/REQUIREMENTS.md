@@ -122,7 +122,7 @@ Requirements for Interactive Discovery & Parallel Execution milestone.
 - [ ] **FCMD-02**: `/mysd:fix` 互動式修復，可選 research，spawn executor subagent（worktree 隔離），只改 code
 - [ ] **FCMD-03**: `/mysd:model` 顯示/切換 model profile + resolve 特定 agent model
 - [ ] **FCMD-04**: `/mysd:lang` 互動式設定 response_language 和 document_language，同步 mysd.yaml 和 openspec/config.yaml
-- [ ] **FCMD-05**: `/mysd:lang` 使用者可選擇或輸入語言，自動轉換為合法 locale 值
+- [x] **FCMD-05**: `/mysd:lang` 使用者可選擇或輸入語言，自動轉換為合法 locale 值
 
 ### Scan & Init
 
@@ -213,7 +213,7 @@ All 57 requirements mapped and shipped. See [v1.0 archive](milestones/v1.0-ROADM
 | FEXEC-12 | Phase 6 | Complete |
 | FCMD-03 | Phase 7 | Pending |
 | FCMD-04 | Phase 7 | Pending |
-| FCMD-05 | Phase 7 | Pending |
+| FCMD-05 | Phase 7 | Complete |
 | FSCAN-01 | Phase 7 | Pending |
 | FSCAN-02 | Phase 7 | Pending |
 | FSCAN-03 | Phase 7 | Pending |

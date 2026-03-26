@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: Ready to plan
-stopped_at: Completed Phase 07 context discussion
-last_updated: "2026-03-25T16:30:00.000Z"
+status: Ready to execute
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-03-26T01:37:21.240Z"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 11
+  completed_plans: 7
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 07 (new-binary-commands-scanner-refactor) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: Not started
 | Phase 06-executor-wave-grouping-worktree-engine P02 | 3 | 2 tasks | 5 files |
 | Phase 06 P03 | 2 | 2 tasks | 2 files |
 | Phase 06-executor-wave-grouping-worktree-engine P04 | 3 | 2 tasks | 2 files |
+| Phase 07 P01 | 8 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,7 @@ Recent decisions affecting v1.1 work:
 - [Phase 07]: `mysd init` 內部直接展開為 `scan --scaffold-only`（無 warning，回展相容）
 - [Phase 07]: Skills 推薦邏輯在 mysd-planner agent 層，確認流程在 SKILL.md 層，預設 accept-all
 - [Phase 07]: `mysd model` table 輸出（lipgloss），`mysd model set` 直接寫 .claude/mysd.yaml
+- [Phase 07]: FilterBlockedTasks uses BFS over adjacency map (same pattern as BuildWaveGroups) — no new data structures needed
 
 ### Pending Todos
 
@@ -87,6 +89,20 @@ Recent decisions affecting v1.1 work:
   - Case 1：偵測 `.planning/phases/{phase}/` 下的 CONTEXT.md / PLAN.md 作為 initial content
   - Case 2：從當前 conversation context 提取需求
   - 優先順序：argument > planning files > conversation context > 詢問使用者
+
+- [Phase 8] `/mysd:status` SKILL.md 指令設計：
+  - 顯示當前 workflow stage（propose → spec → plan → execute → verify），標示目前位置
+  - Task 列表含編號、title、狀態符號（✓ done / ✗ failed / ⊘ skipped / ○ pending）
+  - 最後一行：`Next: /mysd:{command}` 推薦下一步指令
+
+- [Phase 8] `/mysd:fix` 流程設計決策（discuss-phase 8 時須納入）：
+  - **Fix 兩條路徑**：(1) merge 衝突 → 解衝突 → merge → `-D` 強制刪 branch；(2) 實作問題 → 自動修正 task 內容 + 更新 spec → `-D` 刪舊 branch → 交 executor 子代理重新執行
+  - **放棄路徑**：fix 無解時使用者可選擇放棄 → `-D` 強制刪 branch + worktree → task 回 `pending`
+  - **失敗 context 保存**：task sidecar 記錄失敗原因、AI 嘗試解法、放棄理由，重新討論時直接讀取
+  - **Execute 完成提示**：執行結束後自動列出需 fix 的 tasks（`T2 (setup-auth) — merge 衝突，執行 /mysd:fix T2`）
+  - **Re-run 衝突處理**：偵測到 worktree 仍存在時 block 並指引使用者執行 fix（不允許直接重跑）
+  - **Branch cleanup**：`Remove()` 保留 `git branch -d`（soft delete），但刪除失敗時提示使用者（已有 stderr warning，需改善訊息清晰度）
+  - **Skipped tasks 恢復**：fix 成功 merge 後，所有因依賴此 task 而被 skipped 的下游 tasks 自動恢復為 `pending`，可排入下次執行（遞移性恢復）
 
 ### Blockers/Concerns
 
@@ -97,6 +113,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-25T08:20:17.698Z
-Stopped at: Completed 06-04-PLAN.md
+Last session: 2026-03-26T01:37:21.234Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
