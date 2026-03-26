@@ -89,3 +89,15 @@ Mapping:
 - Stage `apply` → `Next: /mysd:apply`
 - Stage `archive` (executed/verified) → `Next: /mysd:archive`
 - Workflow complete → "Change is archived. Start a new change with `/mysd:propose`"
+
+### Deferred Notes Count
+
+Run: `mysd note`
+Parse the output to count notes (each line starting with `[` is a note).
+
+If notes exist, show at the bottom:
+```
+Deferred notes: {N} — run /mysd:note to browse
+```
+
+If no notes exist, do not show this line.
