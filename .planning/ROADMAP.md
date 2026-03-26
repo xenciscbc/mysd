@@ -105,7 +105,7 @@ Plans:
 Plans:
 - [x] 09-01-PLAN.md — DeferredNote CRUD package + mysd note subcommand + status deferred count (TDD)
 - [x] 09-02-PLAN.md — propose + discuss SKILL.md discovery pipeline rewrite
-- [ ] 09-03-PLAN.md — plan single researcher fix + spec research + status/note SKILL.md
+- [x] 09-03-PLAN.md — plan single researcher fix + spec research + status/note SKILL.md
 - [ ] 09-04-PLAN.md — Plugin sync + full test suite + human verification checkpoint
 
 ## Progress
@@ -123,4 +123,4 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 4/4 | Complete   | 2026-03-25 |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 5/5 | Complete   | 2026-03-26 |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 5/5 | Complete   | 2026-03-26 |
-| 9. Interactive Discovery Integration | v1.1 | 2/4 | In Progress|  |
+| 9. Interactive Discovery Integration | v1.1 | 3/4 | In Progress|  |
