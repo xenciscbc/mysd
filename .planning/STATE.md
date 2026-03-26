@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Milestone complete
 stopped_at: Phase 10 context gathered
-last_updated: "2026-03-26T08:11:06.960Z"
+last_updated: "2026-03-26T08:36:06.740Z"
 progress:
   total_phases: 6
   completed_phases: 5
@@ -120,6 +120,12 @@ Recent decisions affecting v1.1 work:
 - [Phase 09-02]: dual-loop uses user-driven termination not numeric quota (D-01): binary choice per area sufficient termination signal
 - [Phase 09]: D-04 fix: plan stage uses single mysd-researcher with architecture dimension (not 4 parallel researchers) — requirements already finalized at plan stage, only technical validation needed
 - [Phase 09]: mysd-note SKILL.md is thin wrapper (Bash+Read only, no Task tool) — orchestrator pattern reserved for multi-agent flows; deferred notes count silent when zero
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260326-n23 | 全部現有 mysd 指令補上 argument-hint | 2026-03-26 | e391ab0 | [260326-n23-mysd-argument-hint](./quick/260326-n23-mysd-argument-hint/) |
 
 ### Roadmap Evolution
 
