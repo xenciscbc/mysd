@@ -92,16 +92,21 @@ Plans:
 - [x] 08-05-PLAN.md — /mysd:fix SKILL.md + ff/ffe pipeline rewrites + human audit checkpoint
 
 ### Phase 9: Interactive Discovery Integration
-**Goal**: propose、spec、discuss 三個階段支援互動式探索雙模式，discovery 狀態持久化，scope guardrail 防止 scope creep
+**Goal**: propose/spec/discuss/plan 四個階段支援互動式探索，deferred notes 管理 scope guardrail，使用者驅動探索終止
 **Depends on**: Phase 8
 **Requirements**: DISC-01, DISC-02, DISC-03, DISC-04, DISC-05, DISC-06, DISC-07, DISC-08, DISC-09
 **Success Criteria** (what must be TRUE):
   1. propose 階段開始時互動式詢問是否使用 research；選擇後，4 個維度（Codebase/Domain/Architecture/Pitfalls）並行啟動 researcher，SKILL.md orchestrator 並行 spawn advisor agents 分析 gray areas
-  2. 雙層探索循環有明確終止條件：每輪最多 3 個 gray areas，每個 area 最多 3 個深挖問題；每個 area 完成後呈現「繼續/完成」的二元選擇並顯示剩餘配額
-  3. 超出目前 spec 範圍的建議被 redirect 到 deferred notes，不修改當前 spec 內容（scope guardrail 正常運作）
+  2. 雙層探索循環以使用者驅動終止：每個 area 完成後呈現「繼續/完成」二元選擇，無硬性數字上限
+  3. 超出目前 spec 範圍的建議被 redirect 到 deferred notes（.specs/deferred.json），不修改當前 spec 內容（scope guardrail 正常運作）
   4. discuss 結論自動更新對應的 spec/design/tasks 檔案，更新後自動執行 re-plan + plan-checker
-  5. discovery 狀態持久化為 `discovery-state.json`，research summary 可被 ff/ffe 重用；`--auto` 完全跳過探索循環直接使用 AI 第一推薦
-**Plans**: TBD
+  5. `--auto` 完全跳過探索循環直接使用 AI 第一推薦；research summary 寫入 spec 檔案，不需獨立持久化
+**Plans**: 4 plans
+Plans:
+- [ ] 09-01-PLAN.md — DeferredNote CRUD package + mysd note subcommand + status deferred count (TDD)
+- [ ] 09-02-PLAN.md — propose + discuss SKILL.md discovery pipeline rewrite
+- [ ] 09-03-PLAN.md — plan single researcher fix + spec research + status/note SKILL.md
+- [ ] 09-04-PLAN.md — Plugin sync + full test suite + human verification checkpoint
 
 ## Progress
 
@@ -118,4 +123,4 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 6. Executor Wave Grouping & Worktree Engine | v1.1 | 4/4 | Complete   | 2026-03-25 |
 | 7. New Binary Commands & Scanner Refactor | v1.1 | 5/5 | Complete   | 2026-03-26 |
 | 8. SKILL.md Orchestrators & Agent Definitions | v1.1 | 5/5 | Complete   | 2026-03-26 |
-| 9. Interactive Discovery Integration | v1.1 | 0/TBD | Not started | - |
+| 9. Interactive Discovery Integration | v1.1 | 0/4 | Planning   | - |
