@@ -136,6 +136,7 @@ Recent decisions affecting v1.1 work:
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260326-n23 | 全部現有 mysd 指令補上 argument-hint | 2026-03-26 | e391ab0 | [260326-n23-mysd-argument-hint](./quick/260326-n23-mysd-argument-hint/) |
+| 260326-p0d | README.md v1.1 更新 — 涵蓋 self-update、wave execution、interactive discovery、6 個新指令 | 2026-03-26 | 626f275 | [260326-p0d-readme-md-v1-1-self-update-interactive-d](./quick/260326-p0d-readme-md-v1-1-self-update-interactive-d/) |
 
 ### Roadmap Evolution
 
