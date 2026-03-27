@@ -42,10 +42,16 @@ Run: `mysd execute --context-only`
 Parse:
 - Task details (id, name, description, status)
 - Worktree info (if exists): path, branch
-- Failure reason from task sidecar (if available)
 
 Run: `mysd worktree list`
 Check if worktree for T{id} exists.
+
+Check for failure sidecar file:
+```
+Read .specs/changes/{change_name}/.sidecar/T{target_task.id}-failure.md
+```
+If file exists: parse frontmatter (task_id, task_name, timestamp) and body sections (Error Output, Files Modified, AI Diagnostic Attempts). Store as `failure_context`.
+If file does not exist: set `failure_context` to null (backward compat per D-08 — degrade to no-context diagnosis).
 
 ## Step 4: Path Detection (D-08)
 
@@ -58,8 +64,10 @@ If worktree exists for this task:
 
 **Check for implementation failure:**
 If no conflict markers but task is failed:
-  Read task sidecar for failure details (build errors, test failures)
-  PATH = "implementation"
+  If `failure_context` is not null:
+    PATH = "implementation" (sidecar confirms implementation failure)
+  If `failure_context` is null and task is failed:
+    PATH = "implementation" (no sidecar — will diagnose without context)
 
 **Present detection to user (D-08 safety valve):**
 "Detected: {merge conflict | implementation failure}. Proceed with {path}? (Y/n)"
@@ -109,9 +117,22 @@ If no conflict markers but task is failed:
 
 ## Step 5B: Implementation Failure Path (D-14)
 
-1. **Diagnose (D-12):**
-   Read task sidecar: failure reason, AI attempts, test output
-   Analyze and present diagnosis to user
+1. **Diagnose (D-08, D-12):**
+   If `failure_context` exists (from Step 3):
+     Present to user:
+     - Error output from sidecar
+     - Files modified before failure
+     - AI diagnostic attempts (if any)
+     - Timestamp of failure
+
+   If `failure_context` is null:
+     Inform user: "No failure sidecar found — diagnosing from scratch."
+     Read the task description and attempt to reproduce the error:
+     ```
+     go build ./...
+     go test ./...
+     ```
+     Present any errors found.
 
 2. **Optional research (D-11):**
    Ask: "Would you like to research this issue? [y/N]"
