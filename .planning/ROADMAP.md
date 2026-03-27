@@ -179,6 +179,6 @@ Plans:
   7. `mysd archive` 執行時自動刪除 discuss-research-cache.json（best-effort）
 **Plans**: 3 plans
 Plans:
-- [ ] 12-01-PLAN.md — Go binary: ProjectConfig extension + statusline subcommand + init hook install + settings.json merge
+- [x] 12-01-PLAN.md — Go binary: ProjectConfig extension + statusline subcommand + init hook install + settings.json merge
 - [x] 12-02-PLAN.md — Node.js statusline hook + /mysd:statusline SKILL.md
 - [ ] 12-03-PLAN.md — Discuss research cache: archive deletion + discuss SKILL.md cache logic + .gitignore

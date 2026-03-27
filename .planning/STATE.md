@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 12-context-02-PLAN.md
-last_updated: "2026-03-27T04:39:59.643Z"
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-03-27T04:41:56.921Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 31
-  completed_plans: 29
+  completed_plans: 30
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 12 (context) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 
 ## Performance Metrics
@@ -74,6 +74,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 11 P05 | 8 | 2 tasks | 11 files |
 | Phase 11-agent-doc P04 | 8 | 2 tasks | 3 files |
 | Phase 12-context P02 | 10 | 2 tasks | 2 files |
+| Phase 12-context P01 | 258 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 11-agent-doc]: ff/ffe inline docs update always uses auto_mode=true (no confirmation) — consistent with ff/ffe being fully automatic pipelines
 - [Phase 12-02]: Bridge file written only when gsd-context-monitor.js detected (D-04) — avoids /tmp pollution in non-GSD projects
 - [Phase 12-02]: statusline_enabled=false suppresses output but bridge file still writes (D-12) — GSD context monitor must not lose data
+- [Phase 12-01]: Go embed cannot use ../ path; workaround: copy JS to cmd/hooks/ subdirectory for embed directive
+- [Phase 12-01]: runStatuslineInDir extracted for testability; MkdirAll before SafeWriteConfig required on fresh directories
 
 ### Quick Tasks Completed
 
@@ -192,6 +195,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-27T04:39:59.637Z
-Stopped at: Completed 12-context-02-PLAN.md
+Last session: 2026-03-27T04:41:56.914Z
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None
