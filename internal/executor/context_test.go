@@ -180,6 +180,65 @@ func TestBuildContextFromParts_AutoMode(t *testing.T) {
 	assert.True(t, ctx.AutoMode)
 }
 
+// TestBuildContextFromParts_DocsToUpdate verifies DocsToUpdate is passed from config to ExecutionContext.
+func TestBuildContextFromParts_DocsToUpdate(t *testing.T) {
+	cfg := config.ProjectConfig{
+		ExecutionMode: "single",
+		AgentCount:    1,
+		DocsToUpdate:  []string{"README.md", "CHANGELOG.md"},
+	}
+	tasks := []spec.TaskEntry{}
+	reqs := []spec.Requirement{}
+
+	ctx := BuildContextFromParts("my-change", tasks, reqs, cfg)
+
+	assert.Equal(t, []string{"README.md", "CHANGELOG.md"}, ctx.DocsToUpdate)
+}
+
+// TestBuildContextFromParts_DocsToUpdateNil verifies DocsToUpdate nil (default) produces nil in ExecutionContext.
+func TestBuildContextFromParts_DocsToUpdateNil(t *testing.T) {
+	cfg := config.Defaults()
+	tasks := []spec.TaskEntry{}
+	reqs := []spec.Requirement{}
+
+	ctx := BuildContextFromParts("my-change", tasks, reqs, cfg)
+
+	assert.Nil(t, ctx.DocsToUpdate)
+}
+
+// TestBuildContextFromParts_DocsToUpdateJSON verifies JSON contains docs_to_update when set.
+func TestBuildContextFromParts_DocsToUpdateJSON(t *testing.T) {
+	cfg := config.ProjectConfig{
+		ExecutionMode: "single",
+		AgentCount:    1,
+		DocsToUpdate:  []string{"README.md"},
+	}
+	tasks := []spec.TaskEntry{}
+	reqs := []spec.Requirement{}
+
+	ctx := BuildContextFromParts("my-change", tasks, reqs, cfg)
+	data, err := json.Marshal(ctx)
+	require.NoError(t, err)
+
+	output := string(data)
+	assert.Contains(t, output, `"docs_to_update"`)
+	assert.Contains(t, output, `"README.md"`)
+}
+
+// TestBuildContextFromParts_DocsToUpdateJSONOmitEmpty verifies JSON does NOT contain docs_to_update when nil.
+func TestBuildContextFromParts_DocsToUpdateJSONOmitEmpty(t *testing.T) {
+	cfg := config.Defaults()
+	tasks := []spec.TaskEntry{}
+	reqs := []spec.Requirement{}
+
+	ctx := BuildContextFromParts("my-change", tasks, reqs, cfg)
+	data, err := json.Marshal(ctx)
+	require.NoError(t, err)
+
+	output := string(data)
+	assert.NotContains(t, output, `"docs_to_update"`)
+}
+
 // TestTaskItemJSON_OmitEmpty verifies TaskItem with nil new fields does NOT emit those keys in JSON.
 func TestTaskItemJSON_OmitEmpty(t *testing.T) {
 	ti := TaskItem{
