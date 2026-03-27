@@ -14,6 +14,7 @@ type ProjectConfig struct {
 	WorktreeDir      string            `yaml:"worktree_dir" mapstructure:"worktree_dir"`           // default ".worktrees"
 	AutoMode         bool              `yaml:"auto_mode" mapstructure:"auto_mode"`                 // default false
 	DocsToUpdate     []string          `yaml:"docs_to_update" mapstructure:"docs_to_update"`       // files to update after archive
+	StatuslineEnabled *bool            `yaml:"statusline_enabled,omitempty" mapstructure:"statusline_enabled"` // nil = not set (treated as true)
 }
 
 // Defaults returns a ProjectConfig with convention-over-config default values.
