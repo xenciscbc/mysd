@@ -160,6 +160,6 @@ Plans:
 Plans:
 - [x] 11-01-PLAN.md — Binary Go code: DocsToUpdate config + context + mysd docs command
 - [x] 11-02-PLAN.md — Workflow auto-chain: propose auto-spec + apply auto-verify
-- [ ] 11-03-PLAN.md — Executor failure sidecar + fix alignment + .gitignore
+- [x] 11-03-PLAN.md — Executor failure sidecar + fix alignment + .gitignore
 - [ ] 11-04-PLAN.md — Archive doc maintenance flow + ff/ffe inline additions
 - [ ] 11-05-PLAN.md — Plugin sync + mysd-docs SKILL.md

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 11-agent-doc-02-PLAN.md
-last_updated: "2026-03-27T02:23:34.176Z"
+stopped_at: Completed 11-agent-doc-03-PLAN.md
+last_updated: "2026-03-27T02:28:08.621Z"
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 28
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 11 (agent-doc) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 
 ## Performance Metrics
@@ -70,6 +70,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 10-self-update-command-mysd-update-binary-version-check-plugin-file-sync P03 | 3 | 2 tasks | 4 files |
 | Phase 11-agent-doc P01 | 3 | 2 tasks | 6 files |
 | Phase 11-agent-doc P02 | 11 | 2 tasks | 2 files |
+| Phase 11-agent-doc P03 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 11-agent-doc]: mysd docs add/remove use viper read-modify-write to preserve other config fields — same pattern as runModelSet in cmd/model.go
 - [Phase 11-agent-doc]: propose Step 11 auto-chains to mysd-spec-writer after proposal; --skip-spec flag bypasses
 - [Phase 11-agent-doc]: apply Step 5 auto-chains to verifier after go build+test pass; auto_mode skips confirmation (D-05)
+- [Phase 11-agent-doc]: On Failure path is alternative exit in executor — MUST NOT proceed to Mark Task Done or Atomic Commit after sidecar write (D-06, D-07)
+- [Phase 11-agent-doc]: failure_context null fallback in fix agent — backward compat for pre-D-06 task states without sidecars (D-08)
 
 ### Quick Tasks Completed
 
@@ -179,6 +182,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-27T02:23:34.170Z
-Stopped at: Completed 11-agent-doc-02-PLAN.md
+Last session: 2026-03-27T02:28:08.614Z
+Stopped at: Completed 11-agent-doc-03-PLAN.md
 Resume file: None
