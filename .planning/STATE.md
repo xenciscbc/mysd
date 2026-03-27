@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
 status: Ready to execute
-stopped_at: Completed 11-agent-doc-01-PLAN.md
-last_updated: "2026-03-27T02:10:42.209Z"
+stopped_at: Completed 11-agent-doc-02-PLAN.md
+last_updated: "2026-03-27T02:23:34.176Z"
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 28
-  completed_plans: 24
+  completed_plans: 25
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 11 (agent-doc) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 
 ## Performance Metrics
@@ -69,6 +69,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 10-self-update-command-mysd-update-binary-version-check-plugin-file-sync P02 | 6 | 2 tasks | 5 files |
 | Phase 10-self-update-command-mysd-update-binary-version-check-plugin-file-sync P03 | 3 | 2 tasks | 4 files |
 | Phase 11-agent-doc P01 | 3 | 2 tasks | 6 files |
+| Phase 11-agent-doc P02 | 11 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 10]: Binary update only runs when --force AND update_available — SKILL.md layer handles user confirmation flow
 - [Phase 11-agent-doc]: DocsToUpdate defaults to nil (not empty slice) — convention over config per D-14; omitempty ensures JSON omits the field when unconfigured
 - [Phase 11-agent-doc]: mysd docs add/remove use viper read-modify-write to preserve other config fields — same pattern as runModelSet in cmd/model.go
+- [Phase 11-agent-doc]: propose Step 11 auto-chains to mysd-spec-writer after proposal; --skip-spec flag bypasses
+- [Phase 11-agent-doc]: apply Step 5 auto-chains to verifier after go build+test pass; auto_mode skips confirmation (D-05)
 
 ### Quick Tasks Completed
 
@@ -176,6 +179,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-27T02:10:42.203Z
-Stopped at: Completed 11-agent-doc-01-PLAN.md
+Last session: 2026-03-27T02:23:34.170Z
+Stopped at: Completed 11-agent-doc-02-PLAN.md
 Resume file: None
