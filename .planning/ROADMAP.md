@@ -158,7 +158,7 @@ Plans:
   7. 所有修改過的 mysd-*.md 檔案在 plugin/ 目錄完全同步，含新增的 mysd-docs.md、mysd-lang.md、mysd-model.md
 **Plans**: 5 plans
 Plans:
-- [ ] 11-01-PLAN.md — Binary Go code: DocsToUpdate config + context + mysd docs command
+- [x] 11-01-PLAN.md — Binary Go code: DocsToUpdate config + context + mysd docs command
 - [ ] 11-02-PLAN.md — Workflow auto-chain: propose auto-spec + apply auto-verify
 - [ ] 11-03-PLAN.md — Executor failure sidecar + fix alignment + .gitignore
 - [ ] 11-04-PLAN.md — Archive doc maintenance flow + ff/ffe inline additions

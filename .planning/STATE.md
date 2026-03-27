@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Interactive Discovery & Parallel Execution
-status: Milestone complete
-stopped_at: Phase 11 context updated (session 3 — D-17/D-18/D-19 added)
-last_updated: "2026-03-27T01:34:59.468Z"
+status: Ready to execute
+stopped_at: Completed 11-agent-doc-01-PLAN.md
+last_updated: "2026-03-27T02:10:42.209Z"
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 23
-  completed_plans: 23
+  total_plans: 28
+  completed_plans: 24
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Spec 和執行的緊密整合 — 規格驅動 AI 執行，驗證回饋到規格，形成完整閉環
-**Current focus:** Phase 10 — self-update-command-mysd-update-binary-version-check-plugin-file-sync
+**Current focus:** Phase 11 — agent-doc
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
+Phase: 11 (agent-doc) — EXECUTING
+Plan: 2 of 5
 Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 
 ## Performance Metrics
@@ -68,6 +68,7 @@ Next: Phase 08 — SKILL.md Orchestrators & Agent Definitions
 | Phase 10-self-update-command-mysd-update-binary-version-check-plugin-file-sync P01 | 297 | 2 tasks | 6 files |
 | Phase 10-self-update-command-mysd-update-binary-version-check-plugin-file-sync P02 | 6 | 2 tasks | 5 files |
 | Phase 10-self-update-command-mysd-update-binary-version-check-plugin-file-sync P03 | 3 | 2 tasks | 4 files |
+| Phase 11-agent-doc P01 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,8 @@ Recent decisions affecting v1.1 work:
 - [Phase 10]: SyncPlugins delete errors are non-fatal: appended to Errors slice, sync continues
 - [Phase 10]: findClaudeDir walks up from cwd to filesystem root to locate .claude/ — supports running from any subdirectory
 - [Phase 10]: Binary update only runs when --force AND update_available — SKILL.md layer handles user confirmation flow
+- [Phase 11-agent-doc]: DocsToUpdate defaults to nil (not empty slice) — convention over config per D-14; omitempty ensures JSON omits the field when unconfigured
+- [Phase 11-agent-doc]: mysd docs add/remove use viper read-modify-write to preserve other config fields — same pattern as runModelSet in cmd/model.go
 
 ### Quick Tasks Completed
 
@@ -173,6 +176,6 @@ Recent decisions affecting v1.1 work:
 
 ## Session Continuity
 
-Last session: 2026-03-27T01:34:59.455Z
-Stopped at: Phase 11 context updated (session 3 — D-17/D-18/D-19 added)
-Resume file: .planning/phases/11-agent-doc/11-CONTEXT.md
+Last session: 2026-03-27T02:10:42.203Z
+Stopped at: Completed 11-agent-doc-01-PLAN.md
+Resume file: None
