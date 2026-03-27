@@ -47,56 +47,51 @@ All `/mysd:*` slash commands will be available in your next Claude Code session.
 # Initialize mysd in your project
 /mysd:init
 
-# Create a new spec from a feature description
+# Create a change proposal — auto-generates spec, design, and tasks
 /mysd:propose add-user-auth
 
-# (Optional) Explore before spec writing — 4-dimension interactive research
+# (Optional) Explore before committing — 4-dimension interactive research
 /mysd:discuss
-
-# Define detailed requirements with RFC 2119 keywords
-/mysd:spec
-
-# Capture technical decisions
-/mysd:design
 
 # Break design into executable tasks (includes plan-checker MUST coverage verification)
 /mysd:plan
 
 # Execute tasks — AI reads spec first, then codes
-# Tasks with no dependency overlap run in parallel waves automatically
+# Verification is mandatory and runs automatically after execution
 /mysd:apply
 
-# Verify all MUST items are satisfied
-/mysd:verify
-
-# Archive completed spec
+# Archive completed change
 /mysd:archive
 ```
 
 Or fast-forward the entire workflow:
 
 ```bash
-# propose -> spec -> design -> plan in one shot (with auto research)
+# propose -> plan in one shot (with auto research)
 /mysd:ff my-feature
 
-# propose -> spec -> design -> plan -> execute in one shot (fully automated)
+# propose -> plan -> apply -> verify -> archive in one shot (fully automated)
 /mysd:ffe my-feature
 ```
 
 ## Commands
 
-### Spec Workflow
+### Workflow
 
 | Command | Description |
 |---------|-------------|
-| `/mysd:propose` | Create a new spec change with proposal scaffolding |
+| `/mysd:propose` | Create a change proposal with auto-generated spec, design, and tasks |
 | `/mysd:discuss` | Interactive exploration with 4-dimension research and advisor agents |
-| `/mysd:spec` | Define requirements with RFC 2119 keywords (MUST/SHOULD/MAY) |
-| `/mysd:design` | Capture technical decisions and architecture |
 | `/mysd:plan` | Break design into executable tasks with plan-checker MUST coverage verification |
-| `/mysd:apply` | Run tasks with mandatory alignment gate; supports wave parallel execution |
-| `/mysd:verify` | Goal-backward verification of all MUST items |
-| `/mysd:archive` | Archive verified spec to `.specs/archive/` |
+| `/mysd:apply` | Execute tasks with mandatory spec alignment gate and built-in verification; supports wave parallel execution |
+| `/mysd:archive` | Archive completed change to `openspec/changes/archive/` |
+
+### Fast-Forward
+
+| Command | Description |
+|---------|-------------|
+| `/mysd:ff` | Fast-forward: propose through plan (with auto research) |
+| `/mysd:ffe` | Full fast-forward: propose → plan → apply → verify → archive (fully automated) |
 
 ### Utility
 
@@ -104,7 +99,6 @@ Or fast-forward the entire workflow:
 |---------|-------------|
 | `/mysd:status` | Show current workflow state and progress |
 | `/mysd:scan` | Scan existing codebase and generate specs |
-| `/mysd:capture` | Extract changes from current conversation |
 | `/mysd:fix` | Fix failed tasks in worktree isolation with optional research mode |
 | `/mysd:note` | Manage deferred notes — capture out-of-scope ideas without interrupting work |
 | `/mysd:model` | View or set model profile (quality / balanced / budget) |
@@ -113,29 +107,19 @@ Or fast-forward the entire workflow:
 | `/mysd:init` | Initialize project configuration |
 | `/mysd:uat` | Interactive user acceptance testing |
 
-### Fast-Forward
-
-| Command | Description |
-|---------|-------------|
-| `/mysd:ff` | Fast-forward: propose through plan (with auto research) |
-| `/mysd:ffe` | Fast-forward: propose through execute (with auto research, auto execution) |
-
 ## How It Works
 
 mysd follows a structured lifecycle for every code change:
 
 ```
-propose -> [discuss] -> spec -> design -> plan -> apply -> verify -> archive
+propose -> [discuss] -> plan -> apply (with verification) -> archive
 ```
 
-1. **Propose** — Scaffold spec artifacts (proposal.md, specs/, design.md, tasks.md) in `.specs/changes/`
+1. **Propose** — Create a change proposal and auto-generate all artifacts (proposal.md, specs/, design.md, tasks.md) in `openspec/changes/`
 2. **Discuss** *(optional)* — Run 4-dimension interactive research (Codebase/Domain/Architecture/Pitfalls) to explore unknowns before committing to requirements
-3. **Spec** — Define requirements using RFC 2119 keywords. MUST items become verification gates.
-4. **Design** — Record architecture decisions and technical approach
-5. **Plan** — Break the design into ordered, executable tasks; plan-checker verifies every MUST item has a corresponding task
-6. **Apply** — AI reads the spec (alignment gate), then implements each task. Tasks with no file overlap are grouped into waves and run in parallel git worktrees.
-7. **Verify** — Independent verifier agent checks every MUST item against the actual codebase
-8. **Archive** — Move completed spec to `.specs/archive/` (blocked if any MUST item fails)
+3. **Plan** — Break the design into ordered, executable tasks; plan-checker verifies every MUST item has a corresponding task
+4. **Apply** — AI reads the spec (alignment gate), then implements each task. Verification is mandatory and runs automatically after execution. Tasks with no file overlap are grouped into waves and run in parallel git worktrees.
+5. **Archive** — Move completed change to `openspec/changes/archive/` with delta spec sync
 
 ### Key Architecture
 
@@ -187,6 +171,70 @@ mysd reads and writes [OpenSpec](https://github.com/openspec-dev/openspec) forma
 - Handles RFC 2119 keywords (MUST, SHOULD, MAY) and Delta Specs (ADDED, MODIFIED, REMOVED)
 - Point mysd at an existing OpenSpec project and run `/mysd:apply` or `/mysd:verify` without migration
 
+## Model Profiles
+
+mysd uses a profile system to control which AI model each agent role uses. Thinking-heavy roles (spec writing, planning, verification) use stronger models; execution roles use efficient ones.
+
+```bash
+/mysd:model              # View current profile and role-to-model mapping
+/mysd:model set quality  # Switch profile
+```
+
+Three profiles are available:
+
+### quality (8 opus / 2 sonnet)
+
+Maximum capability. All thinking roles use opus.
+
+| Role | Model | Purpose |
+|------|-------|---------|
+| spec-writer | opus | Write requirements specs |
+| designer | opus | Architecture and technical design |
+| planner | opus | Task breakdown and dependency analysis |
+| executor | sonnet | Implement tasks from plan |
+| verifier | opus | Verify spec satisfaction |
+| fast-forward | sonnet | Orchestrate accelerated workflows |
+| researcher | opus | 4-dimension codebase research |
+| advisor | opus | Trade-off analysis for gray areas |
+| proposal-writer | opus | Write change proposals |
+| plan-checker | opus | Verify plan covers all MUST items |
+
+### balanced (6 opus / 4 sonnet) — default
+
+Opus for judgment/design/gating roles, sonnet for execution and research.
+
+| Role | Model |
+|------|-------|
+| spec-writer | opus |
+| designer | opus |
+| planner | opus |
+| executor | sonnet |
+| verifier | opus |
+| fast-forward | sonnet |
+| researcher | sonnet |
+| advisor | opus |
+| proposal-writer | sonnet |
+| plan-checker | opus |
+
+### budget (7 sonnet / 3 haiku)
+
+Minimize cost. Spec-writer uses sonnet as the quality floor.
+
+| Role | Model |
+|------|-------|
+| spec-writer | sonnet |
+| designer | haiku |
+| planner | sonnet |
+| executor | haiku |
+| verifier | sonnet |
+| fast-forward | haiku |
+| researcher | sonnet |
+| advisor | sonnet |
+| proposal-writer | sonnet |
+| plan-checker | sonnet |
+
+Standalone commands use fixed models regardless of profile: `init`, `scan`, `fix` always use opus; `status`, `lang`, `model`, `note`, `docs`, `update` always use sonnet.
+
 ## Configuration
 
 Project config lives in `.claude/mysd.yaml`:
@@ -201,7 +249,7 @@ response_language: en       # BCP 47 language tag, e.g. zh-TW, ja, fr
 ```
 
 - `execution_mode: wave` enables parallel worktree execution for tasks with no dependency overlap
-- `model_profile` controls AI model selection across all agent roles (executor, verifier, researcher, etc.)
+- `model_profile` controls AI model selection across all agent roles — see [Model Profiles](#model-profiles) for the full mapping
 - `response_language` sets the language for all agent responses and OpenSpec locale
 
 All options can be overridden per-command via flags.
