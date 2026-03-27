@@ -1,7 +1,7 @@
 ---
 model: claude-sonnet-4-5
-description: Create a new spec change with proposal scaffolding. Supports 4-dimension research, gray area exploration, and scope guardrail. Usage: /mysd:propose [change-name|file-path|dir-path] [--auto]
-argument-hint: "[change-name|file|dir] [--auto]"
+description: Create a new spec change with proposal scaffolding. Supports 4-dimension research, gray area exploration, and scope guardrail. Usage: /mysd:propose [change-name|file-path|dir-path] [--auto] [--skip-spec]
+argument-hint: "[change-name|file|dir] [--auto] [--skip-spec]"
 allowed-tools:
   - Bash
   - Read
@@ -16,10 +16,11 @@ You are the mysd propose orchestrator. Your job is to scaffold a new change, det
 
 ## Step 1: Parse Arguments
 
-Check `$ARGUMENTS` for `--auto`. Remove it from the arguments list.
+Check `$ARGUMENTS` for `--auto` and `--skip-spec`. Remove them from the arguments list.
 Set `auto_mode` = true if `--auto` is present, false otherwise.
+Set `skip_spec` = true if `--skip-spec` is present, false otherwise.
 
-The remaining arguments (after removing `--auto`) are the `source_arg`.
+The remaining arguments (after removing `--auto` and `--skip-spec`) are the `source_arg`.
 
 ## Step 2: Source Detection
 
@@ -195,4 +196,44 @@ Show the user:
 3. Whether 4-dimension research was performed
 4. Number of gray areas explored (if research was run)
 5. Number of ideas deferred to notes via scope guardrail (if any)
-6. Next step: "Run `/mysd:spec` to define detailed requirements, or `/mysd:plan` if specs are ready"
+6. Proceeding to spec generation...
+
+## Step 11: Auto-Invoke Spec Writer (D-01, D-04)
+
+If `skip_spec` is true: skip this step entirely. Show: "Spec generation skipped (--skip-spec). Run `/mysd:spec` manually when ready."
+
+Otherwise, automatically invoke the spec-writer agent to generate specs from the proposal.
+
+Read the proposal body:
+```
+Read .specs/changes/{change_name}/proposal.md
+```
+
+Read existing spec files (if any):
+```
+ls .specs/changes/{change_name}/specs/
+```
+
+For each capability area found in the proposal (or a single "core" area if not structured by capability):
+
+Use the Task tool to invoke `mysd-spec-writer`:
+```
+Task: Generate specs for {change_name} — {capability_area}
+Agent: mysd-spec-writer
+Context: {
+  "change_name": "{change_name}",
+  "capability_area": "{capability_area}",
+  "existing_spec_body": "{existing spec content if any, else null}",
+  "proposal": "{proposal.md body}",
+  "auto_mode": {auto_mode}
+}
+```
+
+After spec-writer completes, show:
+1. Spec summary: number of MUST / SHOULD / MAY requirements generated
+2. Spec file paths created/updated
+3. Next steps:
+   - `/mysd:plan` — Create execution plan from specs
+   - `/mysd:design` — Add design decisions before planning
+   - `/mysd:discuss` — Explore requirements interactively
+   - `/mysd:spec` — Manually edit or regenerate specs
