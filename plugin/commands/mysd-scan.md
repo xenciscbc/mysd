@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: claude-opus-4-6
 description: Scan existing codebase and generate OpenSpec-format spec documents for discovered modules.
 argument-hint: ""
 allowed-tools:
@@ -104,10 +104,6 @@ Generated specs:
 
 Skipped (already had specs):
   - {spec_name} (existing spec preserved)
-
-Next steps:
-  - Review the generated specs with /mysd:spec to refine requirements
-  - Run /mysd:ff to fast-forward through design and planning
 ```
 
 If any agent tasks failed, report which modules failed and suggest the user re-run `/mysd:scan` for those modules.

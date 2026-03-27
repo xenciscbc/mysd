@@ -68,7 +68,7 @@ func runExecute(cmd *cobra.Command, args []string) error {
 	}
 
 	// Non-context-only: print guidance directing to SKILL.md
-	p.Info("Use /mysd:execute in Claude Code to run with AI alignment gate")
+	p.Info("Use /mysd:apply in Claude Code to run with AI alignment gate")
 	p.Info("Or use: mysd execute --context-only | jq")
 	return nil
 }

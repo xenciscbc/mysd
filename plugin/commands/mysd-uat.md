@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Interactive User Acceptance Testing walkthrough.
 argument-hint: ""
 allowed-tools:
@@ -31,7 +30,7 @@ No UAT checklist found for change: {change_name}
 
 UAT checklists are generated automatically during verification when UI-related MUST or SHOULD items are detected.
 
-Next step: Run `/mysd:verify` first. If your spec includes UI-related requirements, a UAT checklist will be generated automatically.
+Next step: Run `/mysd:apply` first. Verification runs automatically and generates a UAT checklist if UI-related requirements are detected.
 
 If your spec has no UI items, UAT is not required — you can proceed directly to `/mysd:archive`.
 ```
@@ -90,7 +89,7 @@ Failed items require attention before archiving. Review the failure notes in:
   .mysd/uat/{change_name}-uat.md
 
 Options:
-- Fix the issues and run `/mysd:execute` + `/mysd:verify` again
+- Fix the issues and run `/mysd:apply` + `/mysd:verify` again
 - Or run `/mysd:archive` to archive anyway (UAT failures are advisory, not blocking)
 ```
 

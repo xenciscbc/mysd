@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Research agent. Investigates a specific dimension (Codebase, Domain, Architecture, or Pitfalls) and produces structured findings.
 allowed-tools:
   - Read

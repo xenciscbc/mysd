@@ -106,7 +106,7 @@ func TestBuildContextFromParts_NewFields(t *testing.T) {
 			Depends:   []int{2, 3},
 			Files:     []string{"auth.go"},
 			Satisfies: []string{"REQ-01"},
-			Skills:    []string{"/mysd:execute"},
+			Skills:    []string{"/mysd:apply"},
 		},
 	}
 	cfg := config.Defaults()
@@ -118,7 +118,7 @@ func TestBuildContextFromParts_NewFields(t *testing.T) {
 	assert.Equal(t, []int{2, 3}, ti.Depends)
 	assert.Equal(t, []string{"auth.go"}, ti.Files)
 	assert.Equal(t, []string{"REQ-01"}, ti.Satisfies)
-	assert.Equal(t, []string{"/mysd:execute"}, ti.Skills)
+	assert.Equal(t, []string{"/mysd:apply"}, ti.Skills)
 
 	// Also check PendingTasks
 	require.Len(t, ctx.PendingTasks, 1)

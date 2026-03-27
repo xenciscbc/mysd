@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Plan orchestrator. Optional single-agent research, then design, then task planning. Usage: /mysd:plan [--research] [--check] [--auto]
 argument-hint: "[--research] [--check] [--auto]"
 allowed-tools:
@@ -34,6 +33,8 @@ Parse the JSON output. It contains:
 - `change_name`, `phase`, `specs`, `design`, `model`
 - `research_enabled`, `check_enabled`, `test_generation`
 
+Extract the `model` field (short name like "sonnet", "opus", "haiku") — this is the profile-resolved model for agent spawning.
+
 If error (not in designed/specced phase), guide user to complete prerequisites.
 
 ## Step 3: Research Phase (if research_enabled)
@@ -47,10 +48,12 @@ If `research_enabled` is true (from context JSON) or `--research` flag present:
   If `auto_mode` is true:
     Skip research entirely. Go to Step 4.
 
-  Spawn ONE `mysd-researcher` agent (single, NOT parallel):
+  Show: "Spawning mysd-researcher ({model})..."
+  Spawn ONE `mysd-researcher` agent (single, NOT parallel), with `model` parameter set to `{model}`:
 
   Task: Research implementation details for {change_name}
   Agent: mysd-researcher
+  Model: {model}
   Context: {
     "change_name": "{change_name}",
     "dimension": "architecture",
@@ -66,10 +69,12 @@ If `research_enabled` is true (from context JSON) or `--research` flag present:
 
 ## Step 4: Design Phase
 
-Use the Task tool to invoke `mysd-designer`:
+Show: "Spawning mysd-designer ({model})..."
+Use the Task tool to invoke `mysd-designer` with `model` parameter set to `{model}`:
 
 Task: Create design document for {change_name}
 Agent: mysd-designer
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "specs": [{spec content}],
@@ -86,10 +91,12 @@ mysd design
 
 ## Step 5: Planning Phase
 
-Use the Task tool to invoke `mysd-planner`:
+Show: "Spawning mysd-planner ({model})..."
+Use the Task tool to invoke `mysd-planner` with `model` parameter set to `{model}`:
 
 Task: Create task list for {change_name}
 Agent: mysd-planner
+Model: {model}
 Context: {full context JSON from Step 2, plus research_findings and design content, plus auto_mode}
 
 After planner completes, run state transition:
@@ -106,10 +113,12 @@ Run:
 mysd plan --check --context-only
 ```
 
-Use the Task tool to invoke `mysd-plan-checker`:
+Show: "Spawning mysd-plan-checker ({model})..."
+Use the Task tool to invoke `mysd-plan-checker` with `model` parameter set to `{model}`:
 
 Task: Validate plan coverage for {change_name}
 Agent: mysd-plan-checker
+Model: {model}
 Context: {check output JSON}
 
 ## Step 7: Confirm

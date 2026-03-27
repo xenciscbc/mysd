@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Fast-forward through plan + apply + archive. Assumes spec is ready. No research. Implies --auto. Usage: /mysd:ff [change-name]
 argument-hint: "[change-name]"
 allowed-tools:
@@ -23,18 +22,22 @@ Set `auto_mode = true` (always, per D-19/FAUTO-03).
 ## Step 2: Plan Phase (no research, per FAUTO-04)
 
 Run: `mysd plan --context-only`
-Parse JSON.
+Parse JSON. Extract `model` field (profile-resolved short name).
 
-Spawn designer:
+Show: "Spawning mysd-designer ({model})..."
+Spawn designer with `model` parameter set to `{model}`:
   Task: Create design for {change_name} (ff mode)
   Agent: mysd-designer
+  Model: {model}
   Context: { "change_name": "...", "specs": [...], "research_findings": [], "auto_mode": true }
 
 Run: `mysd design`
 
-Spawn planner:
+Show: "Spawning mysd-planner ({model})..."
+Spawn planner with `model` parameter set to `{model}`:
   Task: Create task list for {change_name} (ff mode)
   Agent: mysd-planner
+  Model: {model}
   Context: { full context JSON, "auto_mode": true }
 
 Run: `mysd plan`
@@ -42,11 +45,12 @@ Run: `mysd plan`
 ## Step 3: Apply Phase
 
 Run: `mysd execute --context-only`
-Parse JSON (tasks, pending_tasks, wave_groups, etc.).
+Parse JSON. Extract `model` field.
 
-Execute tasks using the same logic as /mysd:apply Step 3:
-- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true
-- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true
+Execute tasks using the same logic as /mysd:apply Step 3, passing `model` to each executor:
+- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true, model: {model}
+- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true, model: {model}
+- Show "Spawning mysd-executor ({model})..." before each spawn
 
 Run: `mysd execute` (state transition)
 
@@ -69,10 +73,12 @@ mysd execute --context-only
 ```
 Parse JSON for must_items, should_items, may_items.
 
-Use Task tool to invoke `mysd-verifier`:
+Show: "Spawning mysd-verifier ({model})..."
+Use Task tool to invoke `mysd-verifier` with `model` parameter set to `{model}`:
 ```
 Task: Verify spec coverage for {change_name} (ff auto-verify)
 Agent: mysd-verifier
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "must_items": [...],

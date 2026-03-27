@@ -101,7 +101,7 @@ If some tests failed:
   {uat_file_path}
 
 You can:
-- Fix the issues and re-run verification with `/mysd:verify`
+- Fix the issues and re-run with `/mysd:apply` (includes verification)
 - Or archive anyway with `/mysd:archive` (UAT failures are advisory, not blocking)
 ```
 

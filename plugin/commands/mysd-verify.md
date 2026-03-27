@@ -29,7 +29,7 @@ Parse the JSON output. It contains:
 - `may_items`: Array of MAY requirements (id, text, keyword, source_file)
 - `tasks_summary`: Array of tasks with their current status (id, name, status)
 
-If this returns an error such as "not in executed phase", guide the user to complete `/mysd:execute` first before verifying.
+If this returns an error such as "not in executed phase", guide the user to complete `/mysd:apply` first before verifying.
 
 If `must_items` is empty, inform the user: "No MUST requirements found. Add MUST requirements to your spec files before verifying."
 
@@ -100,5 +100,5 @@ Failed items:
 
 Gap report written to: {change_dir}/gap-report.md
 
-Next step: Run `/mysd:execute` to fix the failing items, then re-run `/mysd:verify`.
+Next step: Run `/mysd:apply` to fix the failing items, then re-run `/mysd:verify`.
 ```

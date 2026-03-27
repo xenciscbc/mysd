@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Full fast-forward with research + plan + apply + archive. Implies --auto. Usage: /mysd:ffe [change-name]
 argument-hint: "[change-name]"
 allowed-tools:
@@ -22,11 +21,15 @@ Set `auto_mode = true` (always, per D-19/FAUTO-03).
 
 ## Step 2: Research Phase
 
-Spawn 4 `mysd-researcher` agents in parallel:
+Resolve model: run `mysd model`, parse profile, determine model short name (quality/balanced → sonnet, budget → haiku/sonnet per role).
+
+Show: "Spawning 4 mysd-researcher agents ({model})..."
+Spawn 4 `mysd-researcher` agents in parallel, each with `model` parameter set to `{model}`:
 
 For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
   Task: Research {dimension} for {change_name} (ffe mode)
   Agent: mysd-researcher
+  Model: {model}
   Context: {
     "change_name": "{change_name}",
     "dimension": "{dimension}",
@@ -40,18 +43,22 @@ Collect all 4 research outputs.
 ## Step 3: Plan Phase (with research findings)
 
 Run: `mysd plan --context-only`
-Parse JSON.
+Parse JSON. Extract `model` field.
 
-Spawn designer with research:
+Show: "Spawning mysd-designer ({model})..."
+Spawn designer with `model` parameter set to `{model}`:
   Task: Create design for {change_name} (ffe mode)
   Agent: mysd-designer
+  Model: {model}
   Context: { "change_name": "...", "specs": [...], "research_findings": [{from Step 2}], "auto_mode": true }
 
 Run: `mysd design`
 
-Spawn planner:
+Show: "Spawning mysd-planner ({model})..."
+Spawn planner with `model` parameter set to `{model}`:
   Task: Create task list for {change_name} (ffe mode)
   Agent: mysd-planner
+  Model: {model}
   Context: { full context JSON, "auto_mode": true }
 
 Run: `mysd plan`
@@ -60,9 +67,13 @@ Run: `mysd plan`
 
 Same as /mysd:ff Step 3 — execute all tasks with auto_mode: true.
 
-Execute tasks using the same logic as /mysd:apply Step 3:
-- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true
-- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true
+Run: `mysd execute --context-only`
+Parse JSON. Extract `model` field.
+
+Execute tasks using the same logic as /mysd:apply Step 3, passing `model` to each executor:
+- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true, model: {model}
+- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true, model: {model}
+- Show "Spawning mysd-executor ({model})..." before each spawn
 
 Run: `mysd execute` (state transition)
 
@@ -85,10 +96,12 @@ mysd execute --context-only
 ```
 Parse JSON for must_items, should_items, may_items.
 
-Use Task tool to invoke `mysd-verifier`:
+Show: "Spawning mysd-verifier ({model})..."
+Use Task tool to invoke `mysd-verifier` with `model` parameter set to `{model}`:
 ```
 Task: Verify spec coverage for {change_name} (ffe auto-verify)
 Agent: mysd-verifier
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "must_items": [...],

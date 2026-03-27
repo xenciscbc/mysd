@@ -127,4 +127,4 @@ Tell the user:
 - Total number of tasks created
 - Brief summary of the task sequence
 - If `test_generation` is true: "Note: tests will be auto-generated after execution"
-- Next step: "Run `/mysd:execute` to implement the tasks"
+- Next step: "Run `/mysd:apply` to implement the tasks"

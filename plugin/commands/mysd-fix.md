@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: claude-opus-4-6
 description: Fix a failed task. Auto-detects merge conflict vs implementation failure. Supports optional research for implementation issues. Usage: /mysd:fix [change-name] [T{id}]
 argument-hint: "[change-name] [T{id}]"
 allowed-tools:

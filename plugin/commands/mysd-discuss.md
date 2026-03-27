@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Ad-hoc discussion with optional 4-dimension research, gray area exploration, and scope guardrail. Updates specs and triggers re-plan. Usage: /mysd:discuss [topic|change-name|file-path|dir-path] [--auto]
 argument-hint: "[topic|change-name|file|dir] [--auto]"
 allowed-tools:
@@ -48,6 +47,19 @@ Extract topic:
 - If arguments contained a topic string (not a path/change-name): use it directly
 - If auto_mode: derive topic from the change context
 - Otherwise: Ask "What topic would you like to discuss?"
+
+## Step 3b: Resolve Agent Model
+
+Run:
+```
+mysd model
+```
+
+Parse the output to find `Profile: {profile_name}`. The profile determines agent model:
+- `quality` or `balanced` → model = `sonnet`
+- `budget` → model = `haiku` (for researcher/advisor); model = `sonnet` (for proposal-writer/spec-writer/designer)
+
+Use this `model` value when spawning agents in subsequent steps.
 
 ## Step 4: Conditional Deferred Notes Loading (D-02)
 
@@ -101,12 +113,14 @@ Would you like to run 4-dimension research on this topic?
 
 ## Step 6: Parallel Research Spawning
 
-Spawn 4 `mysd-researcher` agents in parallel using the Task tool:
+Show: "Spawning 4 mysd-researcher agents ({model})..."
+Spawn 4 `mysd-researcher` agents in parallel using the Task tool, each with `model` parameter set to `{model}`:
 
 For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
 ```
 Task: Research {dimension} for topic: {topic}
 Agent: mysd-researcher
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "dimension": "{dimension}",
@@ -146,10 +160,11 @@ If write fails: continue silently (cache is best-effort, do not interrupt the di
 
 From the 4 research outputs, identify gray areas: ambiguous design decisions where multiple valid approaches exist, conflicting recommendations between dimensions, or areas needing user input.
 
-For each gray area, spawn one `mysd-advisor` agent in parallel using the Task tool:
+For each gray area, show: "Spawning mysd-advisor ({model})..." and spawn one `mysd-advisor` agent in parallel using the Task tool with `model` parameter set to `{model}`:
 ```
 Task: Analyze gray area: {gray_area_description}
 Agent: mysd-advisor
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "gray_area": "{gray_area_description}",
@@ -236,9 +251,11 @@ When user chooses to incorporate conclusions:
 Determine which spec layer(s) are affected:
 
 **If proposal layer** (scope change, motivation update):
+Show: "Spawning mysd-proposal-writer ({model})..."
 ```
 Task: Update proposal with discussion conclusions
 Agent: mysd-proposal-writer
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "conclusions": "{conclusions text}",
@@ -248,10 +265,11 @@ Context: {
 ```
 
 **If specs/ layer** (requirement changes):
-For each affected capability area:
+For each affected capability area, show: "Spawning mysd-spec-writer ({model})..."
 ```
 Task: Update spec for {capability_area}
 Agent: mysd-spec-writer
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "capability_area": "{area}",
@@ -262,9 +280,11 @@ Context: {
 ```
 
 **If design layer** (architecture changes):
+Show: "Spawning mysd-designer ({model})..."
 ```
 Task: Update design with discussion conclusions
 Agent: mysd-designer
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "conclusions": "{conclusions text}",
@@ -279,10 +299,12 @@ After spec updates complete:
 1. Get new planning context:
    Run: `mysd plan --context-only`
 
-2. Spawn planner:
+2. Extract `model` from planning context JSON. Show: "Spawning mysd-planner ({model})..."
+   Spawn planner with `model` parameter set to `{model}`:
    ```
    Task: Re-plan after discussion updates
    Agent: mysd-planner
+   Model: {model}
    Context: {planning context JSON with auto_mode}
    ```
 
@@ -292,10 +314,12 @@ After spec updates complete:
 4. Get check context:
    Run: `mysd plan --check --context-only`
 
-5. Spawn plan-checker:
+5. Show: "Spawning mysd-plan-checker ({model})..."
+   Spawn plan-checker with `model` parameter set to `{model}`:
    ```
    Task: Validate plan coverage after discussion updates
    Agent: mysd-plan-checker
+   Model: {model}
    Context: {check output JSON}
    ```
 

@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Spec writer agent. Receives a single capability area and writes one RFC 2119 requirement spec file.
 allowed-tools:
   - Read

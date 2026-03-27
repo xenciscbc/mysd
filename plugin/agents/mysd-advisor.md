@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Advisor agent. Analyzes gray areas and produces structured comparison tables with trade-off analysis.
 allowed-tools:
   - Read

@@ -83,6 +83,6 @@ func runDesign(cmd *cobra.Command, args []string) error {
 	}
 
 	p.Success("State transitioned to: designed")
-	p.Info("Use /mysd:design in Claude Code for AI-assisted design")
+	p.Info("Design is integrated into /mysd:plan")
 	return nil
 }

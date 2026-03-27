@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Archive a verified spec change to .specs/archive/.
 argument-hint: "[--auto]"
 allowed-tools:
@@ -52,7 +51,7 @@ Archive blocked: This change has not been fully verified.
 
 All MUST requirements must pass verification before archiving.
 
-Next step: Run `/mysd:verify` to verify this change first.
+Next step: Run `/mysd:apply` to execute and verify this change first.
 ```
 
 **If the command fails with "not done" or "MUST items not complete":**
@@ -63,10 +62,8 @@ Archive blocked: Not all MUST requirements are marked as DONE.
 Some requirements may have failed verification or were not executed.
 
 Next steps:
-1. Run `/mysd:verify` to see which items failed
-2. Run `/mysd:execute` to fix the failing items
-3. Run `/mysd:verify` again to re-verify
-4. Then run `/mysd:archive` once all MUST items pass
+1. Run `/mysd:apply` to re-execute and verify the failing items
+2. Then run `/mysd:archive` once all MUST items pass
 ```
 
 **If the command fails with any other error:**

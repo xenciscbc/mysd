@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Execute pending tasks with mandatory alignment gate. Supports single (sequential per-task) and wave (parallel per-task) modes. Usage: /mysd:apply [--auto]
 argument-hint: "[--auto]"
 allowed-tools:
@@ -27,6 +26,7 @@ mysd execute --context-only
 
 Parse the JSON output. It contains:
 - `change_name`: The current change
+- `model`: Profile-resolved short model name (e.g., "sonnet", "opus", "haiku") for agent spawning
 - `must_items`: Array of MUST requirements (id, text)
 - `should_items`: Array of SHOULD requirements (id, text)
 - `may_items`: Array of MAY requirements (id, text)
@@ -52,10 +52,12 @@ If `pending_tasks` is empty, inform the user: "All tasks are already complete. N
 
 For each task in `pending_tasks` (sequential, one at a time):
 
-Use the Task tool to invoke `mysd-executor`:
+Show: "Spawning mysd-executor ({model})..."
+Use the Task tool to invoke `mysd-executor` with `model` parameter set to `{model}`:
 ```
 Task: Execute task T{task.id}: {task.name}
 Agent: mysd-executor
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "must_items": [...],
@@ -77,10 +79,12 @@ Process `wave_groups` sequentially. Within each wave, spawn executors in paralle
 
 For each wave in `wave_groups`:
   For each task in wave (spawn in parallel):
-    Use the Task tool to invoke `mysd-executor`:
+    Show: "Spawning mysd-executor ({model})..."
+    Use the Task tool to invoke `mysd-executor` with `model` parameter set to `{model}`:
     ```
     Task: Execute wave task T{task.id}: {task.name}
     Agent: mysd-executor
+    Model: {model}
     Context: {
       "change_name": "{change_name}",
       "must_items": [...],
@@ -150,7 +154,7 @@ If tests fail:
 
 ### Step 5b: Spec Verification
 
-If build and tests both pass, invoke the verifier agent.
+If build and tests both pass, invoke the verifier agent. Verification is mandatory and cannot be skipped.
 
 First, get fresh context for verification:
 ```
@@ -158,18 +162,12 @@ mysd execute --context-only
 ```
 Parse JSON to get `must_items`, `should_items`, `may_items`.
 
-If `auto_mode` is true: proceed directly to verifier (skip confirmation per D-05).
-
-If `auto_mode` is false: ask user:
-```
-Build and tests pass. Run spec verification now? [Y/n]
-```
-If user declines: show "Skipped. Run `/mysd:verify` manually when ready." and end.
-
-Use the Task tool to invoke `mysd-verifier`:
+Show: "Spawning mysd-verifier ({model})..."
+Use the Task tool to invoke `mysd-verifier` with `model` parameter set to `{model}`:
 ```
 Task: Verify spec coverage for {change_name}
 Agent: mysd-verifier
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "must_items": [...],

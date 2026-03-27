@@ -52,7 +52,7 @@ Read the `coverage` field from the input JSON.
 
 **If `passed` is `true`:**
 - Report: "Plan coverage check passed. All {total_must} MUST requirements are covered."
-- No further action needed. Inform the user they can proceed to `/mysd:execute`.
+- No further action needed. Inform the user they can proceed to `/mysd:apply`.
 
 **If `passed` is `false`:**
 - Continue to Step 2.
@@ -167,7 +167,7 @@ Uncovered: [list of IDs, or "none"]
 
 After a successful coverage check (all passed), inform the user:
 ```
-All MUST requirements are covered. You can now run /mysd:execute to implement the tasks.
+All MUST requirements are covered. You can now run /mysd:apply to implement the tasks.
 ```
 
 ---

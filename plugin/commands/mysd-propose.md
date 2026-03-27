@@ -1,7 +1,6 @@
 ---
-model: claude-sonnet-4-5
-description: Create a new spec change with proposal scaffolding. Supports 4-dimension research, gray area exploration, and scope guardrail. Usage: /mysd:propose [change-name|file-path|dir-path] [--auto] [--skip-spec]
-argument-hint: "[change-name|file|dir] [--auto] [--skip-spec]"
+description: Create a new spec change with proposal scaffolding. Supports 4-dimension research, gray area exploration, and scope guardrail. Usage: /mysd:propose [change-name|file-path|dir-path] [--auto]
+argument-hint: "[change-name|file|dir] [--auto]"
 allowed-tools:
   - Bash
   - Read
@@ -16,11 +15,10 @@ You are the mysd propose orchestrator. Your job is to scaffold a new change, det
 
 ## Step 1: Parse Arguments
 
-Check `$ARGUMENTS` for `--auto` and `--skip-spec`. Remove them from the arguments list.
+Check `$ARGUMENTS` for `--auto`. Remove it from the arguments list.
 Set `auto_mode` = true if `--auto` is present, false otherwise.
-Set `skip_spec` = true if `--skip-spec` is present, false otherwise.
 
-The remaining arguments (after removing `--auto` and `--skip-spec`) are the `source_arg`.
+The remaining arguments (after removing `--auto`) are the `source_arg`.
 
 ## Step 2: Source Detection
 
@@ -64,6 +62,19 @@ This creates `.specs/changes/{change-name}/` with a template `proposal.md`.
 
 If source content was detected in Step 2 (file/directory mode), read that content now.
 
+## Step 3b: Resolve Agent Model
+
+Run:
+```
+mysd model
+```
+
+Parse the output to find `Profile: {profile_name}`. The profile determines agent model:
+- `quality` or `balanced` → model = `sonnet`
+- `budget` → model = `haiku` (for researcher/advisor); model = `sonnet` (for proposal-writer/spec-writer)
+
+Use this `model` value when spawning agents in subsequent steps.
+
 ## Step 4: Load Deferred Notes (D-02)
 
 Per D-02: propose ALWAYS loads deferred notes (cross-change context is valuable for new proposals).
@@ -91,12 +102,14 @@ Would you like to run 4-dimension research on this proposal?
 
 ## Step 6: Parallel Research Spawning
 
-Spawn 4 `mysd-researcher` agents in parallel using the Task tool:
+Show: "Spawning 4 mysd-researcher agents ({model})..."
+Spawn 4 `mysd-researcher` agents in parallel using the Task tool, each with `model` parameter set to `{model}`:
 
 For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
 ```
 Task: Research {dimension} for proposal: {change_name}
 Agent: mysd-researcher
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "dimension": "{dimension}",
@@ -112,10 +125,11 @@ Collect all 4 research outputs. Present organized summary by dimension to the us
 
 From the 4 research outputs, identify gray areas: ambiguous design decisions where multiple valid approaches exist, conflicting recommendations between dimensions, or areas needing user input.
 
-For each gray area, spawn one `mysd-advisor` agent in parallel using the Task tool:
+For each gray area, show: "Spawning mysd-advisor ({model})..." and spawn one `mysd-advisor` agent in parallel using the Task tool with `model` parameter set to `{model}`:
 ```
 Task: Analyze gray area: {gray_area_description}
 Agent: mysd-advisor
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "gray_area": "{gray_area_description}",
@@ -172,11 +186,13 @@ If user chooses "Finish exploration": proceed to Step 9.
 
 ## Step 9: Invoke Proposal Writer
 
-Use the Task tool to invoke `mysd-proposal-writer`:
+Show: "Spawning mysd-proposal-writer ({model})..."
+Use the Task tool to invoke `mysd-proposal-writer` with `model` parameter set to `{model}`:
 
 ```
 Task: Write proposal for {change_name}
 Agent: mysd-proposal-writer
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "conclusions": "{research findings + exploration conclusions + source content}",
@@ -200,9 +216,7 @@ Show the user:
 
 ## Step 11: Auto-Invoke Spec Writer (D-01, D-04)
 
-If `skip_spec` is true: skip this step entirely. Show: "Spec generation skipped (--skip-spec). Run `/mysd:spec` manually when ready."
-
-Otherwise, automatically invoke the spec-writer agent to generate specs from the proposal.
+Automatically invoke the spec-writer agent to generate specs from the proposal.
 
 Read the proposal body:
 ```
@@ -216,10 +230,12 @@ ls .specs/changes/{change_name}/specs/
 
 For each capability area found in the proposal (or a single "core" area if not structured by capability):
 
-Use the Task tool to invoke `mysd-spec-writer`:
+Show: "Spawning mysd-spec-writer ({model})..."
+Use the Task tool to invoke `mysd-spec-writer` with `model` parameter set to `{model}`:
 ```
 Task: Generate specs for {change_name} — {capability_area}
 Agent: mysd-spec-writer
+Model: {model}
 Context: {
   "change_name": "{change_name}",
   "capability_area": "{capability_area}",
@@ -234,6 +250,4 @@ After spec-writer completes, show:
 2. Spec file paths created/updated
 3. Next steps:
    - `/mysd:plan` — Create execution plan from specs
-   - `/mysd:design` — Add design decisions before planning
    - `/mysd:discuss` — Explore requirements interactively
-   - `/mysd:spec` — Manually edit or regenerate specs

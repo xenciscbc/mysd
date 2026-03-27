@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: claude-opus-4-6
 description: Initialize mysd project structure (scaffold + locale setup).
 argument-hint: ""
 allowed-tools:

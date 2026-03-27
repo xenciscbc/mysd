@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Fast-forward agent. Executes full planning pipeline (ff mode) or full pipeline through execution (ffe mode) without interactive confirmation.
 allowed-tools:
   - Read
@@ -154,5 +153,5 @@ After completing all phases:
   - Specs: `.specs/changes/{change_name}/specs/`
   - Design: `.specs/changes/{change_name}/design.md`
   - tasks.md: `.specs/changes/{change_name}/tasks.md`
-  Run `/mysd:execute` when ready."
+  Run `/mysd:apply` when ready."
 - **ffe mode**: "Full fast-forward complete. All tasks implemented. Run `mysd status` to review."

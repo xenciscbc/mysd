@@ -71,7 +71,7 @@ func TestTaskEntryNewFields_YAMLRoundTrip(t *testing.T) {
 		Depends:   []int{2, 3},
 		Files:     []string{"auth.go", "handler.go"},
 		Satisfies: []string{"REQ-01", "REQ-02"},
-		Skills:    []string{"/mysd:execute"},
+		Skills:    []string{"/mysd:apply"},
 	}
 
 	data, err := yaml.Marshal(entry)

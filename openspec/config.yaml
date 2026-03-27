@@ -1,21 +1,9 @@
 schema: spec-driven
-locale: tw
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+context: |
+  Tech stack: Go 1.23+, Cobra CLI, Viper config, YAML frontmatter parsing
+  Project: mysd — Claude Code plugin for Spec-Driven Development (SDD)
+  Architecture: Single binary (Go), invoked from SKILL.md via Bash
+  Plugin structure: plugin/commands/*.md (skills), plugin/agents/*.md (agent definitions)
+  Core packages: cmd/ (CLI), internal/ (logic), plugin/ (distribution)
+  Convention: convention over configuration, RFC 2119 keywords in specs

@@ -76,6 +76,6 @@ func runSpec(cmd *cobra.Command, args []string) error {
 	}
 
 	p.Success("State transitioned to: specced")
-	p.Info("Use /mysd:spec in Claude Code for AI-assisted spec writing")
+	p.Info("Spec writing is integrated into /mysd:propose and /mysd:discuss")
 	return nil
 }

@@ -1,5 +1,4 @@
 ---
-model: claude-sonnet-4-5
 description: Proposal writer agent. Creates or updates proposal.md for a change based on discussion conclusions or user requirements.
 allowed-tools:
   - Read
@@ -123,7 +122,7 @@ This marks the change as `proposed` in the workflow state.
 Report to the user:
 - Whether the proposal was created or updated
 - The path written: `.specs/changes/{change_name}/proposal.md`
-- Next step: "Run `/mysd:spec` to write detailed requirements specifications"
+- Next step: "Run `/mysd:plan` to create execution plan, or `/mysd:discuss` to explore requirements interactively"
 
 ## Constraints
 

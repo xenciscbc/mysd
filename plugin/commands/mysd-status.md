@@ -84,8 +84,7 @@ Next: /mysd:apply
 ```
 
 Mapping:
-- Stage `propose` (in specced phase) → `Next: /mysd:spec`
-- Stage `propose` (in proposed phase) → `Next: /mysd:spec`
+- Stage `propose` (in proposed phase) → `Next: /mysd:plan`
 - Stage `plan` (in designed phase) → `Next: /mysd:plan`
 - Stage `apply` → `Next: /mysd:apply`
 - Stage `archive` (executed/verified) → `Next: /mysd:archive`
