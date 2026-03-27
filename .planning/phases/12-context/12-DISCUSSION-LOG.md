@@ -35,13 +35,46 @@
 |----------|-------------|
 | 如何進入使用者的 Claude Code？ | mysd init 寫入 settings.json（Recommended 選項） |
 
+## Gray Areas Discussed (Session 2 — Update)
+
+### D-01/D-02 Model 簡稱
+| Question | User Answer |
+|----------|-------------|
+| model 顯示格式？ | 只要簡稱（sonnet / opus / haiku），不要完整 display_name |
+
+### D-03/D-04/D-05 Bridge File 邏輯
+| Question | User Answer |
+|----------|-------------|
+| statusline off 時要不要寫 bridge file？ | 選 B：只關顯示，繼續寫 bridge file（保護 GSD context-monitor） |
+| 可以偵測 GSD 並存嗎？ | 是，偵測 gsd-context-monitor.js 存在與否 |
+| 不並存時 on 狀態要不要寫？ | 不用，完全不寫 — bridge file 寫入只在並存時才做 |
+
+### D-11/D-12/D-13 On/Off 控制
+| Question | User Answer |
+|----------|-------------|
+| 切換方式？ | `/mysd:statusline` 指令：無參數 toggle，帶 on/off 直接設定 |
+
+### Phase 範圍擴展
+| Question | User Answer |
+|----------|-------------|
+| discuss research cache 放哪？ | 共同放入 Phase 12（改名為 context 管理） |
+| cache 存放位置？ | `.specs/changes/{change}/discuss-research-cache.json` |
+| cache 內容？ | 4 維度完整輸出 |
+
 ## Decisions Made
 
-- D-01 to D-02: 格式決策（含/不含 active change 的兩種格式）
-- D-03 to D-05: Context 計算邏輯（direct read + normalization + 顏色閾值）
-- D-06 to D-08: 安裝機制（mysd init 複製 hook + merge settings.json）
-- D-09: Plugin manifest 不擴展（hooks 是 one-time init）
-- D-10: .specs/state.yaml 讀取方式（regex line scan + silent fail）
+- **D-01/D-02:** model 用關鍵字比對提取簡稱（sonnet/opus/haiku）
+- **D-03/D-04/D-05:** context 計算 + bridge file 只在 GSD 並存時寫入（與 on/off 無關）；🥵 取代 💀
+- **D-06 to D-10:** 安裝、sync、state.yaml 讀取（不變）
+- **D-11:** `statusline_enabled: true` 加入 ProjectConfig
+- **D-12:** hook 讀 config 決定是否輸出（off 時仍檢查 GSD 並存寫 bridge file）
+- **D-13:** `/mysd:statusline [on|off]` SKILL.md 指令
+- **D-14:** cache 路徑 `.specs/changes/{change}/discuss-research-cache.json`
+- **D-15:** cache 格式：JSON，含 change_name、cached_at、4 維度完整輸出
+- **D-16:** discuss research 完成後立即寫入 cache（proactive）
+- **D-17:** 啟動 discuss 時偵測 cache，詢問重用/重新 research/都不要
+- **D-18:** archive 時自動刪除 cache 檔
+- **D-19:** cache 檔加入 .gitignore
 
 ## Deferred
 
