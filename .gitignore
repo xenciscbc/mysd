@@ -1,4 +1,18 @@
+# Build artifacts
+mysd.exe
+
+# Claude Code local config
+.claude/
+
+# Auto-generated CLAUDE.md files
+**/CLAUDE.md
+
+# Spectra
 .spectra/
 openspec/.vector-search.db*
+
+# Sidecar
 .sidecar/
+
+# Research cache
 discuss-research-cache.json
