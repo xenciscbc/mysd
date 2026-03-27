@@ -33,9 +33,10 @@
 ### Doc 維護流程
 
 - **D-10:** `mysd.yaml` 新增 `docs_to_update` 欄位（字串陣列，指定需要在 archive 後更新的文件路徑，如 `["README.md", "CHANGELOG.md"]`）
-- **D-11:** archive 完成後，SKILL.md 讀取 `docs_to_update` 配置，對每個指定文件呼叫 LLM 更新（讀取 change 的 proposal.md + specs + tasks 作為更新上下文）
+- **D-11:** archive 完成後，SKILL.md 讀取 `docs_to_update` 配置，對每個指定文件呼叫 LLM 更新。更新策略依文件類型自適應：(a) `CHANGELOG.md` → LLM 生成新條目後 **prepend 到頂部**，保留舊內容不動；(b) `README.md` → **全文重寫**；(c) 其他自訂文件 → LLM 從檔名和現有內容推斷更新方式（全文重寫為預設）。
+- **D-11b:** LLM 更新每個文件時讀入的 context：`proposal.md`（what + why）+ `tasks.md`（what was done）+ `specs/` 目錄（MUST/SHOULD/MAY 要求）+ **現有文件內容**（不能不看就重寫）。
 - **D-12:** `DocsToUpdate []string` 加進 `internal/config/defaults.go` 的 `ProjectConfig` struct，並透過 `mysd execute --context-only` JSON 輸出暴露。SKILL.md 從 binary 讀取此值，不直接解析 YAML。文件更新本身（Read/Edit/Write）在 SKILL.md 層實作，不需要新的 binary subcommand。
-- **D-13:** 更新前詢問使用者確認（顯示「這些文件將被更新：README.md」），`--auto` 模式跳過確認直接更新
+- **D-13:** 更新前向使用者展示文件清單確認（顯示「將更新以下文件：README.md, CHANGELOG.md」），使用者按 Enter 確認或輸入 `n` 跳過。`--auto` 模式跳過確認直接更新。
 - **D-14:** `docs_to_update` 未設定時，archive 後正常結束（不提示 doc 更新）— convention over config
 
 ### Plugin Sync 補足
@@ -46,7 +47,6 @@
 ### Claude's Discretion
 
 - Executor sidecar 的具體 Markdown 格式（結構自由，確保 fix agent 可讀即可）
-- `docs_to_update` 中每個文件的更新策略（diff-based 增量 vs 全文重寫 — 選擇對 README 合適的方式）
 - auto-verify 失敗時若 build 錯誤的 UX（提示用 `/mysd:fix` 還是直接顯示 build output）
 
 </decisions>
@@ -132,7 +132,9 @@
 ## Specific Ideas
 
 - sidecar 目錄路徑：`.specs/changes/{change_name}/.sidecar/T{id}-failure.md`，加入專案根 `.gitignore`
-- docs_to_update 的 LLM 更新上下文：讀取 proposal.md（what changed）+ tasks.md（what was done）+ 現有文件內容 → 生成更新後的文件
+- docs_to_update 的 LLM 更新 context：proposal.md + tasks.md + specs/ + 現有文件內容（全讀）
+- CHANGELOG.md 特殊處理：LLM 只生成新條目，SKILL.md 用 prepend 插入頂部，不修改其餘內容
+- 確認 UX：「將更新以下文件：X, Y」→ Enter 確認 / n 跳過；--auto 直接執行
 - propose auto-spec 的 Step 11 格式與 discuss Step 10 完全一致（同樣呼叫 mysd-spec-writer via Task tool）
 - apply auto-verify 的 Step 5：先 `go build ./...`，若 build 失敗直接顯示 build error 並跳過 verifier agent；build 成功才呼叫 verifier
 - executor sidecar on-failure 段落位置：建議在 Task Execution 的 "如果上述步驟失敗" 捕捉點插入，寫入後再 `mysd task-update {id} failed`
