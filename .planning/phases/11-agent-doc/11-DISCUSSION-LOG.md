@@ -1,75 +1,114 @@
-# Phase 11: agent-doc — Discussion Log (Assumptions Mode)
+# Phase 11: agent-doc — Discussion Log
 
 > **Audit trail only.** Do not use as input to planning, research, or execution agents.
-> Decisions captured in CONTEXT.md — this log preserves the analysis and discussion.
+> Decisions captured in CONTEXT.md — this log preserves the reasoning behind each decision.
 
 **Date:** 2026-03-27
 **Phase:** 11-agent-doc
-**Mode:** discuss (interactive)
-**Areas analyzed:** Workflow Integration, Executor Failure Sidecar, Doc Maintenance Flow, Plugin Sync
+**Mode:** discuss (update — existing CONTEXT.md revised)
+**Areas discussed:** Plugin sync scope, propose auto-spec UX, docs_to_update reading, executor sidecar trigger
 
 ---
 
-## Assumptions Presented
+## Session Context
 
-### Agent Enhancement Scope
-
-| Assumption | Confidence | Evidence |
-|------------|-----------|----------|
-| Focus on STATE.md pending todos (fix + propose) | Likely | STATE.md lines 148-166 |
-
-**Correction:** STATE.md todos 已全部實作完成 — fix、propose auto-detect、status SKILL.md 均已在 Phase 8/9 實作。Phase 11 agent enhancement 範圍需重新定義。
-
-### Documentation Maintenance Workflow Shape
-
-| Assumption | Confidence | Evidence |
-|------------|-----------|----------|
-| 新 /mysd:doc SKILL.md 指令更新 CLAUDE.md 文件 | Likely | 各子目錄 CLAUDE.md 只有 session log |
-
-**Correction:** 使用者確認「doc 維護流程」指的是 archive 後 README/CHANGELOG 未更新的問題。實作為 mysd.yaml docs_to_update 配置 + archive 後自動提示更新。
-
-### Plugin Sync Obligation
-
-| Assumption | Confidence | Evidence |
-|------------|-----------|----------|
-| Phase 11 必須補足 Phase 9-04 plugin sync | Confident | ROADMAP.md line 109 unchecked |
-
-**Confirmed:** 使用者未異議，列入 Phase 11 範圍。
+Existing CONTEXT.md from previous session had D-01 through D-16. User chose to update it. Codebase scout revealed 4 gray areas requiring clarification before planning. 0 pending todos matched Phase 11 scope.
 
 ---
 
-## Workflow Clarification (Discussion Mode)
+## Gray Areas Presented
 
-使用者在討論過程中主動驅動了流程確認，發現以下串接缺口：
+| # | Area | Rationale for Discussion |
+|---|------|--------------------------|
+| ① | Plugin sync scope | diff showed gsd-*.md agents, CLAUDE.md, subdirectories differ — scope unclear |
+| ② | propose auto-spec UX | Step 11 interaction detail: what does user see after spec-writer runs? |
+| ③ | docs_to_update reading | D-12 said SKILL.md layer but YAML parsing from bash is fragile |
+| ④ | executor sidecar trigger | Who writes the sidecar — executor agent or apply orchestrator? |
 
-| 問題 | 現況 | Phase 11 決策 |
-|------|------|--------------|
-| propose → spec | 手動（只建議） | 自動呼叫 spec-writer（D-01） |
-| apply → verify | 手動（只建議） | 自動執行 build + verifier（D-02） |
-| archive verify | 無 | 不增加（apply verify 已覆蓋，D-03） |
-| UAT | Advisory，未深討 | 維持現狀，deferred |
-
-## Corrections Made
-
-### Agent Enhancement Scope
-- **Original assumption:** 處理 STATE.md 遺留 todos
-- **Correction:** todos 已全部完成；改為 workflow integration + executor sidecar
-
-### Documentation Maintenance
-- **Original assumption:** /mysd:doc 指令更新 CLAUDE.md
-- **Correction:** archive 後的 README/CHANGELOG 更新；透過 mysd.yaml docs_to_update 配置
-
-### Executor Sidecar
-- **Discovery:** executor 沒有寫 failure sidecar，mysd-fix 讀到空的
-- **Decision:** Phase 11 新增 executor failure sidecar 寫入機制（D-06~D-09）
-
-## Deferred Ideas
-
-- CLAUDE.md 架構說明自動化 — 下一 milestone
-- 獨立 /mysd:doc 指令 — 未來 quick task
-- UAT 深入設計 — 後續 phase
+All 4 areas selected by user for discussion.
 
 ---
 
-*Discussion conducted: 2026-03-27*
-*Decisions captured in: 11-CONTEXT.md*
+## Decisions Made
+
+### ① Plugin sync scope
+
+**Decision:** Only sync `mysd-*.md` files. Exclude `gsd-*.md`, `CLAUDE.md`, and subdirectories (`gsd/`, `spectra/`).
+
+**Evidence from codebase:**
+- `.claude/agents/` has 18 `gsd-*.md` files not in `plugin/agents/` — these are GSD framework agents, not mysd agents
+- `plugin/commands/` is missing `mysd-lang.md`, `mysd-model.md` (these ARE mysd commands)
+- `mysd-designer.md` differs between the two sides (needs alignment)
+- CLAUDE.md files differ — managed separately per directory
+
+**Impact on D-15:** Explicitly scoped to `mysd-*.md` pattern. Adds specificity about which files need attention.
+
+---
+
+### ② propose auto-spec UX
+
+**User preference:** After spec-writer completes, show spec content summary and prompt the user with available next step commands including their purpose descriptions.
+
+**Decision:** Step 11 flow:
+1. Invoke `mysd-spec-writer` via Task tool (same pattern as `mysd-discuss.md` Step 10)
+2. Show generated spec content summary (MUST/SHOULD/MAY requirement counts + key points)
+3. List available next commands with descriptions (e.g., `/mysd:plan` — 建立執行計劃、`/mysd:design` — 補充設計決策)
+
+**Impact on D-01:** Added UX detail to the completion step. Spec summary display + next command menu.
+
+---
+
+### ③ docs_to_update reading mechanism
+
+**Context:** ProjectConfig struct in `internal/config/defaults.go` does NOT currently have `docs_to_update` field. D-12 said SKILL.md layer with no binary subcommand.
+
+**User decision:** Add `DocsToUpdate []string` to `ProjectConfig` struct.
+
+**Rationale:** Binary config pattern is already established. Reading YAML directly from SKILL.md bash would be fragile (multi-line array parsing). Exposing via `mysd execute --context-only` JSON maintains consistency with how SKILL.md reads other config values.
+
+**Impact on D-12:** Revised to clarify binary struct change is included. The doc update *logic* (LLM calls, file edits) stays in SKILL.md layer — only the config reading goes through binary.
+
+**Scope note:** This is a small config struct extension, not a new subcommand. Phase 11 restriction "no binary subcommand" remains intact. Phase scope updated to "改動限於 SKILL.md 層、agent prompt 層，以及一個小幅 binary config struct 擴充".
+
+---
+
+### ④ executor sidecar trigger location
+
+**Decision:** Sidecar writing logic belongs in `mysd-executor.md` agent prompt itself, in an on-failure paragraph after the Task Execution section.
+
+**Rationale:**
+- Executor agent has direct access to build/test error output in its context
+- Apply orchestrator only sees "task returned failure" — no access to inner error details
+- On-failure logic in agent prompt = most complete error context captured
+- Consistent with executor being the "single responsible unit" for each task
+
+**Impact on D-06:** Adds explicit "in agent prompt inner" clarification. Implementation site is `mysd-executor.md`, not `mysd-apply.md`.
+
+---
+
+## Codebase State (Scout findings)
+
+| File | Current State | What Phase 11 Must Add |
+|------|--------------|------------------------|
+| mysd-propose.md | 10 steps, no auto-spec | Step 11: auto-spec + summary + next cmds |
+| mysd-apply.md | 4 steps, no auto-verify | Step 5: go build + go test + verifier |
+| mysd-archive.md | 2 steps, no doc update | Step 2: docs_to_update + LLM update |
+| mysd-executor.md | 227 lines, no sidecar | on-failure paragraph + sidecar write |
+| mysd-fix.md | Has sidecar read framework | Align path format with D-06 |
+| plugin/commands/ | Missing lang, model files | Sync mysd-lang.md, mysd-model.md |
+| internal/config/defaults.go | No DocsToUpdate | Add DocsToUpdate []string field |
+
+---
+
+## Unchanged Decisions
+
+D-02, D-03, D-04, D-05 (apply auto-verify flow) — confirmed unchanged.
+D-07, D-08, D-09 (sidecar format, fix reading, .gitignore) — confirmed unchanged.
+D-10, D-11, D-13, D-14 (docs_to_update config and archive flow) — confirmed unchanged.
+D-16 (plugin sync diff verification) — confirmed unchanged.
+
+---
+
+## Prior Session (Assumptions Mode — 2026-03-27 earlier)
+
+Original CONTEXT.md was created via assumptions analyzer with 16 decisions D-01 through D-16. All assumptions were broadly correct; this session added implementation-level precision to D-01, D-06, D-12, and D-15.
