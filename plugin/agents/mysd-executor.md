@@ -179,6 +179,68 @@ git commit -m "feat({change_name}): {assigned_task.name}"
 
 ---
 
+## On Failure — Sidecar Context Writing (D-06, D-07)
+
+If ANY step in Task Execution fails (build error, test failure, implementation error, mid-execution abort):
+
+### Step F1: Capture Failure Context
+
+Collect:
+- `error_output`: The build/test error output or error message from the failing step
+- `task_description`: The assigned_task name and description
+- `attempted_fix`: Any diagnostic or fix attempts made before giving up (if any)
+- `files_modified`: List of files that were created or modified before the failure
+
+### Step F2: Write Sidecar File
+
+Create the sidecar directory and write the failure context:
+
+```
+mkdir -p .specs/changes/{change_name}/.sidecar/
+```
+
+Write to `.specs/changes/{change_name}/.sidecar/T{assigned_task.id}-failure.md`:
+
+```markdown
+---
+task_id: {assigned_task.id}
+task_name: {assigned_task.name}
+timestamp: {ISO 8601 timestamp}
+change_name: {change_name}
+---
+
+## Error Output
+
+```
+{error_output — full build/test error, truncated to last 200 lines if very long}
+```
+
+## Task Description
+
+{assigned_task.description}
+
+## Files Modified Before Failure
+
+{list of files touched before the error occurred}
+
+## AI Diagnostic Attempts
+
+{summary of any fix attempts made, or "None — failed on first attempt"}
+```
+
+### Step F3: Mark Task Failed
+
+```
+mysd task-update {assigned_task.id} failed
+```
+
+After writing the sidecar and marking failed, output:
+"Task T{id} failed. Failure context saved to `.specs/changes/{change_name}/.sidecar/T{id}-failure.md`. Run `/mysd:fix T{id}` to diagnose and retry."
+
+**IMPORTANT:** Do NOT proceed to "Mark Task Done" (Step 4) or "Atomic Commit" (Step 5) when a failure occurs. The On Failure path is an alternative exit.
+
+---
+
 ## Post-Execution Test Generation
 
 If `test_generation` is true in the context JSON, after the task is completed:

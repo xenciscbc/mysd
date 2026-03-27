@@ -118,6 +118,67 @@ mysd execute
 Show summary:
 - Tasks completed (count and names)
 - Tasks failed or blocked (count and names, if any)
-- Next step: "Run `/mysd:verify` to validate results"
+- Proceeding to auto-verify...
 
 If any tasks failed: "Run `/mysd:fix T{id}` to fix failed tasks"
+
+## Step 5: Auto-Verify (D-02, D-05)
+
+After all tasks complete, automatically run verification.
+
+### Step 5a: Build and Test
+
+Run build check:
+```
+go build ./...
+```
+
+If build fails:
+- Display the build error output
+- Show: "Build failed. Skipping spec verification. Run `/mysd:fix` to address build errors."
+- STOP here — do not proceed to verifier agent.
+
+Run test check:
+```
+go test ./...
+```
+
+If tests fail:
+- Display the test failure output
+- Show: "Tests failed. Skipping spec verification. Run `/mysd:fix` to address test failures."
+- STOP here — do not proceed to verifier agent.
+
+### Step 5b: Spec Verification
+
+If build and tests both pass, invoke the verifier agent.
+
+First, get fresh context for verification:
+```
+mysd execute --context-only
+```
+Parse JSON to get `must_items`, `should_items`, `may_items`.
+
+If `auto_mode` is true: proceed directly to verifier (skip confirmation per D-05).
+
+If `auto_mode` is false: ask user:
+```
+Build and tests pass. Run spec verification now? [Y/n]
+```
+If user declines: show "Skipped. Run `/mysd:verify` manually when ready." and end.
+
+Use the Task tool to invoke `mysd-verifier`:
+```
+Task: Verify spec coverage for {change_name}
+Agent: mysd-verifier
+Context: {
+  "change_name": "{change_name}",
+  "must_items": [...],
+  "should_items": [...],
+  "may_items": [...]
+}
+```
+
+After verifier completes, show:
+- Verification result summary
+- If all MUST items pass: "Ready to archive. Run `/mysd:archive`."
+- If MUST items fail: "Some MUST requirements not met. Run `/mysd:fix` or re-execute."
