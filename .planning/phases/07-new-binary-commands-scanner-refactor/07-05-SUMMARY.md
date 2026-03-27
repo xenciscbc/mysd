@@ -91,7 +91,7 @@ Each task was committed atomically:
 2. **Task 2: Create mysd-model.md and mysd-lang.md** — `58ad3c2` (feat)
 3. **Task 3: Update mysd-planner with skills recommendation** — `9e74e64` (feat)
 
-**Plan metadata:** (pending — will commit with SUMMARY.md after human verify)
+**Plan metadata:** `9adac0c` (docs: complete SKILL.md plugin layer update plan)
 
 ## Files Created/Modified
 
@@ -121,6 +121,16 @@ None.
 - Phase 7 is complete pending human verification (Task 4 checkpoint)
 - Human verifier should: run `go test ./...`, `go build`, `./mysd.exe model`, `./mysd.exe scan --context-only`, and visually confirm SKILL.md files exist
 - Phase 8 can proceed once verification passes
+
+## Self-Check: PASSED
+
+- FOUND: .claude/commands/mysd-model.md
+- FOUND: .claude/commands/mysd-lang.md
+- FOUND: .claude/commands/mysd-scan.md
+- FOUND: .claude/commands/mysd-init.md
+- FOUND: .claude/agents/mysd-planner.md
+- FOUND: .planning/phases/07-new-binary-commands-scanner-refactor/07-05-SUMMARY.md
+- Commits verified: 214a111, 58ad3c2, 9e74e64, 9adac0c all present in git log
 
 ---
 *Phase: 07-new-binary-commands-scanner-refactor*

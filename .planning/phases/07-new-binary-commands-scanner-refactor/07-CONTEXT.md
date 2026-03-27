@@ -33,6 +33,10 @@
 - **D-11:** `mysd model`（讀）輸出 lipgloss table 格式：第一行顯示 `Profile: {name}`，接著 Role｜Model 兩欄表格，列出所有 agent role 的 resolved model（含 Phase 5/7 新增的 researcher/advisor/proposal-writer/plan-checker）
 - **D-12:** `mysd model set <profile>` 在 **Go binary 層**直接寫入 `.claude/mysd.yaml` 的 `model_profile` 欄位（不透過 SKILL.md 中繼）
 
+### Executor Wave 依賴失敗傳播
+- **D-13:** 新增 `FilterBlockedTasks(tasks []TaskItem, failedIDs []int) []TaskItem`（`internal/executor/waves.go`）：給定已失敗的 task ID set，返回需略過的下游 tasks（遞移性：T1 失敗 → T3 depends T1 也被過濾）
+- **D-14:** SKILL.md 執行每個 wave 前，將累積的 `failed_ids` 傳給 binary，binary 回傳可執行清單；被略過的 tasks 標記為 `skipped`（不進入 worktree 建立流程）
+
 ### 延續自前面階段的決策（適用 Phase 7）
 - **Phase 5 D-09**：`/mysd:lang` 修改 locale 時，`openspec/config.yaml` 和 `mysd.yaml` 原子同步更新（兩者同時成功或同時不變）
 - **Phase 5 D-08**：locale 使用 BCP47 標準格式（zh-TW, en-US, ja-JP）
@@ -51,6 +55,10 @@
 ## Canonical References
 
 **Downstream agents MUST read these before planning or implementing.**
+
+### Executor Wave（Phase 7 補齊）
+- `internal/executor/waves.go` — 現有 BuildWaveGroups（需新增 FilterBlockedTasks）
+- `internal/executor/waves_test.go` — 對應測試（需新增依賴失敗傳播測試）
 
 ### 現有 Scanner
 - `internal/scanner/scanner.go` — 現有 Go-only ScanContext + BuildScanContext（需完全重構）

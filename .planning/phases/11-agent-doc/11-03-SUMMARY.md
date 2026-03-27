@@ -104,6 +104,16 @@ None - no external service configuration required.
 - .sidecar/ directories are gitignored project-wide
 - Plan 04 and 05 of phase 11 can proceed
 
+## Self-Check: PASSED
+
+- FOUND: .planning/phases/11-agent-doc/11-03-SUMMARY.md
+- FOUND: .claude/agents/mysd-executor.md (On Failure section at line 182)
+- FOUND: .claude/commands/mysd-fix.md (.sidecar/T path at line 51)
+- FOUND: .gitignore (.sidecar/ at line 3)
+- FOUND: commit 6068d4a (Task 1)
+- FOUND: commit 2cca45a (Task 2)
+- FOUND: commit a900b4f (metadata)
+
 ---
 *Phase: 11-agent-doc*
 *Completed: 2026-03-27*

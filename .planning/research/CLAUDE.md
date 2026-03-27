@@ -7,5 +7,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #3594 | 3:47 PM | 🟣 | Phase 6 Research Complete - Wave Grouping & Worktree Engine | ~778 |
 | #3328 | 8:54 AM | 🟣 | v1.1 pitfalls research document created with 9 critical brownfield integration hazards | ~1374 |
 </claude-mem-context>
