@@ -112,3 +112,41 @@ D-16 (plugin sync diff verification) — confirmed unchanged.
 ## Prior Session (Assumptions Mode — 2026-03-27 earlier)
 
 Original CONTEXT.md was created via assumptions analyzer with 16 decisions D-01 through D-16. All assumptions were broadly correct; this session added implementation-level precision to D-01, D-06, D-12, and D-15.
+
+---
+
+## Session 3 (2026-03-27 — ff/ffe pipeline + docs config)
+
+**Areas discussed:** ff/ffe inline verify+docs, archive.md config read mechanism, docs_to_update configuration UX
+
+### New Gray Areas Identified
+
+Codebase scout revealed that `ff.md` and `ffe.md` are inline orchestrators — they directly call `mysd archive` binary (not archive SKILL.md), meaning any logic added to archive SKILL.md will NOT be inherited by ff/ffe. Two implementation gaps:
+
+1. **ff/ffe don't inherit auto-verify** — apply.md's new Step 5 won't propagate to ff/ffe
+2. **ff/ffe don't inherit docs_to_update** — archive SKILL.md changes won't trigger in ff/ffe pipeline
+
+### Decisions Made
+
+**D-17 (new):** ff.md and ffe.md must inline both verify and docs logic independently:
+- Verify: inserted after `mysd execute` state transition, before `mysd archive`
+- docs_to_update: after `mysd archive` binary, call `mysd execute --context-only` to read `docs_to_update`, update inline with auto_mode=true
+
+**D-18 (new):** archive.md reads docs_to_update by calling `mysd execute --context-only` at the start — consistent with D-12's mechanism, no new binary command needed.
+
+**D-19 (new):** Add `mysd docs` command (thin wrapper, analogous to `mysd note`):
+- User requested CLI management for docs_to_update, citing `/mysd:note` as the preferred pattern
+- `mysd docs` / `mysd docs add <path>` / `mysd docs remove <path>`
+- binary: `cmd/docs.go`, reads/writes `.claude/mysd.yaml` docs_to_update field
+- SKILL.md: `.claude/commands/mysd-docs.md` thin wrapper (Bash only)
+
+**Context usage statusline (deferred):** User asked about GSD-style context usage display with color bars. Out of Phase 11 scope — deferred to next milestone or quick task.
+
+### Codebase State Updated
+
+| File | Status |
+|------|--------|
+| mysd-ff.md | 5 steps, missing inline verify (D-17) + docs update (D-17) |
+| mysd-ffe.md | 6 steps, missing inline verify (D-17) + docs update (D-17) |
+| cmd/docs.go | Does not exist — new binary command (D-19) |
+| .claude/commands/mysd-docs.md | Does not exist — new SKILL.md (D-19) |

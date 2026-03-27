@@ -35,14 +35,31 @@
 - **D-10:** `mysd.yaml` 新增 `docs_to_update` 欄位（字串陣列，指定需要在 archive 後更新的文件路徑，如 `["README.md", "CHANGELOG.md"]`）
 - **D-11:** archive 完成後，SKILL.md 讀取 `docs_to_update` 配置，對每個指定文件呼叫 LLM 更新。更新策略依文件類型自適應：(a) `CHANGELOG.md` → LLM 生成新條目後 **prepend 到頂部**，保留舊內容不動；(b) `README.md` → **全文重寫**；(c) 其他自訂文件 → LLM 從檔名和現有內容推斷更新方式（全文重寫為預設）。
 - **D-11b:** LLM 更新每個文件時讀入的 context：`proposal.md`（what + why）+ `tasks.md`（what was done）+ `specs/` 目錄（MUST/SHOULD/MAY 要求）+ **現有文件內容**（不能不看就重寫）。
-- **D-12:** `DocsToUpdate []string` 加進 `internal/config/defaults.go` 的 `ProjectConfig` struct，並透過 `mysd execute --context-only` JSON 輸出暴露。SKILL.md 從 binary 讀取此值，不直接解析 YAML。文件更新本身（Read/Edit/Write）在 SKILL.md 層實作，不需要新的 binary subcommand。
+- **D-12:** `DocsToUpdate []string` 加進 `internal/config/defaults.go` 的 `ProjectConfig` struct`，並透過 `mysd execute --context-only` JSON 輸出暴露（新增 `docs_to_update` 欄位至 `ExecutionContext` struct）。SKILL.md 從 binary 讀取此值，不直接解析 YAML。文件更新本身（Read/Edit/Write）在 SKILL.md 層實作，不需要新的 binary subcommand。
 - **D-13:** 更新前向使用者展示文件清單確認（顯示「將更新以下文件：README.md, CHANGELOG.md」），使用者按 Enter 確認或輸入 `n` 跳過。`--auto` 模式跳過確認直接更新。
 - **D-14:** `docs_to_update` 未設定時，archive 後正常結束（不提示 doc 更新）— convention over config
+
+### Doc 設定管理
+
+- **D-19:** 新增 `mysd docs` 指令（thin wrapper 模式，類比 `mysd note`）：
+  - `mysd docs` — 顯示目前 `docs_to_update` 清單（from mysd.yaml）
+  - `mysd docs add <path>` — 加入路徑到 docs_to_update
+  - `mysd docs remove <path>` — 從 docs_to_update 移除路徑
+  - binary: `cmd/docs.go`，直接讀寫 `.claude/mysd.yaml` 的 `docs_to_update` 欄位
+  - SKILL.md: `.claude/commands/mysd-docs.md` thin wrapper（Bash only，無 Task tool）
+  - 同步到 `plugin/commands/mysd-docs.md`（納入 D-15/D-16 的 plugin sync 範圍）
 
 ### Plugin Sync 補足
 
 - **D-15:** 完成 Phase 9-04 遺漏的 plugin sync：同步範圍限定為 `mysd-*.md` 檔案 — 將 `.claude/commands/mysd-*.md` 同步到 `plugin/commands/`，`.claude/agents/mysd-*.md` 同步到 `plugin/agents/`。排除 `gsd-*.md`（GSD 框架的 agents，不屬於 mysd distribution）、`CLAUDE.md`（兩側各自管理）、`gsd/`/`spectra/` 等子目錄。目前缺少的 `mysd-lang.md`、`mysd-model.md` 需補入 `plugin/commands/`。`mysd-designer.md` 兩側有差異需對齊。
 - **D-16:** 同步後執行 diff 確認兩側一致（`diff .claude/commands/mysd-X.md plugin/commands/mysd-X.md` 應為 zero output）
+
+### ff/ffe Pipeline 完整性
+
+- **D-17:** `ff.md` 和 `ffe.md` 是 inline orchestrator（不走 apply/archive SKILL.md），因此需獨立 inline 兩個邏輯：
+  (a) **auto-verify**：在 `mysd execute` state transition 之後、`mysd archive` 之前，插入 inline verify 步驟（`go build ./...` + `go test ./...` + 呼叫 `mysd-verifier` agent，auto_mode=true）。
+  (b) **docs_to_update**：在 `mysd archive` binary 執行之後，呼叫 `mysd execute --context-only` 讀取 `docs_to_update`，若非空則 inline 執行 doc 更新流程（auto_mode=true，無確認提示）。
+- **D-18:** archive.md 在開頭（Step 0 或 Step 1 前）呼叫 `mysd execute --context-only` 讀取 `docs_to_update` 欄位，作為 D-12 的實作細節補充。`mysd execute --context-only` 只輸出 JSON context，不執行任何 task，適合作為設定讀取機制。
 
 ### Claude's Discretion
 
@@ -60,9 +77,10 @@
 
 - `.claude/commands/mysd-propose.md` — Step 10 後需新增 Step 11 auto-spec 呼叫（D-01/D-04）；Step 11 完成後顯示 spec 摘要 + 後續指令清單
 - `.claude/commands/mysd-apply.md` — Step 4 後需新增 Step 5 auto-verify 流程（D-02/D-05）；build 失敗跳過 verifier
-- `.claude/commands/mysd-archive.md` — Step 1 後需讀取 docs_to_update 並更新文件（D-11~D-14）
-- `.claude/commands/mysd-ff.md` — 需同步加入 auto-verify 邏輯（D-02）
-- `.claude/commands/mysd-ffe.md` — 需同步加入 auto-verify 邏輯（D-02）
+- `.claude/commands/mysd-archive.md` — Step 1 前呼叫 `mysd execute --context-only` 讀 `docs_to_update`（D-18），Step 1 後根據設定更新文件（D-11~D-14）
+- `.claude/commands/mysd-ff.md` — 新增 inline auto-verify 步驟 + inline docs_to_update 步驟（D-17）
+- `.claude/commands/mysd-ffe.md` — 同上，新增 inline auto-verify + docs_to_update（D-17）
+- `.claude/commands/mysd-docs.md` — 新建 thin wrapper（D-19）：list/add/remove docs_to_update
 
 ### Agent 修改目標
 
@@ -73,13 +91,14 @@
 ### Binary 配置修改
 
 - `internal/config/defaults.go` — 新增 `DocsToUpdate []string` 欄位（D-12）
-- `internal/executor/` 或對應的 `--context-only` 輸出路徑 — 需包含 docs_to_update 在 JSON 輸出（D-12）
+- `internal/executor/context.go` — `ExecutionContext` struct 新增 `DocsToUpdate []string json:"docs_to_update,omitempty"` + `BuildContextFromParts` 傳入 `cfg.DocsToUpdate`（D-12）
+- `cmd/docs.go` — 新建 `mysd docs` 指令，CRUD 操作 mysd.yaml 的 docs_to_update 欄位（D-19）
 
 ### Plugin Sync 來源
 
-- `.claude/commands/mysd-*.md` — 19+ 個 SKILL.md commands（authoritative dev copy）
+- `.claude/commands/mysd-*.md` — 21 個 SKILL.md commands（authoritative dev copy）
 - `.claude/agents/mysd-*.md` — 12 個 mysd agent definitions（authoritative dev copy）
-- `plugin/commands/mysd-*.md` — distribution copy（需對齊 .claude/commands/）
+- `plugin/commands/mysd-*.md` — distribution copy（需對齊 .claude/commands/，含新增的 mysd-docs.md）
 - `plugin/agents/mysd-*.md` — distribution copy（需對齊 .claude/agents/）
 - **特別注意：** `mysd-lang.md`、`mysd-model.md` 需新增到 `plugin/commands/`；`mysd-designer.md` 需對齊
 
@@ -99,32 +118,40 @@
 - `mysd-spec-writer` agent — 已存在，接受 `change_name + capability_area + existing_spec_body + proposal + auto_mode`
 - `mysd-verifier` agent — 已存在，接受 `change_name + must_items + should_items + may_items`
 - `mysd-apply.md` Step 4 後的狀態轉換 — auto-verify 在此步後插入
+- `internal/executor/context.go` — `ExecutionContext` struct，需新增 `DocsToUpdate []string` 欄位並在 `BuildContextFromParts` 中從 `cfg` 傳入
 - `internal/config/defaults.go` — `ProjectConfig` struct，需新增 `DocsToUpdate []string`
 
 ### Established Patterns
 
-- **SKILL.md auto_mode 傳播：** `--auto` flag 在 SKILL.md 層解析，`auto_mode: bool` 傳入 agent context — D-05/D-13 的跳過確認邏輯循此模式
+- **SKILL.md auto_mode 傳播：** `--auto` flag 在 SKILL.md 層解析，`auto_mode: bool` 傳入 agent context — D-05/D-13/D-17 的跳過確認邏輯循此模式
 - **Convention over config：** 未設定的配置欄位返回零值，不報錯（D-14 的 docs_to_update 未設定時靜默）
 - **Plugin sync 雙目錄模式：** `.claude/` 是開發版本，`plugin/` 是 distribution copy，兩者保持同步（但只同步 mysd-*.md）
-- **`--context-only` JSON 暴露模式：** binary 透過 `mysd execute --context-only` 輸出 JSON，SKILL.md 解析取值 — docs_to_update 跟隨此模式
+- **`--context-only` JSON 暴露模式：** binary 透過 `mysd execute --context-only` 輸出 JSON，SKILL.md 解析取值 — docs_to_update 跟隨此模式（archive.md 和 ff/ffe 均用此機制讀取設定）
 
 ### Integration Points
 
 - `mysd-propose.md` Step 10 → 新增 Step 11（auto invoke mysd-spec-writer + 顯示 spec 摘要 + 後續指令清單）
 - `mysd-apply.md` Step 4 → 新增 Step 5（auto verify: go build + go test + mysd-verifier）
-- `mysd-archive.md` Step 1 後 → 新增 Step 2（read docs_to_update from binary JSON + update docs）
+- `mysd-archive.md` Step 1 前 → 呼叫 `mysd execute --context-only` 讀 docs_to_update；Step 1 後根據設定更新文件
+- `mysd-ff.md` Step 3 後 → 插入 Step 4 inline auto-verify；`mysd archive` 後 → 插入 Step 6 inline docs update
+- `mysd-ffe.md` Step 4 後 → 插入 Step 5 inline auto-verify；`mysd archive` 後 → 插入 Step 7 inline docs update
 - `mysd-executor.md` Task Execution → 新增 on-failure sidecar 寫入段落（建議在 Step 3/TDD Step 後）
 - `mysd-fix.md` Step 5B → 確認已有的 sidecar 讀取路徑與 D-06 格式對齊
 - `internal/config/defaults.go` → 新增 `DocsToUpdate []string` 欄位
+- `internal/executor/context.go` → `ExecutionContext` 新增 `DocsToUpdate` + `BuildContextFromParts` 傳入
+- `cmd/docs.go` → 新建 `mysd docs` 指令（D-19）
 
 ### Current State (codebase scout 2026-03-27)
 
 - `mysd-propose.md` — 10 steps，D-01 的 auto-spec 尚未實作（Step 11 missing）
 - `mysd-apply.md` — 4 steps，D-02 的 auto-verify 尚未實作（Step 5 missing）
-- `mysd-archive.md` — 2 steps，D-10~D-14 的 docs_to_update 尚未實作
+- `mysd-archive.md` — 2 steps，D-10~D-14/D-18 的 docs_to_update 尚未實作
+- `mysd-ff.md` — 5 steps，D-17 的 inline auto-verify 和 docs_to_update 均缺失
+- `mysd-ffe.md` — 6 steps，D-17 的 inline auto-verify 和 docs_to_update 均缺失
 - `mysd-executor.md` — 227 lines，無 sidecar 寫入邏輯
 - `mysd-fix.md` — 已有 "task sidecar" 讀取框架（Steps 3+4），但路徑待對齊 D-06
-- `plugin/commands/` 缺 `mysd-lang.md`、`mysd-model.md`；`mysd-designer.md` 兩側有差異
+- `plugin/commands/` 缺 `mysd-lang.md`、`mysd-model.md`、`mysd-docs.md`（新建）；`mysd-designer.md` 兩側有差異
+- `internal/executor/context.go` — `ExecutionContext` 無 `DocsToUpdate` 欄位
 
 </code_context>
 
@@ -138,6 +165,8 @@
 - propose auto-spec 的 Step 11 格式與 discuss Step 10 完全一致（同樣呼叫 mysd-spec-writer via Task tool）
 - apply auto-verify 的 Step 5：先 `go build ./...`，若 build 失敗直接顯示 build error 並跳過 verifier agent；build 成功才呼叫 verifier
 - executor sidecar on-failure 段落位置：建議在 Task Execution 的 "如果上述步驟失敗" 捕捉點插入，寫入後再 `mysd task-update {id} failed`
+- ff/ffe docs update 讀取機制：`CONTEXT=$(mysd execute --context-only)` → 取 `docs_to_update` 欄位 → 若非空則 inline 執行更新，`auto_mode=true` 無需確認
+- `mysd docs` 設定方式類比 `mysd note`：thin SKILL.md wrapper 呼叫 binary；用戶在 propose/plan 前先設定好 docs_to_update，之後每次 archive 自動更新
 
 </specifics>
 
@@ -148,10 +177,11 @@
 - **CLAUDE.md 架構說明自動化** — 為各子目錄自動生成架構說明，與此 phase 的 doc 維護流程不同，留待下一 milestone
 - **UAT 深入設計** — UAT 流程目前為 advisory（不阻止 archive），此 phase 不修改 UAT 邏輯；深入設計留待後續 phase
 - **GSD agents plugin sync** — `.claude/agents/` 的 gsd-*.md 不是 mysd 的 distribution 範圍，如有需要留待另一個 plugin sync task 討論
+- **Context usage statusline（帶色條）** — 使用者希望有類似 GSD 的 context 用量顯示（帶顏色進度條），超出此 phase 的 SKILL.md/agent prompt 改動範圍，留待下一 milestone 或獨立 quick task
 
 </deferred>
 
 ---
 
 *Phase: 11-agent-doc*
-*Context gathered: 2026-03-27 (updated after discussion)*
+*Context gathered: 2026-03-27 (updated — D-17/D-18/D-19 added, ff/ffe pipeline + docs config clarified)*
