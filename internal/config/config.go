@@ -94,6 +94,7 @@ func Load(projectRoot string) (ProjectConfig, error) {
 	v.SetDefault("model_profile", d.ModelProfile)
 	v.SetDefault("worktree_dir", d.WorktreeDir)
 	v.SetDefault("auto_mode", d.AutoMode)
+	v.SetDefault("docs_to_update", d.DocsToUpdate)
 
 	if err := v.ReadInConfig(); err != nil {
 		var notFound viper.ConfigFileNotFoundError

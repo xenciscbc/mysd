@@ -26,6 +26,8 @@ type ExecutionContext struct {
 	WorktreeDir    string       `json:"worktree_dir,omitempty"`
 	AutoMode       bool         `json:"auto_mode,omitempty"`
 	HasParallelOpp bool         `json:"has_parallel_opportunity"`
+	// Doc update fields (Phase 11 extension — additive only per D-11/D-12)
+	DocsToUpdate []string `json:"docs_to_update,omitempty"`
 }
 
 // RequirementItem is a flattened requirement for JSON output.
@@ -96,6 +98,7 @@ func BuildContextFromParts(
 	ctx.WorktreeDir = cfg.WorktreeDir
 	ctx.AutoMode = cfg.AutoMode
 	ctx.HasParallelOpp = HasParallelOpportunity(ctx.PendingTasks)
+	ctx.DocsToUpdate = cfg.DocsToUpdate
 
 	// Classify requirements by RFC 2119 keyword
 	for _, r := range reqs {

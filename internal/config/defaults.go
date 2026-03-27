@@ -13,6 +13,7 @@ type ProjectConfig struct {
 	ModelOverrides   map[string]string `yaml:"model_overrides" mapstructure:"model_overrides"`     // per-agent model overrides
 	WorktreeDir      string            `yaml:"worktree_dir" mapstructure:"worktree_dir"`           // default ".worktrees"
 	AutoMode         bool              `yaml:"auto_mode" mapstructure:"auto_mode"`                 // default false
+	DocsToUpdate     []string          `yaml:"docs_to_update" mapstructure:"docs_to_update"`       // files to update after archive
 }
 
 // Defaults returns a ProjectConfig with convention-over-config default values.
@@ -29,5 +30,6 @@ func Defaults() ProjectConfig {
 		ModelOverrides:   nil,
 		WorktreeDir:      ".worktrees",
 		AutoMode:         false,
+		DocsToUpdate:     nil,
 	}
 }
