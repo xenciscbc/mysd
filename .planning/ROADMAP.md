@@ -163,3 +163,22 @@ Plans:
 - [x] 11-03-PLAN.md — Executor failure sidecar + fix alignment + .gitignore
 - [x] 11-04-PLAN.md — Archive doc maintenance flow + ff/ffe inline additions
 - [x] 11-05-PLAN.md — Plugin sync + mysd-docs SKILL.md
+
+### Phase 12: 加入 context 的 % 數及色條
+
+**Goal:** mysd statusline hook 安裝完成並可透過 mysd init 自動配置，顯示 model 簡稱、active change、目錄及 context 使用百分比色條；discuss research cache 支援跨 session 重用研究結果並在 archive 時自動清除
+**Requirements**: D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-12, D-13, D-14, D-15, D-16, D-17, D-18, D-19
+**Depends on:** Phase 11
+**Success Criteria** (what must be TRUE):
+  1. 執行 `mysd init` 後，`.claude/hooks/mysd-statusline.js` 存在（從 binary embed 寫出）且 `.claude/settings.json` 包含 `statusLine` 欄位指向該 hook
+  2. mysd-statusline.js 讀取 stdin JSON 後輸出格式為 `{model} | {change} | {dir} | {bar} {pct}%`，change 不存在時省略
+  3. Context 色條使用 GSD 相同的 normalization 公式（AUTO_COMPACT_BUFFER_PCT=16.5），閾值為綠(<50%)/黃(<65%)/橙(<80%)/紅閃爍+熱臉(>=80%)
+  4. Bridge file 只在 GSD 並存時（偵測到 gsd-context-monitor.js）才寫入 /tmp/claude-ctx-{session}.json
+  5. `mysd statusline on/off` 正確寫入 mysd.yaml 的 statusline_enabled 欄位；hook 讀取 false 時不輸出但仍寫 bridge file
+  6. `/mysd:discuss` 啟動時偵測 research cache，提供重用/重新/略過三選一；research 完成後自動寫入 cache
+  7. `mysd archive` 執行時自動刪除 discuss-research-cache.json（best-effort）
+**Plans**: 3 plans
+Plans:
+- [ ] 12-01-PLAN.md — Go binary: ProjectConfig extension + statusline subcommand + init hook install + settings.json merge
+- [ ] 12-02-PLAN.md — Node.js statusline hook + /mysd:statusline SKILL.md
+- [ ] 12-03-PLAN.md — Discuss research cache: archive deletion + discuss SKILL.md cache logic + .gitignore
