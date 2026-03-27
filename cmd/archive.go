@@ -81,6 +81,9 @@ func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error 
 		fmt.Fprintf(os.Stderr, "warning: could not save ARCHIVED-STATE.json: %v\n", err)
 	}
 
+	// Delete discuss research cache before moving (D-18)
+	deleteResearchCache(changeDir)
+
 	// Move change directory to archive
 	if err := moveDir(changeDir, archiveDir); err != nil {
 		return fmt.Errorf("move change directory: %w", err)
@@ -99,6 +102,11 @@ func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error 
 
 	fmt.Printf("Archived %s to %s\n", ws.ChangeName, archiveDir)
 	return nil
+}
+
+// deleteResearchCache removes the discuss research cache file from changeDir (best-effort, D-18).
+func deleteResearchCache(changeDir string) {
+	_ = os.Remove(filepath.Join(changeDir, "discuss-research-cache.json"))
 }
 
 // checkMustItemsDone verifies that all MUST items in the change are done in verification-status.json.

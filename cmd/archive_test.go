@@ -182,6 +182,31 @@ func TestArchiveGateNoUAT(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+// TestArchiveDeletesResearchCache tests that deleteResearchCache removes the cache file.
+func TestArchiveDeletesResearchCache(t *testing.T) {
+	// Setup: create temp dir simulating changeDir with cache file
+	changeDir := t.TempDir()
+	cachePath := filepath.Join(changeDir, "discuss-research-cache.json")
+	err := os.WriteFile(cachePath, []byte(`{"change_name":"test","cached_at":"2026-01-01T00:00:00Z"}`), 0644)
+	require.NoError(t, err)
+
+	// Act: call the extracted helper (same code path as runArchive)
+	deleteResearchCache(changeDir)
+
+	// Assert: file is gone
+	_, err = os.Stat(cachePath)
+	assert.True(t, os.IsNotExist(err))
+}
+
+// TestArchiveDeletesCacheSilentFail tests that deleteResearchCache does not panic when cache file is absent.
+func TestArchiveDeletesCacheSilentFail(t *testing.T) {
+	changeDir := t.TempDir()
+	// No cache file exists — deleteResearchCache should not panic
+	assert.NotPanics(t, func() {
+		deleteResearchCache(changeDir)
+	})
+}
+
 // TestMoveDir_Fallback tests that moveDir falls back to copy+delete when os.Rename fails.
 func TestMoveDir_Fallback(t *testing.T) {
 	src := t.TempDir()
