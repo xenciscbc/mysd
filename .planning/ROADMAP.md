@@ -142,3 +142,24 @@ Plans:
 - [x] 10-01-PLAN.md — Version check (GitHub API + semver) + binary self-update (download, checksum, platform replace, rollback)
 - [x] 10-02-PLAN.md — Plugin manifest diff + sync executor + GoReleaser config update
 - [x] 10-03-PLAN.md — Cobra update command (JSON output, --check/--force) + SKILL.md wrapper + plugin distribution
+
+### Phase 11: 增強 agent 功能及增加 doc 維護流程
+
+**Goal:** 工作流程自動串接（propose→spec、apply→verify）完成，executor failure sidecar 寫入讓 fix agent 有完整 context，archive 後自動更新可設定的 docs_to_update 文件，ff/ffe pipeline 補齊 verify + doc update，plugin sync 完全對齊
+**Requirements**: D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-11b, D-12, D-13, D-14, D-15, D-16, D-17, D-18, D-19
+**Depends on:** Phase 10
+**Success Criteria** (what must be TRUE):
+  1. 執行 `/mysd:propose` 完成後自動呼叫 spec-writer（可用 --skip-spec 跳過），顯示 spec 摘要及後續指令清單
+  2. 執行 `/mysd:apply` 完成後自動執行 go build + go test + mysd-verifier 驗證（auto mode 跳過確認）
+  3. Executor task 失敗時自動寫入 `.sidecar/T{id}-failure.md`，`/mysd:fix` 可讀取 sidecar context 進行診斷
+  4. 執行 `/mysd:archive` 後根據 `docs_to_update` 設定自動更新指定文件（CHANGELOG prepend、README rewrite），未設定時靜默
+  5. `mysd docs` 指令可 list/add/remove docs_to_update 設定，`mysd execute --context-only` JSON 包含 docs_to_update 欄位
+  6. `ff`/`ffe` pipeline 在 archive 前插入 inline auto-verify，archive 後插入 inline docs update
+  7. 所有修改過的 mysd-*.md 檔案在 plugin/ 目錄完全同步，含新增的 mysd-docs.md、mysd-lang.md、mysd-model.md
+**Plans**: 5 plans
+Plans:
+- [ ] 11-01-PLAN.md — Binary Go code: DocsToUpdate config + context + mysd docs command
+- [ ] 11-02-PLAN.md — Workflow auto-chain: propose auto-spec + apply auto-verify
+- [ ] 11-03-PLAN.md — Executor failure sidecar + fix alignment + .gitignore
+- [ ] 11-04-PLAN.md — Archive doc maintenance flow + ff/ffe inline additions
+- [ ] 11-05-PLAN.md — Plugin sync + mysd-docs SKILL.md
