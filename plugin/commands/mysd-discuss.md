@@ -61,7 +61,32 @@ mysd status
 - If output shows an active change in a non-archived state (proposed / spec-ready / planned / executing): do NOT load deferred notes. Set `deferred_context` to empty string.
 - If NO active WIP change exists, or the active change is archived: run `mysd note list` and include the output as `deferred_context`.
 
+## Step 4.5: Research Cache Detection (D-17)
+
+If `cache_action` is not yet set and `change_name` is set (mode = "change"), check for cached research:
+
+Read file `.specs/changes/{change_name}/discuss-research-cache.json` using the Read tool.
+
+**If file exists and contains valid JSON:**
+- Extract `cached_at` field
+- If `auto_mode` is true: set `cache_action = "fresh"` (always run fresh research in auto mode)
+- If `auto_mode` is false: Ask user:
+  ```
+  Found cached research from {cached_at}.
+  1. Reuse cached research (skip research step)
+  2. Run fresh research (overwrite cache)
+  3. Skip research entirely (cache unchanged)
+  ```
+  - If user chooses 1 (reuse): set `cache_action = "reuse"`, load `research` object from cache, skip Steps 5-8, go directly to Step 9 with cached research as context
+  - If user chooses 2 (fresh): set `cache_action = "fresh"`, proceed to Step 5 normally
+  - If user chooses 3 (skip): set `cache_action = "skip"`, skip Steps 5-8, go to Step 9 without research
+
+**If file does not exist or is invalid JSON (`discuss-research-cache.json` missing or unparseable):**
+- Set `cache_action = "none"` (no cache, proceed normally to Step 5)
+
 ## Step 5: Optional Research (DISC-04, D-06)
+
+If `cache_action` is "reuse" or "skip": skip this step entirely (already handled in Step 4.5).
 
 If `auto_mode` is true: skip research entirely (FAUTO-02 — auto means no interaction). Go directly to Step 9.
 
@@ -92,6 +117,30 @@ Context: {
 ```
 
 Collect all 4 research outputs. Present organized summary by dimension to the user.
+
+## Step 6.5: Write Research Cache (D-16)
+
+After collecting all 4 research outputs from Step 6, write the cache file:
+
+Use the Write tool to create `.specs/changes/{change_name}/discuss-research-cache.json` with content:
+```json
+{
+  "change_name": "{change_name}",
+  "cached_at": "{current ISO8601 timestamp}",
+  "research": {
+    "architecture": "{architecture research output}",
+    "codebase": "{codebase research output}",
+    "ux": "{ux/domain research output}",
+    "security": "{security/pitfalls research output}"
+  }
+}
+```
+
+IMPORTANT: The research dimension values must be properly escaped JSON strings. Use the Write tool which handles escaping automatically.
+
+Set `cache_action = "written"`.
+
+If write fails: continue silently (cache is best-effort, do not interrupt the discussion flow).
 
 ## Step 7: Gray Area Identification + Advisor Spawning (DISC-06)
 
@@ -255,6 +304,7 @@ After spec updates complete:
 Show summary:
 - Topic discussed
 - Research performed (4-dimension research: yes/no)
+- Research cache: {written/reused/skipped/not applicable}
 - Number of gray areas explored (if research was run)
 - Number of ideas deferred via scope guardrail (if any)
 - Spec files updated
