@@ -160,7 +160,13 @@ Use these entry points:
 Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
 <!-- GSD:workflow-end -->
 
+## Documentation Sync
 
+When mysd project features, commands, configuration, or workflow change, **always update README.md** to reflect the changes. This includes:
+- Adding/removing/renaming commands
+- Changing workflow steps or flow
+- Modifying model profile assignments
+- Updating configuration options
 
 <!-- GSD:profile-start -->
 ## Developer Profile
