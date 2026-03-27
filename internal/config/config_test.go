@@ -116,38 +116,53 @@ func TestLoad_WithModelProfile_ReturnsQuality(t *testing.T) {
 
 func TestResolveModel_QualityProfile_ExecutorReturnsSonnet(t *testing.T) {
 	model := ResolveModel("executor", "quality", nil)
-	assert.Equal(t, "claude-sonnet-4-5", model, "quality profile executor should map to sonnet")
+	assert.Equal(t, "sonnet", model, "quality profile executor should map to sonnet")
 }
 
 func TestResolveModel_BudgetProfile_ExecutorReturnsHaiku(t *testing.T) {
 	model := ResolveModel("executor", "budget", nil)
-	assert.Equal(t, "claude-haiku-3-5", model, "budget profile executor should map to haiku")
+	assert.Equal(t, "haiku", model, "budget profile executor should map to haiku")
 }
 
-func TestResolveModel_BalancedProfile_PlannerReturnsSonnet(t *testing.T) {
+func TestResolveModel_BalancedProfile_PlannerReturnsOpus(t *testing.T) {
 	model := ResolveModel("planner", "balanced", nil)
-	assert.Equal(t, "claude-sonnet-4-5", model, "balanced profile planner should map to sonnet")
+	assert.Equal(t, "opus", model, "balanced profile planner should map to opus")
 }
 
 func TestResolveModel_WithOverride_UsesOverride(t *testing.T) {
 	overrides := map[string]string{
-		"executor": "claude-opus-4",
+		"executor": "opus",
 	}
 	model := ResolveModel("executor", "quality", overrides)
-	assert.Equal(t, "claude-opus-4", model, "model_overrides should take precedence over profile mapping")
+	assert.Equal(t, "opus", model, "model_overrides should take precedence over profile mapping")
 }
 
-// TestResolveModel_NewRoles verifies all 4 new agent roles return sonnet across all 3 profiles.
-func TestResolveModel_NewRoles(t *testing.T) {
-	newRoles := []string{"researcher", "advisor", "proposal-writer", "plan-checker"}
-	profiles := []string{"quality", "balanced", "budget"}
+// TestResolveModel_AllRoles verifies all 10 agent roles return correct model across all 3 profiles.
+func TestResolveModel_AllRoles(t *testing.T) {
+	expected := map[string]map[string]string{
+		"quality": {
+			"spec-writer": "opus", "designer": "opus", "planner": "opus",
+			"executor": "sonnet", "verifier": "opus", "fast-forward": "sonnet",
+			"researcher": "opus", "advisor": "opus", "proposal-writer": "opus", "plan-checker": "opus",
+		},
+		"balanced": {
+			"spec-writer": "opus", "designer": "opus", "planner": "opus",
+			"executor": "sonnet", "verifier": "opus", "fast-forward": "sonnet",
+			"researcher": "sonnet", "advisor": "opus", "proposal-writer": "sonnet", "plan-checker": "opus",
+		},
+		"budget": {
+			"spec-writer": "sonnet", "designer": "haiku", "planner": "sonnet",
+			"executor": "haiku", "verifier": "sonnet", "fast-forward": "haiku",
+			"researcher": "sonnet", "advisor": "sonnet", "proposal-writer": "sonnet", "plan-checker": "sonnet",
+		},
+	}
 
-	for _, role := range newRoles {
-		for _, profile := range profiles {
+	for profile, roles := range expected {
+		for role, want := range roles {
 			t.Run(role+"/"+profile, func(t *testing.T) {
-				model := ResolveModel(role, profile, nil)
-				assert.Equal(t, "claude-sonnet-4-5", model,
-					"role %s profile %s should map to claude-sonnet-4-5", role, profile)
+				got := ResolveModel(role, profile, nil)
+				assert.Equal(t, want, got,
+					"role %s profile %s should map to %s", role, profile, want)
 			})
 		}
 	}

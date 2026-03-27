@@ -12,48 +12,51 @@ import (
 // DefaultModelMap defines the model mapping per profile per agent role.
 // Profiles: "quality" | "balanced" | "budget"
 // Roles: "spec-writer" | "designer" | "planner" | "executor" | "verifier" | "fast-forward"
+//
+// Values are short model names ("sonnet", "opus", "haiku") compatible with
+// Claude Code's Agent/Task tool model parameter.
 var DefaultModelMap = map[string]map[string]string{
 	"quality": {
-		"spec-writer":     "claude-sonnet-4-5",
-		"designer":        "claude-sonnet-4-5",
-		"planner":         "claude-sonnet-4-5",
-		"executor":        "claude-sonnet-4-5",
-		"verifier":        "claude-sonnet-4-5",
-		"fast-forward":    "claude-sonnet-4-5",
-		"researcher":      "claude-sonnet-4-5",
-		"advisor":         "claude-sonnet-4-5",
-		"proposal-writer": "claude-sonnet-4-5",
-		"plan-checker":    "claude-sonnet-4-5",
+		"spec-writer":     "opus",
+		"designer":        "opus",
+		"planner":         "opus",
+		"executor":        "sonnet",
+		"verifier":        "opus",
+		"fast-forward":    "sonnet",
+		"researcher":      "opus",
+		"advisor":         "opus",
+		"proposal-writer": "opus",
+		"plan-checker":    "opus",
 	},
 	"balanced": {
-		"spec-writer":     "claude-sonnet-4-5",
-		"designer":        "claude-sonnet-4-5",
-		"planner":         "claude-sonnet-4-5",
-		"executor":        "claude-sonnet-4-5",
-		"verifier":        "claude-sonnet-4-5",
-		"fast-forward":    "claude-sonnet-4-5",
-		"researcher":      "claude-sonnet-4-5",
-		"advisor":         "claude-sonnet-4-5",
-		"proposal-writer": "claude-sonnet-4-5",
-		"plan-checker":    "claude-sonnet-4-5",
+		"spec-writer":     "opus",
+		"designer":        "opus",
+		"planner":         "opus",
+		"executor":        "sonnet",
+		"verifier":        "opus",
+		"fast-forward":    "sonnet",
+		"researcher":      "sonnet",
+		"advisor":         "opus",
+		"proposal-writer": "sonnet",
+		"plan-checker":    "opus",
 	},
 	"budget": {
-		"spec-writer":     "claude-haiku-3-5",
-		"designer":        "claude-haiku-3-5",
-		"planner":         "claude-sonnet-4-5",
-		"executor":        "claude-haiku-3-5",
-		"verifier":        "claude-sonnet-4-5",
-		"fast-forward":    "claude-haiku-3-5",
-		"researcher":      "claude-sonnet-4-5",
-		"advisor":         "claude-sonnet-4-5",
-		"proposal-writer": "claude-sonnet-4-5",
-		"plan-checker":    "claude-sonnet-4-5",
+		"spec-writer":     "sonnet",
+		"designer":        "haiku",
+		"planner":         "sonnet",
+		"executor":        "haiku",
+		"verifier":        "sonnet",
+		"fast-forward":    "haiku",
+		"researcher":      "sonnet",
+		"advisor":         "sonnet",
+		"proposal-writer": "sonnet",
+		"plan-checker":    "sonnet",
 	},
 }
 
-// ResolveModel returns the model name for the given agent role and profile.
+// ResolveModel returns the short model name for the given agent role and profile.
 // Checks overrides first, then DefaultModelMap[profile][agentRole],
-// falling back to "claude-sonnet-4-5" if not found.
+// falling back to "sonnet" if not found.
 func ResolveModel(agentRole string, profile string, overrides map[string]string) string {
 	if overrides != nil {
 		if model, ok := overrides[agentRole]; ok {
@@ -65,7 +68,7 @@ func ResolveModel(agentRole string, profile string, overrides map[string]string)
 			return model
 		}
 	}
-	return "claude-sonnet-4-5"
+	return "sonnet"
 }
 
 // Load reads the project configuration from .claude/mysd.yaml (project-level)
