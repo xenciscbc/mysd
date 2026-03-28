@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: sonnet
 description: Toggle or set statusline display (on/off). Usage: /mysd:statusline [on|off]
 argument-hint: "[on|off]"
 allowed-tools:

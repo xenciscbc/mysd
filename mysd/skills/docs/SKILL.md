@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: sonnet
 description: Manage docs_to_update list (files updated after archive). Usage: /mysd:docs [add <path> | remove <path>]
 argument-hint: "[add <path> | remove <path>]"
 allowed-tools:

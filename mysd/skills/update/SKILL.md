@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: sonnet
 description: Check for mysd updates and sync plugin files. Usage: /mysd:update [--check] [--force]
 argument-hint: "[--check] [--force]"
 allowed-tools:

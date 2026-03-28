@@ -1,7 +1,6 @@
 ---
-model: claude-opus-4-6
+model: opus
 description: Scan existing codebase and generate OpenSpec-format spec documents for discovered modules.
-argument-hint: ""
 allowed-tools:
   - Bash
   - Read

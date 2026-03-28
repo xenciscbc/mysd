@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "mysd",
-      "source": "./plugin",
+      "source": "./mysd",
       "description": "Spec-Driven Development for AI programming — specs as single source of truth, mandatory alignment gates, goal-backward verification",
       "version": "1.0.2",
       "author": {
@@ -18,7 +18,15 @@
       },
       "repository": "https://github.com/xenciscbc/mysd",
       "license": "MIT",
-      "keywords": ["sdd", "spec-driven", "openspec", "ai-programming", "verification", "planning", "execution"],
+      "keywords": [
+        "sdd",
+        "spec-driven",
+        "openspec",
+        "ai-programming",
+        "verification",
+        "planning",
+        "execution"
+      ],
       "category": "development"
     }
   ]

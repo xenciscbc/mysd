@@ -1,6 +1,5 @@
 ---
 description: Interactive User Acceptance Testing walkthrough.
-argument-hint: ""
 allowed-tools:
   - Bash
   - Read

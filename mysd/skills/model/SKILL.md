@@ -1,7 +1,6 @@
 ---
-model: claude-sonnet-4-5
+model: sonnet
 description: Display or set the AI model profile for mysd agent roles.
-argument-hint: ""
 allowed-tools:
   - Bash
   - Read

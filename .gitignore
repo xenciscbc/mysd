@@ -16,3 +16,4 @@ openspec/.vector-search.db*
 
 # Research cache
 discuss-research-cache.json
+.gstack/

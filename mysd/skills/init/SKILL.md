@@ -1,7 +1,6 @@
 ---
-model: claude-opus-4-6
+model: opus
 description: Initialize mysd project structure (scaffold + locale setup).
-argument-hint: ""
 allowed-tools:
   - Bash
   - Read

@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4-5
+model: sonnet
 description: Manage deferred notes (ideas for future changes). Usage: /mysd:note [add {content} | delete {id}]
 argument-hint: "[add {content} | delete {id}]"
 allowed-tools:
