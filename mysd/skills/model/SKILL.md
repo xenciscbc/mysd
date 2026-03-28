@@ -23,17 +23,15 @@ Display the output to the user as-is. The output shows:
   - spec-writer, designer, planner, executor, verifier
   - fast-forward, researcher, advisor, proposal-writer, plan-checker
 
-## Step 2: Offer to Change Profile
+## Step 2: Change Profile (optional)
 
-Ask the user:
+Ask the user if they want to change. If yes, present options:
 ```
-Would you like to change the model profile? Available profiles:
+Available profiles:
 
-- quality   — All roles use claude-sonnet-4-5 (best quality, higher cost)
+- quality   — All roles use opus (best quality, higher cost)
 - balanced  — Mixed models, default profile (recommended for most projects)
-- budget    — Core roles use claude-sonnet-4-5, supporting roles use claude-haiku-4-5
-
-Enter a profile name, or press Enter to keep the current profile.
+- budget    — Core roles use sonnet, supporting roles use haiku
 ```
 
 If the user provides a profile name, run:
@@ -41,20 +39,8 @@ If the user provides a profile name, run:
 mysd model set {profile}
 ```
 
-If the user presses Enter (no change), skip to Step 3.
+Then run `mysd model` again to show the updated profile table.
 
 If the profile is invalid, report the error from the command and ask again.
 
-## Step 3: Confirm
-
-Run:
-```
-mysd model
-```
-
-Show the updated profile table to confirm the change took effect.
-
-If no change was made, simply tell the user:
-```
-Profile unchanged: {current_profile}
-```
+If the user declines or provides no input, end here.

@@ -24,7 +24,24 @@ This creates the scaffold:
 
 If there are any errors, report them to the user and stop.
 
-## Step 2: Set Language
+## Step 2: Set Project Name
+
+Read `openspec/config.yaml` and check if `project_name` is set. If not set or empty:
+
+1. Detect the current folder name (use `basename $(pwd)`)
+2. Suggest it as default:
+   ```
+   Project name? (default: {folder_name})
+   Press Enter to use the folder name, or type a custom name.
+   ```
+3. Run:
+   ```
+   mysd config set project_name "{chosen_name}"
+   ```
+
+If `project_name` is already set, skip this step.
+
+## Step 3: Set Language
 
 Ask the user:
 ```
@@ -41,11 +58,16 @@ This atomically sets `response_language` in `.claude/mysd.yaml` and `locale` in 
 
 If the user presses Enter (skips), continue without setting language.
 
-## Step 3: Confirm
+## Step 4: Confirm
 
 Tell the user:
+
 ```
-Project initialized. Run /mysd:scan to discover your codebase and generate specs.
+Project initialized. Next steps:
+
+- /mysd:scan    — discover your codebase and generate specs automatically
+- /mysd:propose — create a spec for a specific change or feature
+- /mysd:discuss — explore ideas and build a spec through discussion
 ```
 
 If language was set, also mention:

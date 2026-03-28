@@ -41,15 +41,54 @@ Apply the following priority order to determine the input source and change name
 → Use the current active change
 
 **Priority 5:** If no `source_arg` and no active change → auto-detect from known sources:
+→ Check if conversation context mentions a plan file path (plan mode system messages include paths like `~/.claude/plans/<name>.md`)
+→ If a plan file path is found, read it and extract: H1 heading as requirement description, Context section as motivation
 → Check `~/.gstack/projects/{project}/` for `.md` files (design docs, test plans, etc.)
 → Check conversation context for mentioned plan documents or design files
-→ Do NOT check `.claude/plans/` (hash filenames have no project info)
 → If `auto_mode` is true: use first detected source
 → If `auto_mode` is false: present detected sources and let user choose
 
 **Priority 6:** If nothing found
-→ If `auto_mode` is true: auto-generate change name from conversation context
-→ If `auto_mode` is false: ask user for change name and brief description
+→ If `auto_mode` is true: auto-generate description from conversation context
+→ If `auto_mode` is false: go to Step 2b to collect intent from user
+
+## Step 2b: Collect Intent (Priority 6 only, non-auto mode)
+
+Ask:
+```
+What would you like to change or build? Please describe the goal.
+```
+
+Wait for the user's description. This becomes the `intent` (used for research and name derivation).
+
+## Step 2c: Derive Change Name
+
+From the resolved description (source content, plan file H1, or Step 2b intent), auto-derive a kebab-case change name:
+- Short (2–4 words), lowercase, hyphen-separated
+- Examples: "add dark mode" → `add-dark-mode`, "fix login crash" → `fix-login-crash`
+
+Set `change_name` to the derived name. Do not ask the user to confirm or choose unless the name is ambiguous.
+
+## Step 2d: Classify Change Type
+
+Based on the description, classify into one of:
+
+| Type | When to use |
+|------|-------------|
+| Feature | New functionality, new capabilities |
+| Bug Fix | Fixing existing behavior, resolving errors |
+| Refactor | Architecture improvements, performance, reorganization |
+
+Set `change_type`. This determines the proposal template structure used by the proposal writer.
+
+## Step 2e: Scan Existing Specs
+
+Use Glob to list `openspec/specs/*/spec.md`. Extract directory names as spec identifiers.
+
+Compare against the description to identify related specs (max 5 candidates). For each candidate (max 3), read the first 10 lines to retrieve the Purpose section.
+
+If related specs are found, display as an informational note — do NOT stop or ask for confirmation, continue automatically.
+If none found, silently proceed.
 
 ## Step 3: Scaffold the Change
 
@@ -61,6 +100,7 @@ mysd propose {change-name}
 This creates `.specs/changes/{change-name}/` with a template `proposal.md`.
 
 If source content was detected in Step 2 (file/directory mode), read that content now.
+If intent was collected in Step 2b, use it as the initial topic for research.
 
 ## Step 3b: Resolve Agent Model
 
@@ -245,9 +285,42 @@ Context: {
 }
 ```
 
-After spec-writer completes, show:
+After spec-writer completes, proceed to Step 12.
+
+## Step 12: Inline Self-Review
+
+Scan the generated proposal and specs. Fix issues inline before presenting results.
+
+**Check 1: No Placeholders**
+
+These patterns indicate incomplete content — fix each one:
+- "TBD", "TODO", "FIXME", "implement later", "details to follow"
+- Vague instructions without specifics: "Add appropriate error handling", "Handle edge cases"
+- Empty template sections left unfilled
+- Weasel quantities: "some", "various", "several" when a specific list is needed
+
+**Check 2: Internal Consistency**
+- Does every capability in the proposal have a corresponding spec?
+- Do the specs reference only capabilities described in the proposal?
+- Are file paths and component names consistent across proposal and specs?
+
+**Check 3: Scope Check**
+- More than 15 MUST requirements → consider decomposing into multiple changes
+- Any single requirement touches more than 3 unrelated subsystems → flag for user
+
+**Check 4: Ambiguity Check**
+- Are success/failure conditions testable and specific?
+- Are boundary conditions defined (empty input, max limits, error cases)?
+- Could "the system" refer to multiple components? Be explicit.
+
+Fix any issues found silently. If a check reveals structural problems that cannot be auto-fixed, note them in the final summary.
+
+## Step 13: Final Summary
+
+Show:
 1. Spec summary: number of MUST / SHOULD / MAY requirements generated
 2. Spec file paths created/updated
-3. Next steps:
+3. Self-review result: issues found and fixed (or "No issues found")
+4. Next steps:
    - `/mysd:plan` — Create execution plan from specs
    - `/mysd:discuss` — Explore requirements interactively
