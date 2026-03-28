@@ -89,6 +89,15 @@ func TestPlanContextOnly_NewFields(t *testing.T) {
 	assert.Contains(t, ctx, "phase")
 	assert.Contains(t, ctx, "model")
 
+	// Per-role model fields present (reviewer_model, plan_checker_model)
+	reviewerModel, hasReviewerModel := ctx["reviewer_model"]
+	assert.True(t, hasReviewerModel, "JSON output must contain 'reviewer_model' field")
+	assert.Equal(t, "sonnet", reviewerModel, "reviewer_model should use balanced profile default (sonnet)")
+
+	planCheckerModel, hasPlanCheckerModel := ctx["plan_checker_model"]
+	assert.True(t, hasPlanCheckerModel, "JSON output must contain 'plan_checker_model' field")
+	assert.Equal(t, "opus", planCheckerModel, "plan_checker_model should use balanced profile default (opus)")
+
 	// --check not passed: coverage field should not be present
 	_, hasCoverage := ctx["coverage"]
 	assert.False(t, hasCoverage, "coverage field should not be present without --check flag")
@@ -117,7 +126,8 @@ func TestPlanContextOnly_ExistingFieldsPresent(t *testing.T) {
 	// Verify all pre-existing fields from original implementation still exist
 	requiredFields := []string{
 		"change_name", "phase", "specs", "design",
-		"model", "research_enabled", "check_enabled", "test_generation",
+		"model", "reviewer_model", "plan_checker_model",
+		"research_enabled", "check_enabled", "test_generation",
 	}
 	for _, field := range requiredFields {
 		assert.Contains(t, ctx, field, "existing field %q must still be present", field)

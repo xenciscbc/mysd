@@ -31,9 +31,13 @@ mysd plan --context-only [--research] [--check]
 
 Parse the JSON output. It contains:
 - `change_name`, `phase`, `specs`, `design`, `model`
+- `reviewer_model`, `plan_checker_model`
 - `research_enabled`, `check_enabled`, `test_generation`
 
-Extract the `model` field (short name like "sonnet", "opus", "haiku") — this is the profile-resolved model for agent spawning.
+Extract the following fields:
+- `model`: profile-resolved model for designer and planner agents
+- `reviewer_model`: profile-resolved model for mysd-reviewer
+- `plan_checker_model`: profile-resolved model for mysd-plan-checker
 
 If error (not in designed/specced phase), guide user to complete prerequisites.
 
@@ -104,6 +108,29 @@ After planner completes, run state transition:
 mysd plan
 ```
 
+## Step 5b: Invoke Reviewer
+
+Run:
+```
+mysd validate {change_name}
+```
+Capture output as `validate_output` (empty string if command not found or fails).
+
+Show: "Spawning mysd-reviewer ({reviewer_model})..."
+Use the Task tool to invoke `mysd-reviewer` with `model` parameter set to `{reviewer_model}`:
+
+Task: Review artifacts for {change_name}
+Agent: mysd-reviewer
+Model: {reviewer_model}
+Context: {
+  "change_name": "{change_name}",
+  "phase": "plan",
+  "validate_output": "{validate_output}",
+  "auto_mode": {auto_mode}
+}
+
+Collect the reviewer summary. Include it in Step 7 output.
+
 ## Step 6: Plan Check (if check_enabled)
 
 If `check_enabled` is true:
@@ -113,8 +140,8 @@ Run:
 mysd plan --check --context-only
 ```
 
-Show: "Spawning mysd-plan-checker ({model})..."
-Use the Task tool to invoke `mysd-plan-checker` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-plan-checker ({plan_checker_model})..."
+Use the Task tool to invoke `mysd-plan-checker` with `model` parameter set to `{plan_checker_model}`:
 
 Task: Validate plan coverage for {change_name}
 Agent: mysd-plan-checker
@@ -123,4 +150,7 @@ Context: {check output JSON}
 
 ## Step 7: Confirm
 
-Show: "Planning complete. Pipeline: {research if enabled} -> design -> plan {-> check if enabled}. Next: `/mysd:apply`"
+Show:
+1. "Planning complete. Pipeline: {research if enabled} -> design -> plan -> reviewer {-> check if enabled}."
+2. Reviewer summary from Step 5b (issues fixed, cannot-auto-fix items if any)
+3. Next: `/mysd:apply`

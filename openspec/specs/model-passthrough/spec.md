@@ -26,6 +26,33 @@ THEN the return value SHALL be `"haiku"`
 WHEN `ResolveModel("executor", "quality", {"executor": "opus"})` is called
 THEN the return value SHALL be `"opus"`
 
+## Requirement: DefaultModelMap includes reviewer role
+
+The `DefaultModelMap` in `internal/config/config.go` SHALL include a `reviewer` role with the following assignments:
+
+| Profile | Model |
+|---------|-------|
+| quality | opus |
+| balanced | sonnet |
+| budget | sonnet |
+
+Rationale: reviewer is a judgment role requiring reasoning capability. Budget profile uses `sonnet` (not `haiku`) because quality assessment requires sufficient model capability.
+
+### Scenario: Quality profile returns opus for reviewer
+
+- **WHEN** `ResolveModel("reviewer", "quality", nil)` is called
+- **THEN** the return value SHALL be `"opus"`
+
+### Scenario: Balanced profile returns sonnet for reviewer
+
+- **WHEN** `ResolveModel("reviewer", "balanced", nil)` is called
+- **THEN** the return value SHALL be `"sonnet"`
+
+### Scenario: Budget profile returns sonnet for reviewer
+
+- **WHEN** `ResolveModel("reviewer", "budget", nil)` is called
+- **THEN** the return value SHALL be `"sonnet"`
+
 ## Requirement: Binary context JSON includes model field
 
 The `--context-only` output of workflow commands (`plan`, `execute`, `design`, `spec`) SHALL include a `"model"` field containing the resolved short name for the relevant agent role.
@@ -111,6 +138,7 @@ The `DefaultModelMap` SHALL assign models per profile as follows:
 | advisor | opus |
 | proposal-writer | opus |
 | plan-checker | opus |
+| reviewer | opus |
 
 **balanced profile** — judgment/design/gating roles SHALL use `opus`, others SHALL use `sonnet`:
 
@@ -126,8 +154,9 @@ The `DefaultModelMap` SHALL assign models per profile as follows:
 | advisor | opus |
 | proposal-writer | sonnet |
 | plan-checker | opus |
+| reviewer | sonnet |
 
-**budget profile** — spec-writer SHALL use `sonnet`, planner/verifier/researcher/advisor/proposal-writer/plan-checker SHALL use `sonnet`, designer/executor/fast-forward SHALL use `haiku`:
+**budget profile** — spec-writer SHALL use `sonnet`, planner/verifier/researcher/advisor/proposal-writer/plan-checker/reviewer SHALL use `sonnet`, designer/executor/fast-forward SHALL use `haiku`:
 
 | Role | Model |
 |------|-------|
@@ -141,6 +170,7 @@ The `DefaultModelMap` SHALL assign models per profile as follows:
 | advisor | sonnet |
 | proposal-writer | sonnet |
 | plan-checker | sonnet |
+| reviewer | sonnet |
 
 #### Scenario: Quality profile returns opus for thinking roles
 
@@ -225,52 +255,42 @@ tests:
 
 The `--context-only` output of workflow commands (`plan`, `execute`, `design`, `spec`) SHALL include a `"model"` field containing the resolved short name for the relevant agent role.
 
+For the `plan` command specifically, the `--context-only` output SHALL additionally include:
+- `"reviewer_model"`: resolved model for the `reviewer` role under the current profile
+- `"plan_checker_model"`: resolved model for the `plan-checker` role under the current profile
+
 #### Scenario: Plan context includes planner model
 
 - **WHEN** `mysd plan --context-only` is executed with profile set to `balanced`
 - **THEN** the JSON output SHALL contain `"model": "sonnet"`
 
+#### Scenario: Plan context includes reviewer_model
+
+- **WHEN** `mysd plan --context-only` is executed with profile set to `balanced`
+- **THEN** the JSON output SHALL contain `"reviewer_model": "sonnet"`
+
+#### Scenario: Plan context includes plan_checker_model for quality profile
+
+- **WHEN** `mysd plan --context-only` is executed with profile set to `quality`
+- **THEN** the JSON output SHALL contain `"plan_checker_model": "opus"`
+
 
 <!-- @trace
-source: command-model-cleanup
-updated: 2026-03-27
+source: add-mysd-reviewer-agent
+updated: 2026-03-28
 code:
-  - plugin/commands/mysd-propose.md
-  - .spectra.yaml
-  - plugin/commands/mysd-verify.md
-  - cmd/spec.go
-  - plugin/commands/mysd-discuss.md
-  - plugin/commands/mysd-ffe.md
-  - plugin/agents/mysd-executor.md
-  - plugin/commands/mysd-apply.md
-  - plugin/agents/mysd-spec-writer.md
-  - plugin/commands/mysd-status.md
-  - plugin/agents/mysd-advisor.md
-  - plugin/agents/mysd-uat-guide.md
-  - plugin/commands/mysd-uat.md
-  - plugin/agents/mysd-plan-checker.md
-  - plugin/commands/mysd-spec.md
-  - cmd/execute.go
-  - plugin/agents/mysd-planner.md
-  - plugin/commands/mysd-design.md
-  - plugin/commands/mysd-execute.md
-  - plugin/agents/mysd-researcher.md
+  - mysd/skills/plan/SKILL.md
+  - mysd/skills/propose/SKILL.md
   - internal/config/config.go
-  - cmd/design.go
-  - plugin/agents/mysd-proposal-writer.md
-  - plugin/commands/mysd-archive.md
-  - .specs/deferred.json
-  - plugin/commands/mysd-ff.md
-  - plugin/commands/mysd-scan.md
-  - plugin/commands/mysd-init.md
-  - plugin/commands/mysd-capture.md
-  - plugin/commands/mysd-fix.md
-  - plugin/agents/mysd-fast-forward.md
-  - plugin/commands/mysd-plan.md
+  - mysd/skills/model/SKILL.md
+  - mysd/skills/discuss/SKILL.md
+  - mysd/skills/lang/SKILL.md
+  - cmd/plan.go
+  - mysd/skills/init/SKILL.md
+  - mysd/agents/mysd-reviewer.md
 tests:
+  - cmd/plan_test.go
   - internal/config/config_test.go
-  - internal/executor/context_test.go
-  - internal/spec/schema_test.go
 -->
 
 ---
@@ -492,4 +512,50 @@ tests:
   - internal/config/config_test.go
   - internal/executor/context_test.go
   - internal/spec/schema_test.go
+-->
+
+---
+### Requirement: DefaultModelMap includes reviewer role
+
+The `DefaultModelMap` in `internal/config/config.go` SHALL include a `reviewer` role with the following assignments:
+
+| Profile | Model |
+|---------|-------|
+| quality | opus |
+| balanced | sonnet |
+| budget | sonnet |
+
+Rationale: reviewer is a judgment role requiring reasoning capability. Budget profile uses `sonnet` (not `haiku`) because quality assessment requires sufficient model capability.
+
+#### Scenario: Quality profile returns opus for reviewer
+
+- **WHEN** `ResolveModel("reviewer", "quality", nil)` is called
+- **THEN** the return value SHALL be `"opus"`
+
+#### Scenario: Balanced profile returns sonnet for reviewer
+
+- **WHEN** `ResolveModel("reviewer", "balanced", nil)` is called
+- **THEN** the return value SHALL be `"sonnet"`
+
+#### Scenario: Budget profile returns sonnet for reviewer
+
+- **WHEN** `ResolveModel("reviewer", "budget", nil)` is called
+- **THEN** the return value SHALL be `"sonnet"`
+
+<!-- @trace
+source: add-mysd-reviewer-agent
+updated: 2026-03-28
+code:
+  - mysd/skills/plan/SKILL.md
+  - mysd/skills/propose/SKILL.md
+  - internal/config/config.go
+  - mysd/skills/model/SKILL.md
+  - mysd/skills/discuss/SKILL.md
+  - mysd/skills/lang/SKILL.md
+  - cmd/plan.go
+  - mysd/skills/init/SKILL.md
+  - mysd/agents/mysd-reviewer.md
+tests:
+  - cmd/plan_test.go
+  - internal/config/config_test.go
 -->

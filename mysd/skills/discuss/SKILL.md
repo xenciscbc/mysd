@@ -219,9 +219,33 @@ If user chooses "Explore additional areas":
 
 If user chooses "Finish exploration": proceed to Step 9.
 
+## Discussion Guidelines
+
+Follow these rules throughout the discussion loop:
+
+**一次一問。** 不要一次丟多個問題。問最重要的那個，聽完再追問。如果用戶的描述已經涵蓋了某個問題，直接跳過。
+
+**提具體選項。** 探索方案時，給出 2–3 個有 trade-off 的具體選項，用比較表呈現：
+
+| 方案 | 優點 | 缺點 |
+|------|------|------|
+| A    | ...  | ...  |
+| B    | ...  | ...  |
+
+**不說空話。** 禁止使用以下說法：
+- ~~"這是個很有趣的想法"~~ → 說清楚有趣在哪、為什麼
+- ~~"有很多方式可以思考"~~ → 直接列出 2–3 個方式和 trade-off
+- ~~"這樣可能可行"~~ → 說清楚為什麼可行或不可行
+
+**主動推薦。** 有意見就說。"我會選 B，因為..." 比 "各有優缺點" 有用。
+
+**當用戶想快點結束時：**
+1. 第一次：用一句話提醒重要的未解決問題。"在決定 X 之前，Y 可能影響 Z，要處理還是繼續？"
+2. 若再催：尊重用戶的步調，直接跳到收斂，不再 push back。最多一次 nudge。
+
 ## Step 9: Discussion Loop
 
-Facilitate discussion with the user:
+Facilitate discussion with the user. Follow the Discussion Guidelines above throughout.
 
 If research was performed (Steps 6-8 executed):
 - Present key findings from each dimension
@@ -232,9 +256,21 @@ If no research:
 - Discuss the topic based on existing spec context
 - Help clarify requirements, edge cases, trade-offs
 
-Continue discussion until user reaches a conclusion.
+Continue until a clear conclusion is reached. Then **proactively present the conclusion summary** — do not wait for the user to ask:
 
-After each conclusion point, ask:
+```
+## Conclusion
+
+**Decision**: [What was decided]
+**Rationale**: [The key trade-off that drove this]
+**Capture to**: [Which artifact: proposal.md / spec / design.md / tasks.md]
+```
+
+Say: "I'll capture this to {artifact} unless you'd rather not."
+
+If the user tries to end without a conclusion, summarize what was discussed and state what remains unresolved. Do not let the discussion end without at least an explicit deferral (e.g., "We don't have enough information yet to decide X").
+
+After presenting the conclusion summary, ask:
 ```
 Would you like to:
 1. Incorporate this conclusion into the spec

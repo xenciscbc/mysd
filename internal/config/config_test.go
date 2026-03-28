@@ -137,23 +137,26 @@ func TestResolveModel_WithOverride_UsesOverride(t *testing.T) {
 	assert.Equal(t, "opus", model, "model_overrides should take precedence over profile mapping")
 }
 
-// TestResolveModel_AllRoles verifies all 10 agent roles return correct model across all 3 profiles.
+// TestResolveModel_AllRoles verifies all 11 agent roles return correct model across all 3 profiles.
 func TestResolveModel_AllRoles(t *testing.T) {
 	expected := map[string]map[string]string{
 		"quality": {
 			"spec-writer": "opus", "designer": "opus", "planner": "opus",
 			"executor": "sonnet", "verifier": "opus", "fast-forward": "sonnet",
 			"researcher": "opus", "advisor": "opus", "proposal-writer": "opus", "plan-checker": "opus",
+			"reviewer": "opus",
 		},
 		"balanced": {
 			"spec-writer": "opus", "designer": "opus", "planner": "opus",
 			"executor": "sonnet", "verifier": "opus", "fast-forward": "sonnet",
 			"researcher": "sonnet", "advisor": "opus", "proposal-writer": "sonnet", "plan-checker": "opus",
+			"reviewer": "sonnet",
 		},
 		"budget": {
 			"spec-writer": "sonnet", "designer": "haiku", "planner": "sonnet",
 			"executor": "haiku", "verifier": "sonnet", "fast-forward": "haiku",
 			"researcher": "sonnet", "advisor": "sonnet", "proposal-writer": "sonnet", "plan-checker": "sonnet",
+			"reviewer": "sonnet",
 		},
 	}
 
@@ -166,6 +169,13 @@ func TestResolveModel_AllRoles(t *testing.T) {
 			})
 		}
 	}
+}
+
+// TestResolveModel_ReviewerRole verifies reviewer role returns correct model per profile.
+func TestResolveModel_ReviewerRole(t *testing.T) {
+	assert.Equal(t, "opus", ResolveModel("reviewer", "quality", nil), "quality reviewer should use opus")
+	assert.Equal(t, "sonnet", ResolveModel("reviewer", "balanced", nil), "balanced reviewer should use sonnet")
+	assert.Equal(t, "sonnet", ResolveModel("reviewer", "budget", nil), "budget reviewer should use sonnet")
 }
 
 // TestResolveModel_NewRoles_Override verifies overrides work for new roles.

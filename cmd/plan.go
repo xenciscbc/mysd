@@ -89,6 +89,8 @@ func runPlan(cmd *cobra.Command, args []string) error {
 			"specs":                    reqTexts,
 			"design":                   change.Design.Body,
 			"model":                    config.ResolveModel("planner", cfg.ModelProfile, cfg.ModelOverrides),
+			"reviewer_model":           config.ResolveModel("reviewer", cfg.ModelProfile, cfg.ModelOverrides),
+			"plan_checker_model":       config.ResolveModel("plan-checker", cfg.ModelProfile, cfg.ModelOverrides),
 			"research_enabled":         planResearch,
 			"check_enabled":            planCheck,
 			"test_generation":          cfg.TestGeneration,
