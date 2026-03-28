@@ -44,6 +44,21 @@ Read each file that exists. If a file is missing, note it as a cannot-auto-fix i
 
 ---
 
+## Rationalization Table
+
+Before running checks, internalize these anti-patterns. If you catch yourself thinking the left column, do the right column instead.
+
+| What You're Thinking | What You Should Do |
+|---------------------|-------------------|
+| "The requirements are clear enough, no need to check" | Check anyway — obvious-to-you is not obvious-to-the-implementer |
+| "This placeholder is fine, it'll be filled in later" | There is no "later" — implementation is next. Flag it now |
+| "The spec doesn't need boundary conditions, the requirement is obvious" | Write boundary conditions for the implementer who doesn't have your context |
+| "This is a small change, skip the scope check" | Small changes touching 5 subsystems aren't small. Check |
+| "The inconsistency is minor, not worth fixing" | Minor inconsistencies compound. Fix it or flag it |
+| "The validate output is probably fine, I'll skim it" | Parse every line. Validation errors exist for a reason |
+
+---
+
 ## Step 2: Check 1 — No Placeholders
 
 Scan all loaded artifacts for incomplete content. Fix each issue using the Edit tool.

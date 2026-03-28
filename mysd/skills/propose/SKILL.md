@@ -109,11 +109,15 @@ Run:
 mysd model
 ```
 
-Parse the output to find `Profile: {profile_name}`. The profile determines agent model:
-- `quality` or `balanced` → model = `sonnet`
-- `budget` → model = `haiku` (for researcher/advisor); model = `sonnet` (for proposal-writer/spec-writer)
+Parse the output to find `Profile: {profile_name}`. The profile determines agent models:
 
-Use this `model` value when spawning agents in subsequent steps.
+| Role | quality | balanced | budget |
+|------|---------|----------|--------|
+| researcher / advisor | `sonnet` | `sonnet` | `haiku` |
+| proposal-writer / spec-writer | `sonnet` | `sonnet` | `sonnet` |
+| reviewer | `opus` | `sonnet` | `sonnet` |
+
+Set `model` for researcher/advisor/proposal-writer/spec-writer, and `reviewer_model` for the reviewer agent.
 
 ## Step 4: Load Deferred Notes (D-02)
 
@@ -287,40 +291,44 @@ Context: {
 
 After spec-writer completes, proceed to Step 12.
 
-## Step 12: Inline Self-Review
+## Step 12: Artifact Review (mysd-reviewer)
 
-Scan the generated proposal and specs. Fix issues inline before presenting results.
+Run validation first, then spawn the reviewer agent to scan and fix quality issues.
 
-**Check 1: No Placeholders**
+### Step 12a: Run Validation
 
-These patterns indicate incomplete content — fix each one:
-- "TBD", "TODO", "FIXME", "implement later", "details to follow"
-- Vague instructions without specifics: "Add appropriate error handling", "Handle edge cases"
-- Empty template sections left unfilled
-- Weasel quantities: "some", "various", "several" when a specific list is needed
+Run:
+```
+mysd validate {change_name}
+```
 
-**Check 2: Internal Consistency**
-- Does every capability in the proposal have a corresponding spec?
-- Do the specs reference only capabilities described in the proposal?
-- Are file paths and component names consistent across proposal and specs?
+Capture output as `validate_output` (empty string if command not found or fails).
 
-**Check 3: Scope Check**
-- More than 15 MUST requirements → consider decomposing into multiple changes
-- Any single requirement touches more than 3 unrelated subsystems → flag for user
+### Step 12b: Spawn Reviewer
 
-**Check 4: Ambiguity Check**
-- Are success/failure conditions testable and specific?
-- Are boundary conditions defined (empty input, max limits, error cases)?
-- Could "the system" refer to multiple components? Be explicit.
+Show: "Spawning mysd-reviewer ({reviewer_model})..."
+Use the Task tool to invoke `mysd-reviewer` with `model` parameter set to `{reviewer_model}`:
 
-Fix any issues found silently. If a check reveals structural problems that cannot be auto-fixed, note them in the final summary.
+```
+Task: Review artifacts for {change_name}
+Agent: mysd-reviewer
+Model: {reviewer_model}
+Context: {
+  "change_name": "{change_name}",
+  "phase": "propose",
+  "validate_output": "{validate_output}",
+  "auto_mode": {auto_mode}
+}
+```
+
+Collect the reviewer summary. Include it in Step 13 output.
 
 ## Step 13: Final Summary
 
 Show:
 1. Spec summary: number of MUST / SHOULD / MAY requirements generated
 2. Spec file paths created/updated
-3. Self-review result: issues found and fixed (or "No issues found")
+3. Reviewer result: issues fixed and cannot-auto-fix items (from Step 12b)
 4. Next steps:
    - `/mysd:plan` — Create execution plan from specs
    - `/mysd:discuss` — Explore requirements interactively

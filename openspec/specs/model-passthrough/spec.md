@@ -66,10 +66,30 @@ THEN the JSON output SHALL contain `"model": "sonnet"`
 
 Workflow command skills (`propose`, `discuss`, `plan`, `apply`, `ff`, `ffe`) SHALL read the `model` field from the binary's `--context-only` JSON output and pass it as the `model` parameter when spawning agent tasks.
 
+The `propose` skill SHALL additionally resolve a `reviewer_model` from the current profile's reviewer role mapping. Since `propose` uses `mysd model` (not `--context-only` JSON), the skill SHALL derive `reviewer_model` from the profile name:
+
+| Profile | reviewer_model |
+|---------|---------------|
+| quality | opus |
+| balanced | sonnet |
+| budget | sonnet |
+
 ### Scenario: Plan command spawns designer with profile model
 
 WHEN `/mysd:plan` reads context JSON containing `"model": "opus"`
 THEN the command SHALL spawn `mysd-designer` with `model: opus`
+
+### Scenario: Propose command resolves reviewer_model from profile
+
+- **WHEN** `/mysd:propose` reads `Profile: balanced` from `mysd model` output
+- **THEN** the skill SHALL set `reviewer_model` to `sonnet`
+- **AND** spawn `mysd-reviewer` with `model: sonnet`
+
+### Scenario: Propose command resolves reviewer_model for quality profile
+
+- **WHEN** `/mysd:propose` reads `Profile: quality` from `mysd model` output
+- **THEN** the skill SHALL set `reviewer_model` to `opus`
+- **AND** spawn `mysd-reviewer` with `model: opus`
 
 ## Requirement: Command skills display model on agent spawn
 
@@ -298,52 +318,38 @@ tests:
 
 Workflow command skills (`propose`, `discuss`, `plan`, `apply`, `ff`, `ffe`) SHALL read the `model` field from the binary's `--context-only` JSON output and pass it as the `model` parameter when spawning agent tasks.
 
+The `propose` skill SHALL additionally resolve a `reviewer_model` from the current profile's reviewer role mapping. Since `propose` uses `mysd model` (not `--context-only` JSON), the skill SHALL derive `reviewer_model` from the profile name:
+
+| Profile | reviewer_model |
+|---------|---------------|
+| quality | opus |
+| balanced | sonnet |
+| budget | sonnet |
+
 #### Scenario: Plan command spawns designer with profile model
 
 - **WHEN** `/mysd:plan` reads context JSON containing `"model": "opus"`
 - **THEN** the command SHALL spawn `mysd-designer` with `model: opus`
 
+#### Scenario: Propose command resolves reviewer_model from profile
+
+- **WHEN** `/mysd:propose` reads `Profile: balanced` from `mysd model` output
+- **THEN** the skill SHALL set `reviewer_model` to `sonnet`
+- **AND** spawn `mysd-reviewer` with `model: sonnet`
+
+#### Scenario: Propose command resolves reviewer_model for quality profile
+
+- **WHEN** `/mysd:propose` reads `Profile: quality` from `mysd model` output
+- **THEN** the skill SHALL set `reviewer_model` to `opus`
+- **AND** spawn `mysd-reviewer` with `model: opus`
+
 
 <!-- @trace
-source: command-model-cleanup
-updated: 2026-03-27
+source: enhance-propose-reviewer
+updated: 2026-03-28
 code:
-  - plugin/commands/mysd-propose.md
-  - .spectra.yaml
-  - plugin/commands/mysd-verify.md
-  - cmd/spec.go
-  - plugin/commands/mysd-discuss.md
-  - plugin/commands/mysd-ffe.md
-  - plugin/agents/mysd-executor.md
-  - plugin/commands/mysd-apply.md
-  - plugin/agents/mysd-spec-writer.md
-  - plugin/commands/mysd-status.md
-  - plugin/agents/mysd-advisor.md
-  - plugin/agents/mysd-uat-guide.md
-  - plugin/commands/mysd-uat.md
-  - plugin/agents/mysd-plan-checker.md
-  - plugin/commands/mysd-spec.md
-  - cmd/execute.go
-  - plugin/agents/mysd-planner.md
-  - plugin/commands/mysd-design.md
-  - plugin/commands/mysd-execute.md
-  - plugin/agents/mysd-researcher.md
-  - internal/config/config.go
-  - cmd/design.go
-  - plugin/agents/mysd-proposal-writer.md
-  - plugin/commands/mysd-archive.md
-  - .specs/deferred.json
-  - plugin/commands/mysd-ff.md
-  - plugin/commands/mysd-scan.md
-  - plugin/commands/mysd-init.md
-  - plugin/commands/mysd-capture.md
-  - plugin/commands/mysd-fix.md
-  - plugin/agents/mysd-fast-forward.md
-  - plugin/commands/mysd-plan.md
-tests:
-  - internal/config/config_test.go
-  - internal/executor/context_test.go
-  - internal/spec/schema_test.go
+  - mysd/agents/mysd-reviewer.md
+  - mysd/skills/propose/SKILL.md
 -->
 
 ---
