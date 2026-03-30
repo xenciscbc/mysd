@@ -19,6 +19,15 @@ You receive a context JSON with:
 - `proposal_summary`: The proposal body text
 - `specs`: Array of requirements in `[KEYWORD] text` format
 - `model`: Preferred model (informational)
+- `instructions`: (optional) Structured instructions from `mysd instructions design`. If present, contains:
+  - `template`: Use as the output structure for design.md instead of the default structure in Step 3
+  - `rules`: Array of constraints to follow during writing
+  - `selfReviewChecklist`: Array of quality checks to verify before completing
+
+When `instructions` is present:
+1. Use `template` as the design.md structure (override the default Step 3 template)
+2. Follow all `rules` as constraints during writing
+3. Before completing Step 4, verify each item in `selfReviewChecklist` is satisfied
 
 ## Your Responsibilities
 

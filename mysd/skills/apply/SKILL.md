@@ -47,6 +47,30 @@ If this returns an error (e.g., not in planned phase), guide the user to complet
 
 If `pending_tasks` is empty, inform the user: "All tasks are already complete. Nothing to execute."
 
+## Step 2b: Per-Spec Selection
+
+Check if `$ARGUMENTS` contains `--spec <name>`. If so, re-run with the spec filter:
+```
+mysd execute --spec {name} --context-only
+```
+Use the filtered context for subsequent steps.
+
+If no `--spec` argument was provided and `auto_mode` is false:
+1. Group `pending_tasks` by their `spec` field
+2. If tasks have multiple distinct spec values, present an interactive selection list:
+   ```
+   Pending specs:
+   1. material-selection (3 tasks)
+   2. planning (2 tasks)
+   3. [All] Run all 5 pending tasks
+
+   Select:
+   ```
+3. If user selects a specific spec: re-run `mysd execute --spec {selected} --context-only` to get filtered context
+4. If user selects "All": proceed with the full unfiltered context
+
+If `auto_mode` is true and no `--spec`: proceed with all pending tasks.
+
 ## Step 3: Execute Based on Mode
 
 ### Single Mode (execution_mode == "single")

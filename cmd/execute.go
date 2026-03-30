@@ -12,7 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var contextOnly bool
+var (
+	contextOnly bool
+	executeSpec string
+)
 
 var executeCmd = &cobra.Command{
 	Use:   "execute",
@@ -22,6 +25,7 @@ var executeCmd = &cobra.Command{
 
 func init() {
 	executeCmd.Flags().BoolVar(&contextOnly, "context-only", false, "output execution context as JSON (for SKILL.md consumption)")
+	executeCmd.Flags().StringVar(&executeSpec, "spec", "", "filter execution to tasks matching the specified spec")
 	rootCmd.AddCommand(executeCmd)
 }
 
@@ -62,6 +66,16 @@ func runExecute(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+
+		// Filter by --spec flag
+		if executeSpec != "" {
+			ctx.PendingTasks = filterTasksBySpec(ctx.PendingTasks, executeSpec)
+			// Recompute wave groups from filtered tasks
+			wg, _ := executor.BuildWaveGroups(ctx.PendingTasks)
+			ctx.WaveGroups = wg
+			ctx.HasParallelOpp = executor.HasParallelOpportunity(ctx.PendingTasks)
+		}
+
 		data, _ := json.MarshalIndent(ctx, "", "  ")
 		fmt.Fprintln(cmd.OutOrStdout(), string(data))
 		return nil
@@ -71,4 +85,16 @@ func runExecute(cmd *cobra.Command, args []string) error {
 	p.Info("Use /mysd:apply in Claude Code to run with AI alignment gate")
 	p.Info("Or use: mysd execute --context-only | jq")
 	return nil
+}
+
+// filterTasksBySpec returns only tasks whose Spec field matches the given spec name.
+// Tasks with an empty Spec field (change-level tasks) are excluded from per-spec filtering.
+func filterTasksBySpec(tasks []executor.TaskItem, specName string) []executor.TaskItem {
+	var filtered []executor.TaskItem
+	for _, t := range tasks {
+		if t.Spec == specName {
+			filtered = append(filtered, t)
+		}
+	}
+	return filtered
 }

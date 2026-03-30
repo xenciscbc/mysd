@@ -129,6 +129,61 @@ func UpdateTaskStatus(tasksPath string, taskID int, newStatus ItemStatus) error 
 	return WriteTasks(tasksPath, fm, body)
 }
 
+// MaxTaskID returns the maximum task ID in the frontmatter, or 0 if empty.
+func MaxTaskID(fm TasksFrontmatterV2) int {
+	maxID := 0
+	for _, t := range fm.Tasks {
+		if t.ID > maxID {
+			maxID = t.ID
+		}
+	}
+	return maxID
+}
+
+// MergeTasksForSpec merges new tasks into an existing TasksFrontmatterV2.
+// New tasks have their IDs renumbered starting from maxExistingID + 1.
+// If specName is non-empty, existing tasks with the same spec are replaced.
+func MergeTasksForSpec(existing TasksFrontmatterV2, newTasks []TaskEntry, specName string) TasksFrontmatterV2 {
+	// Keep tasks that don't belong to the target spec
+	var kept []TaskEntry
+	if specName != "" {
+		for _, t := range existing.Tasks {
+			if t.Spec != specName {
+				kept = append(kept, t)
+			}
+		}
+	} else {
+		kept = existing.Tasks
+	}
+
+	// Determine starting ID
+	startID := MaxTaskID(existing) + 1
+
+	// Renumber and append new tasks
+	for i, t := range newTasks {
+		t.ID = startID + i
+		if specName != "" && t.Spec == "" {
+			t.Spec = specName
+		}
+		kept = append(kept, t)
+	}
+
+	result := existing
+	result.Tasks = kept
+	result.Total = len(kept)
+
+	// Recompute completed
+	completed := 0
+	for _, t := range kept {
+		if t.Status == StatusDone {
+			completed++
+		}
+	}
+	result.Completed = completed
+
+	return result
+}
+
 // WriteTasks serializes TasksFrontmatterV2 as YAML frontmatter, prepends/appends the
 // `---` delimiters, and appends the original body content. Preserves markdown body unchanged.
 func WriteTasks(tasksPath string, fm TasksFrontmatterV2, body string) error {

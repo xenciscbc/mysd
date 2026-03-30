@@ -578,6 +578,27 @@ In `auto_mode`, the skill SHALL execute all affected updates without presenting 
 - **AND** there are 3 affected artifacts
 - **THEN** the skill SHALL update all 3 without presenting the confirmation list
 
+---
+### Requirement: Plan pipeline uses mysd instructions for agent guidance
+
+The `mysd:plan` skill SHALL call `mysd instructions <artifact-id> --change <name> --json` before spawning each agent (designer, planner).
+
+The orchestrator SHALL pass the instructions output (template, rules, instruction, selfReviewChecklist) as part of the agent's context.
+
+The agent SHALL use `template` as the output structure, `rules` as constraints, and `selfReviewChecklist` as a verification guide before completing.
+
+#### Scenario: Planner receives instructions
+
+- **WHEN** the plan orchestrator is about to spawn mysd-planner
+- **THEN** it SHALL first call `mysd instructions tasks --change <name> --json`
+- **AND** pass the result in the agent's context
+
+#### Scenario: Designer receives instructions
+
+- **WHEN** the plan orchestrator is about to spawn mysd-designer
+- **THEN** it SHALL first call `mysd instructions design --change <name> --json`
+- **AND** pass the result in the agent's context
+
 ## Conclusion
 
 **Decision**: [What was decided]
@@ -654,6 +675,29 @@ source: enhance-discuss-workflow
 updated: 2026-03-30
 code:
   - mysd/skills/discuss/SKILL.md
+-->
+
+
+<!-- @trace
+source: enhance-plan-pipeline
+updated: 2026-03-30
+code:
+  - mysd/skills/apply/SKILL.md
+  - mysd/agents/mysd-planner.md
+  - mysd/agents/mysd-designer.md
+  - internal/executor/context.go
+  - mysd/skills/plan/SKILL.md
+  - cmd/execute.go
+  - cmd/instructions.go
+  - cmd/plan.go
+tests:
+  - cmd/execute_test.go
+  - internal/spec/schema.go
+  - cmd/plan_test.go
+  - internal/spec/updater.go
+  - cmd/instructions_test.go
+  - internal/spec/schema_test.go
+  - internal/executor/context_test.go
 -->
 
 ---

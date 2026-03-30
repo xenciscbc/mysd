@@ -78,6 +78,7 @@ type TaskEntry struct {
 	Name        string     `yaml:"name"`
 	Description string     `yaml:"description,omitempty"`
 	Status      ItemStatus `yaml:"status"`
+	Spec        string     `yaml:"spec,omitempty"`      // spec directory name this task belongs to
 	Depends     []int      `yaml:"depends,omitempty"`   // FSCHEMA-01: task dependency IDs
 	Files       []string   `yaml:"files,omitempty"`     // FSCHEMA-02: files touched by this task
 	Satisfies   []string   `yaml:"satisfies,omitempty"` // FSCHEMA-03: requirement IDs satisfied

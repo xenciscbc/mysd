@@ -104,4 +104,37 @@ func TestTaskEntryNewFields_OmitEmpty(t *testing.T) {
 	assert.NotContains(t, output, "files:")
 	assert.NotContains(t, output, "satisfies:")
 	assert.NotContains(t, output, "skills:")
+	assert.NotContains(t, output, "spec:")
+}
+
+// TestTaskEntrySpec_YAMLRoundTrip verifies the spec field marshals and unmarshals.
+func TestTaskEntrySpec_YAMLRoundTrip(t *testing.T) {
+	entry := TaskEntry{
+		ID:     1,
+		Name:   "Implement source detection",
+		Status: StatusPending,
+		Spec:   "material-selection",
+	}
+
+	data, err := yaml.Marshal(entry)
+	require.NoError(t, err)
+	assert.Contains(t, string(data), "spec: material-selection")
+
+	var got TaskEntry
+	require.NoError(t, yaml.Unmarshal(data, &got))
+	assert.Equal(t, "material-selection", got.Spec)
+}
+
+// TestTaskEntrySpec_EmptyOmitted verifies empty spec is not emitted in YAML.
+func TestTaskEntrySpec_EmptyOmitted(t *testing.T) {
+	entry := TaskEntry{
+		ID:     1,
+		Name:   "Integration test",
+		Status: StatusPending,
+		Spec:   "",
+	}
+
+	data, err := yaml.Marshal(entry)
+	require.NoError(t, err)
+	assert.NotContains(t, string(data), "spec:")
 }

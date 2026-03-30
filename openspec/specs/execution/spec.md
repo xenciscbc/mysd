@@ -108,3 +108,45 @@ The `worktree` package MUST create isolated git worktrees at `.worktrees/T{id}/`
 - `plugin/commands/mysd-apply.md` — apply command skill with mandatory verification
 
 ## Requirements
+
+### Requirement: TaskItem includes spec field
+
+The `TaskItem` struct SHALL include a `Spec` field (`json:"spec,omitempty"`).
+
+The `spec` field value SHALL correspond to the spec directory name (e.g., `material-selection` for `specs/material-selection/spec.md`).
+
+Tasks without a `spec` field SHALL be treated as change-level tasks.
+
+The YAML frontmatter parser SHALL read and write the `spec` field in TasksFrontmatterV2 format.
+
+#### Scenario: TaskItem with spec field
+
+- **WHEN** a task has `spec: "material-selection"` in the YAML frontmatter
+- **THEN** the parsed `TaskItem` SHALL have `Spec: "material-selection"`
+
+#### Scenario: TaskItem without spec field
+
+- **WHEN** a task has no `spec` field in the YAML frontmatter
+- **THEN** the parsed `TaskItem` SHALL have `Spec: ""` (empty string)
+
+<!-- @trace
+source: enhance-plan-pipeline
+updated: 2026-03-30
+code:
+  - mysd/skills/apply/SKILL.md
+  - mysd/agents/mysd-planner.md
+  - mysd/agents/mysd-designer.md
+  - internal/executor/context.go
+  - mysd/skills/plan/SKILL.md
+  - cmd/execute.go
+  - cmd/instructions.go
+  - cmd/plan.go
+tests:
+  - cmd/execute_test.go
+  - internal/spec/schema.go
+  - cmd/plan_test.go
+  - internal/spec/updater.go
+  - cmd/instructions_test.go
+  - internal/spec/schema_test.go
+  - internal/executor/context_test.go
+-->

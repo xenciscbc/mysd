@@ -39,8 +39,39 @@ Extract the following fields:
 - `model`: profile-resolved model for designer and planner agents
 - `reviewer_model`: profile-resolved model for mysd-reviewer
 - `plan_checker_model`: profile-resolved model for mysd-plan-checker
+- `spec`: (optional) the `--spec` value if passed, restricts planning to this spec
+- `external_input`: (optional) content from `--from` flag, used as planner context
 
 If error (not in designed/specced phase), guide user to complete prerequisites.
+
+## Step 2b: Per-Spec Selection
+
+If `--spec` was NOT passed in the original command:
+
+1. Read the change's specs directory to list all capability names
+2. Read tasks.md (if exists) and group existing tasks by `spec` field
+3. Identify which specs have no corresponding tasks yet
+4. If `auto_mode` is true: plan all specs (skip selection)
+5. If `auto_mode` is false: present an interactive selection list:
+   ```
+   Specs to plan:
+   1. material-selection (no tasks)
+   2. planning (5 tasks)
+   3. execution (3 tasks)
+   4. [All]
+
+   Select:
+   ```
+6. If user selects a specific spec: re-run `mysd plan --spec {selected} --context-only` to get filtered context
+7. If user selects "All": proceed with full context
+
+If `--spec` WAS passed: skip this step (context already filtered).
+
+## Step 2c: External Input Display
+
+If `external_input` is present in context JSON:
+- Show: "External input loaded from {path}: {first line or title}"
+- This content will be passed to the planner as additional context.
 
 ## Step 3: Research Phase (if research_enabled)
 
@@ -93,6 +124,12 @@ If any condition is NOT met: proceed to Step 4.
 
 ## Step 4: Design Phase
 
+First, get structured instructions for the designer:
+```
+mysd instructions design --change {change_name} --json
+```
+Parse the JSON output to get `template`, `rules`, `instruction`, `selfReviewChecklist`, and `dependencies`.
+
 Show: "Spawning mysd-designer ({model})..."
 Use the Task tool to invoke `mysd-designer` with `model` parameter set to `{model}`:
 
@@ -103,6 +140,7 @@ Context: {
   "change_name": "{change_name}",
   "specs": [{spec content}],
   "research_findings": [{from Step 3, or empty if no research}],
+  "instructions": {instructions JSON from mysd instructions},
   "auto_mode": {auto_mode}
 }
 
@@ -115,18 +153,102 @@ mysd design
 
 ## Step 5: Planning Phase
 
+First, get structured instructions for the planner:
+```
+mysd instructions tasks --change {change_name} --json
+```
+Parse the JSON output to get `template`, `rules`, `instruction`, `selfReviewChecklist`, and `dependencies`.
+
 Show: "Spawning mysd-planner ({model})..."
 Use the Task tool to invoke `mysd-planner` with `model` parameter set to `{model}`:
 
 Task: Create task list for {change_name}
 Agent: mysd-planner
 Model: {model}
-Context: {full context JSON from Step 2, plus research_findings and design content, plus auto_mode}
+Context: {full context JSON from Step 2, plus research_findings and design content, plus auto_mode, plus:
+  "instructions": {instructions JSON from mysd instructions},
+  "external_input": {external_input from context, if present},
+  "target_spec": {spec name from Step 2b selection, if per-spec planning}
+}
 
 After planner completes, run state transition:
 ```
 mysd plan
 ```
+
+## Step 5a: Inline Self-Review
+
+After the planner completes and before the reviewer, perform an inline quality check on the produced artifacts. The orchestrator executes this step directly — no agent is spawned.
+
+First, load the self-review checklist:
+```
+mysd instructions tasks --change {change_name} --json
+```
+Use the `selfReviewChecklist` field as a guide. Then execute these 4 checks in order:
+
+### Check 1: Placeholder Scan
+
+Read `tasks.md` and `design.md`. Scan for:
+- Literal strings: "TBD", "TODO", "FIXME", "implement later", "details to follow"
+- Empty template sections (e.g., `<!-- ... -->` placeholders left unfilled)
+
+For each occurrence:
+1. Read the relevant spec to find the concrete information
+2. Use the Edit tool to replace the placeholder with specific content
+3. Count fixes applied
+
+Show: "Placeholder check: fixed {N} placeholder(s)" (or "Placeholder check: clean ✓")
+
+### Check 2: Consistency Check
+
+Read `proposal.md` to extract capability names from the Capabilities section.
+
+For each capability listed in the proposal:
+1. Check if at least one task in `tasks.md` has `spec: "{capability-name}"` (or references the capability in its description)
+2. If a capability has no corresponding task, add a task to cover it
+
+Read file paths mentioned in `tasks.md` task descriptions. Verify each path appears in either:
+- Proposal's Impact section, OR
+- Design document
+
+Flag and fix any mismatches.
+
+Show: "Consistency check: fixed {N} mismatch(es)" (or "Consistency check: clean ✓")
+
+### Check 3: Scope Check (warning only)
+
+Count total tasks in `tasks.md`:
+- If total > 15: show warning "⚠ {N} tasks exceed recommended maximum of 15 — consider splitting the change"
+
+For each task, count the number of distinct file references in its description:
+- If any task references > 3 files: show warning "⚠ Task T{id} references {N} files — consider splitting"
+
+Do NOT auto-fix scope issues — display warnings only and proceed.
+
+### Check 4: Ambiguity Check
+
+Scan task descriptions for vague phrases:
+- "handle edge cases"
+- "add appropriate error handling"
+- "implement the flow"
+- "add tests for the above"
+- "similar to Task N" (without repeating specifics)
+
+For each vague phrase:
+1. Read the relevant spec to find the specific conditions
+2. Use the Edit tool to replace the vague phrase with concrete details
+3. Count fixes applied
+
+Show: "Ambiguity check: fixed {N} vague phrase(s)" (or "Ambiguity check: clean ✓")
+
+### Summary
+
+After all 4 checks, show a one-line summary:
+```
+Self-review: {total_fixes} fix(es), {total_warnings} warning(s)
+```
+
+Proceed to the reviewer step.
 
 ## Step 5b: Invoke Reviewer
 

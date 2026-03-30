@@ -264,3 +264,81 @@ func TestExecuteWaveModeFlag(t *testing.T) {
 	assert.Equal(t, "wave", ctx.ExecutionMode, "execution_mode should be 'wave'")
 	assert.Equal(t, 3, ctx.AgentCount, "agent_count should be 3")
 }
+
+func TestExecuteContextOnly_SpecFilter(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	// 3 tasks: 2 for "auth" spec, 1 for "billing" spec
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       3,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Auth setup", Status: spec.StatusPending, Spec: "auth"},
+			{ID: 2, Name: "Auth handler", Status: spec.StatusPending, Spec: "auth"},
+			{ID: 3, Name: "Billing API", Status: spec.StatusPending, Spec: "billing"},
+		},
+	}
+	setupTestChange(t, tmpDir, tasks, state.PhasePlanned)
+
+	// Reset global flag from prior tests
+	executeSpec = ""
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--context-only", "--spec", "auth"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var ctx executor.ExecutionContext
+	require.NoError(t, json.Unmarshal([]byte(buf.String()), &ctx))
+
+	assert.Len(t, ctx.PendingTasks, 2, "should have 2 pending tasks for auth spec")
+	for _, task := range ctx.PendingTasks {
+		assert.Equal(t, "auth", task.Spec)
+	}
+}
+
+func TestExecuteContextOnly_SpecFilter_ChangeLevelExcluded(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	// 3 tasks: 1 for "auth" spec, 1 change-level (no spec), 1 for "billing"
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       3,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Auth setup", Status: spec.StatusPending, Spec: "auth"},
+			{ID: 2, Name: "Integration test", Status: spec.StatusPending, Spec: ""},
+			{ID: 3, Name: "Billing API", Status: spec.StatusPending, Spec: "billing"},
+		},
+	}
+	setupTestChange(t, tmpDir, tasks, state.PhasePlanned)
+
+	// Reset global flag
+	executeSpec = ""
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--context-only", "--spec", "auth"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var ctx executor.ExecutionContext
+	require.NoError(t, json.Unmarshal([]byte(buf.String()), &ctx))
+
+	assert.Len(t, ctx.PendingTasks, 1, "change-level task should be excluded from per-spec filter")
+	assert.Equal(t, "Auth setup", ctx.PendingTasks[0].Name)
+}

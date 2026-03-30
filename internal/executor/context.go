@@ -42,6 +42,7 @@ type TaskItem struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description,omitempty"`
 	Status      string   `json:"status"`
+	Spec        string   `json:"spec,omitempty"`
 	Depends     []int    `json:"depends,omitempty"`
 	Files       []string `json:"files,omitempty"`
 	Satisfies   []string `json:"satisfies,omitempty"`
@@ -71,6 +72,7 @@ func BuildContextFromParts(
 			Name:        t.Name,
 			Description: t.Description,
 			Status:      string(t.Status),
+			Spec:        t.Spec,
 			Depends:     t.Depends,
 			Files:       t.Files,
 			Satisfies:   t.Satisfies,
@@ -85,6 +87,7 @@ func BuildContextFromParts(
 			Name:        t.Name,
 			Description: t.Description,
 			Status:      string(t.Status),
+			Spec:        t.Spec,
 			Depends:     t.Depends,
 			Files:       t.Files,
 			Satisfies:   t.Satisfies,

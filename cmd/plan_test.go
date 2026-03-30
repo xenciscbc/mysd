@@ -143,6 +143,10 @@ func TestPlanContextOnly_CheckFlag_NoCoverage_WhenNoTasksFile(t *testing.T) {
 	defer func() { _ = os.Chdir(origDir) }()
 	require.NoError(t, os.Chdir(tmpDir))
 
+	// Reset flags from prior tests
+	planSpec = ""
+	planFrom = ""
+
 	setupMinimalChangeForPlan(t, tmpDir)
 
 	var buf bytes.Buffer
@@ -161,6 +165,113 @@ func TestPlanContextOnly_CheckFlag_NoCoverage_WhenNoTasksFile(t *testing.T) {
 	assert.False(t, hasCoverage, "coverage should be absent when tasks.md does not exist")
 }
 
+func TestPlanContextOnly_SpecFlag_FiltersRequirements(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	setupMinimalChangeForPlan(t, tmpDir)
+
+	// Add spec directory with a spec file
+	specsDir := filepath.Join(tmpDir, ".specs")
+	changeDir := filepath.Join(specsDir, "changes", "test-change")
+	specCapDir := filepath.Join(changeDir, "specs", "auth")
+	require.NoError(t, os.MkdirAll(specCapDir, 0755))
+	specContent := "---\nspec-version: \"1.0\"\ncapability: auth\ndelta: ADDED\nstatus: draft\n---\n\n### Requirement: User auth\n\nThe system SHALL authenticate users.\n\n#### Scenario: Login\n\n- **WHEN** valid creds\n- **THEN** access granted\n"
+	require.NoError(t, os.WriteFile(filepath.Join(specCapDir, "spec.md"), []byte(specContent), 0644))
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"plan", "--context-only", "--spec", "auth"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var ctx map[string]interface{}
+	require.NoError(t, json.Unmarshal([]byte(buf.String()), &ctx))
+
+	assert.Equal(t, "auth", ctx["spec"])
+	specs, ok := ctx["specs"].([]interface{})
+	require.True(t, ok)
+	assert.NotEmpty(t, specs, "should have requirements from auth spec")
+}
+
+func TestPlanContextOnly_SpecFlag_InvalidSpec(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	setupMinimalChangeForPlan(t, tmpDir)
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"plan", "--context-only", "--spec", "nonexistent"})
+
+	err = rootCmd.Execute()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "spec \"nonexistent\" not found")
+}
+
+func TestPlanContextOnly_FromFlag_ReadsFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	setupMinimalChangeForPlan(t, tmpDir)
+
+	// Create external plan file
+	externalPlan := filepath.Join(tmpDir, "gstack-plan.md")
+	require.NoError(t, os.WriteFile(externalPlan, []byte("# External Plan\n\nTask list from gstack.\n"), 0644))
+
+	// Reset flags from prior tests
+	planSpec = ""
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"plan", "--context-only", "--from", externalPlan})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var ctx map[string]interface{}
+	require.NoError(t, json.Unmarshal([]byte(buf.String()), &ctx))
+
+	extInput, has := ctx["external_input"]
+	assert.True(t, has, "should have external_input field")
+	assert.Contains(t, extInput, "External Plan")
+}
+
+func TestPlanContextOnly_FromFlag_FileNotFound(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	setupMinimalChangeForPlan(t, tmpDir)
+
+	// Reset flags from prior tests
+	planSpec = ""
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"plan", "--context-only", "--from", "/nonexistent/plan.md"})
+
+	err = rootCmd.Execute()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to read external input")
+}
+
 func TestPlanContextOnly_CheckFlag_WithCoverage(t *testing.T) {
 	// When --check is passed and tasks.md exists with satisfies fields, coverage is present
 	tmpDir := t.TempDir()
@@ -168,6 +279,10 @@ func TestPlanContextOnly_CheckFlag_WithCoverage(t *testing.T) {
 	require.NoError(t, err)
 	defer func() { _ = os.Chdir(origDir) }()
 	require.NoError(t, os.Chdir(tmpDir))
+
+	// Reset flags from prior tests
+	planSpec = ""
+	planFrom = ""
 
 	setupMinimalChangeForPlan(t, tmpDir)
 

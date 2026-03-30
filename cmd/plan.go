@@ -18,9 +18,11 @@ import (
 )
 
 var (
-	planContextOnly     bool
-	planResearch        bool
-	planCheck           bool
+	planContextOnly bool
+	planResearch    bool
+	planCheck       bool
+	planSpec        string
+	planFrom        string
 )
 
 var planCmd = &cobra.Command{
@@ -33,6 +35,8 @@ func init() {
 	planCmd.Flags().BoolVar(&planContextOnly, "context-only", false, "output plan context as JSON for SKILL.md consumption")
 	planCmd.Flags().BoolVar(&planResearch, "research", false, "enable research phase before planning (deeper analysis)")
 	planCmd.Flags().BoolVar(&planCheck, "check", false, "enable plan check phase after planning (validation pass)")
+	planCmd.Flags().StringVar(&planSpec, "spec", "", "restrict planning to the specified spec only")
+	planCmd.Flags().StringVar(&planFrom, "from", "", "read external plan/tasks file as planner context input")
 	rootCmd.AddCommand(planCmd)
 }
 
@@ -58,9 +62,25 @@ func runPlan(cmd *cobra.Command, args []string) error {
 		changeDir := filepath.Join(specDir, "changes", ws.ChangeName)
 		change, _ := spec.ParseChange(changeDir)
 
+		// Filter requirements by --spec if specified
+		reqs := change.Specs
+		if planSpec != "" {
+			// Validate spec exists
+			specFile := filepath.Join(changeDir, "specs", planSpec, "spec.md")
+			if _, statErr := os.Stat(specFile); statErr != nil {
+				return fmt.Errorf("spec %q not found at %s", planSpec, specFile)
+			}
+			// Parse only the specified spec's requirements
+			filteredReqs, parseErr := spec.ParseSpec(specFile)
+			if parseErr != nil {
+				return fmt.Errorf("failed to parse spec %q: %w", planSpec, parseErr)
+			}
+			reqs = filteredReqs
+		}
+
 		// Build a summary of requirements for context
 		var reqTexts []string
-		for _, r := range change.Specs {
+		for _, r := range reqs {
 			reqTexts = append(reqTexts, fmt.Sprintf("[%s] %s", r.Keyword, r.Text))
 		}
 
@@ -75,6 +95,7 @@ func runPlan(cmd *cobra.Command, args []string) error {
 					ID:      t.ID,
 					Name:    t.Name,
 					Status:  string(t.Status),
+					Spec:    t.Spec,
 					Depends: t.Depends,
 					Files:   t.Files,
 				})
@@ -96,14 +117,28 @@ func runPlan(cmd *cobra.Command, args []string) error {
 			"test_generation":          cfg.TestGeneration,
 			"wave_groups":              waveGroups,
 			"has_parallel_opportunity": hasParallelOpp,
-			"worktree_dir":             cfg.WorktreeDir, // from ProjectConfig (default ".worktrees")
-			"auto_mode":                cfg.AutoMode,    // from ProjectConfig (default false)
+			"worktree_dir":             cfg.WorktreeDir,
+			"auto_mode":               cfg.AutoMode,
+		}
+
+		// Add --spec to context if specified
+		if planSpec != "" {
+			ctx["spec"] = planSpec
+		}
+
+		// Read external input via --from flag
+		if planFrom != "" {
+			content, readErr := os.ReadFile(planFrom)
+			if readErr != nil {
+				return fmt.Errorf("failed to read external input %q: %w", planFrom, readErr)
+			}
+			ctx["external_input"] = string(content)
 		}
 
 		if planCheck {
 			if fm, _, parseErr := spec.ParseTasksV2(tasksPath); parseErr == nil {
 				var mustIDs []string
-				for _, r := range change.Specs {
+				for _, r := range reqs {
 					if r.Keyword == spec.Must && r.ID != "" {
 						mustIDs = append(mustIDs, r.ID)
 					}

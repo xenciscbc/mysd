@@ -22,6 +22,18 @@ You receive a context JSON with:
 - `research_enabled`: If true, do research before planning
 - `check_enabled`: If true, do a validation pass after planning
 - `test_generation`: If true, tests will be auto-generated post-execution
+- `instructions`: (optional) Structured instructions from `mysd instructions tasks`. If present, contains:
+  - `template`: Use as the output structure for tasks.md (TasksFrontmatterV2 format with `spec` field)
+  - `rules`: Array of constraints to follow during task creation
+  - `selfReviewChecklist`: Array of quality checks to verify before completing
+- `external_input`: (optional) External plan/tasks content from `--from` flag. Treat as reference context (like research findings) — do not copy directly, but use to inform task structure and coverage.
+- `target_spec`: (optional) If present, only generate tasks for this specific spec. All generated tasks must have `spec: "{target_spec}"`.
+
+When `instructions` is present:
+1. Use `template` as the tasks.md structure (override the default Step 4 template)
+2. Follow all `rules` as constraints during task creation
+3. Assign every task a `spec` field matching its capability area (spec directory name)
+4. Before completing, verify each item in `selfReviewChecklist` is satisfied
 
 ## Your Responsibilities
 
@@ -74,14 +86,17 @@ tasks:
   - id: 1
     name: "{Task Name}"
     description: "{Brief description of what to implement}"
+    spec: "{spec-directory-name}"
     status: pending
   - id: 2
     name: "{Task Name}"
     description: "{Brief description}"
+    spec: "{spec-directory-name}"
     status: pending
   - id: 3
     name: "{Task Name}"
     description: "{Brief description}"
+    spec: "{spec-directory-name}"
     status: pending
 ---
 
@@ -94,7 +109,8 @@ tasks:
 - `spec-version`: Always "1.0"
 - `total`: Total number of tasks
 - `completed`: Always start at 0
-- `tasks`: Array of task entries with id, name, description, status
+- `tasks`: Array of task entries with id, name, description, spec, status
+- `spec`: The spec directory name this task belongs to (e.g., `material-selection` for `specs/material-selection/spec.md`). Assign every task a spec value matching its capability area. Tasks without a spec are treated as change-level tasks.
 - `status` values: `pending`, `in_progress`, `done`, `blocked`
 
 ### Step 5: Check Phase (if check_enabled)

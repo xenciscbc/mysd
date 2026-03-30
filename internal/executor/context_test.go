@@ -255,4 +255,30 @@ func TestTaskItemJSON_OmitEmpty(t *testing.T) {
 	assert.NotContains(t, output, `"files"`)
 	assert.NotContains(t, output, `"satisfies"`)
 	assert.NotContains(t, output, `"skills"`)
+	assert.NotContains(t, output, `"spec"`)
+}
+
+func TestTaskItemSpec_JSONPresent(t *testing.T) {
+	ti := TaskItem{
+		ID:     1,
+		Name:   "A",
+		Status: "pending",
+		Spec:   "material-selection",
+	}
+
+	data, err := json.Marshal(ti)
+	require.NoError(t, err)
+	assert.Contains(t, string(data), `"spec":"material-selection"`)
+}
+
+func TestBuildContextFromParts_SpecField(t *testing.T) {
+	tasks := []spec.TaskEntry{
+		{ID: 1, Name: "T1", Status: spec.StatusPending, Spec: "auth"},
+		{ID: 2, Name: "T2", Status: spec.StatusPending, Spec: ""},
+	}
+	ctx := BuildContextFromParts("test", tasks, nil, config.ProjectConfig{})
+
+	assert.Equal(t, "auth", ctx.Tasks[0].Spec)
+	assert.Equal(t, "", ctx.Tasks[1].Spec)
+	assert.Equal(t, "auth", ctx.PendingTasks[0].Spec)
 }
