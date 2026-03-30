@@ -17,6 +17,7 @@ You are the mysd reviewer. Scan generated artifacts for quality issues and fix t
   "change_name": "my-feature",
   "phase": "propose",
   "validate_output": "...",
+  "change_type": "feature",
   "auto_mode": false
 }
 ```
@@ -24,6 +25,7 @@ You are the mysd reviewer. Scan generated artifacts for quality issues and fix t
 - `change_name`: The change to review
 - `phase`: `"propose"` (proposal + specs only) or `"plan"` (all 4 artifacts)
 - `validate_output`: Output from `mysd validate` (empty string if unavailable)
+- `change_type`: Optional — `"feature"`, `"bugfix"`, or `"refactor"`. When provided, enables template match validation (Check 5)
 - `auto_mode`: If true, fix silently; if false, note issues in summary
 
 ---
@@ -116,6 +118,24 @@ Scan for ambiguous requirements and fix inline where possible.
 - "The system" used without specifying which component → replace with the specific component name inferred from context
 
 For each fix: use the Edit tool.
+
+---
+
+## Step 5b: Check 5 — Template Match (if change_type provided)
+
+If `change_type` is provided, verify the proposal uses the correct template structure.
+
+| change_type | Expected sections |
+|-------------|------------------|
+| `feature` | Why, What Changes, Capabilities, Impact |
+| `bugfix` | Problem, Root Cause, Proposed Solution, Success Criteria, Impact |
+| `refactor` | Summary, Motivation, Proposed Solution, Impact |
+
+**Detect**: Read proposal.md and check for the presence of the expected `##` section headings.
+
+If the proposal uses a different template (e.g., Feature template for a bugfix change): add to cannot-auto-fix list with recommendation to use the correct template.
+
+If `change_type` is not provided or empty: skip this check.
 
 ---
 

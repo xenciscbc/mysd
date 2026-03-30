@@ -37,6 +37,7 @@ The agent SHALL accept the following input context:
 - `phase`: `"propose"` (proposal + specs) or `"plan"` (all 4 artifacts)
 - `validate_output`: Output from `mysd validate` (empty string if unavailable)
 - `auto_mode`: Boolean — if true, fix silently; if false, include issues in summary
+- `change_type`: Optional string (`"feature"`, `"bugfix"`, `"refactor"`) — when provided, the reviewer SHALL verify that the proposal uses the correct template structure for the given type
 
 The agent SHALL be invocable from both the `propose` and `plan` pipelines. The `propose` pipeline SHALL invoke the reviewer after spec generation (Step 12), and the `plan` pipeline SHALL invoke it after task generation (Step 5b).
 
@@ -56,6 +57,11 @@ The agent SHALL be invocable from both the `propose` and `plan` pipelines. The `
 - **THEN** it SHALL run `mysd validate {change_name}` and capture the output
 - **AND** spawn `mysd-reviewer` with `phase: "propose"` and the captured `validate_output`
 - **AND** use the `reviewer_model` resolved from the current profile
+
+### Scenario: Reviewer validates proposal template matches change type
+
+- **WHEN** `change_type` is `"bugfix"` and proposal uses Feature template (Why/What Changes/Capabilities)
+- **THEN** the reviewer SHALL flag this as a cannot-auto-fix issue recommending the correct template (Problem/Root Cause/Proposed Solution/Success Criteria)
 
 ## Requirement: Reviewer checks for placeholder content
 
@@ -193,6 +199,7 @@ The agent SHALL accept the following input context:
 - `phase`: `"propose"` (proposal + specs) or `"plan"` (all 4 artifacts)
 - `validate_output`: Output from `mysd validate` (empty string if unavailable)
 - `auto_mode`: Boolean — if true, fix silently; if false, include issues in summary
+- `change_type`: Optional string (`"feature"`, `"bugfix"`, `"refactor"`) — when provided, the reviewer SHALL verify that the proposal uses the correct template structure for the given type
 
 The agent SHALL be invocable from both the `propose` and `plan` pipelines. The `propose` pipeline SHALL invoke the reviewer after spec generation (Step 12), and the `plan` pipeline SHALL invoke it after task generation (Step 5b).
 
@@ -213,13 +220,30 @@ The agent SHALL be invocable from both the `propose` and `plan` pipelines. The `
 - **AND** spawn `mysd-reviewer` with `phase: "propose"` and the captured `validate_output`
 - **AND** use the `reviewer_model` resolved from the current profile
 
+#### Scenario: Reviewer validates proposal template matches change type
+
+- **WHEN** `change_type` is `"bugfix"` and proposal uses Feature template (Why/What Changes/Capabilities)
+- **THEN** the reviewer SHALL flag this as a cannot-auto-fix issue recommending the correct template (Problem/Root Cause/Proposed Solution/Success Criteria)
+
 
 <!-- @trace
-source: enhance-propose-reviewer
-updated: 2026-03-28
+source: enhance-workflow-quality
+updated: 2026-03-30
 code:
-  - mysd/agents/mysd-reviewer.md
+  - internal/analyzer/ambiguity.go
+  - cmd/analyze.go
+  - internal/analyzer/consistency.go
   - mysd/skills/propose/SKILL.md
+  - internal/analyzer/analyzer.go
+  - mysd/skills/plan/SKILL.md
+  - mysd/agents/mysd-reviewer.md
+  - internal/analyzer/types.go
+  - internal/analyzer/gaps.go
+  - mysd/agents/mysd-proposal-writer.md
+  - internal/analyzer/coverage.go
+tests:
+  - internal/analyzer/analyzer_test.go
+  - cmd/analyze_test.go
 -->
 
 ---

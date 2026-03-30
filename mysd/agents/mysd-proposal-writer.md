@@ -15,47 +15,101 @@ You are the mysd proposal writer. Your job is to create or update `proposal.md` 
 
 You receive a context JSON with:
 - `change_name`: Name of the change (used to locate `.specs/changes/{change_name}/`)
+- `change_type`: One of `"feature"`, `"bugfix"`, `"refactor"` — determines template selection
 - `conclusions`: Discussion conclusions or requirements to incorporate (string, may be multi-line)
 - `existing_proposal`: Body text of the current proposal if updating (empty string if creating new)
+- `deferred_context`: Cross-change deferred notes (string, may be empty)
 - `auto_mode`: Boolean — if true, write directly without asking user to review draft
 
-## Proposal Format
+## Proposal Templates
 
-The `proposal.md` file uses this structure:
+Select the template based on `change_type`. All templates share the same frontmatter:
 
 ```markdown
 ---
 spec-version: "1.0"
 status: proposed
 ---
+```
 
-# {Change Name}: {Brief Title}
+### Feature Template (`change_type: "feature"`)
 
-## Summary
+```markdown
+## Why
 
-{1-3 sentence description of what this change does and why.}
+{Why this functionality is needed. What problem does it solve? Why now?}
 
-## Motivation
+## What Changes
 
-{Why is this change needed? What problem does it solve? What opportunity does it address?}
+{Bullet list of what will be different. Be specific about new capabilities, modifications, or removals.}
 
-## Scope
+## Non-Goals (optional)
 
-### In Scope
+{Scope exclusions and rejected approaches.}
 
-- {feature or behavior 1}
-- {feature or behavior 2}
+## Capabilities
 
-### Out of Scope
+### New Capabilities
 
-- {what is explicitly NOT included}
-- {future work that is deferred}
+- `{capability-name}`: {brief description}
+
+### Modified Capabilities
+
+{List existing capabilities whose requirements are changing, or "(none)"}
+
+## Impact
+
+- Affected specs: {new or modified capabilities}
+- Affected code: {list of affected files}
+```
+
+### Bug Fix Template (`change_type: "bugfix"`)
+
+```markdown
+## Problem
+
+{Current broken behavior. What is happening wrong?}
+
+## Root Cause
+
+{Why it happens. Technical explanation of the underlying issue.}
+
+## Proposed Solution
+
+{How to fix. Specific approach to resolve the root cause.}
 
 ## Success Criteria
 
-- {measurable outcome 1}
-- {measurable outcome 2}
-- {measurable outcome 3}
+{Expected behavior after fix. Verifiable conditions that confirm the bug is resolved.}
+
+## Impact
+
+- Affected code: {list of affected files}
+```
+
+### Refactor Template (`change_type: "refactor"`)
+
+```markdown
+## Summary
+
+{One sentence description of the refactoring.}
+
+## Motivation
+
+{Why this refactoring is needed. What pain point does it address?}
+
+## Proposed Solution
+
+{How to do it. The approach and key changes.}
+
+## Alternatives Considered (optional)
+
+{Other approaches considered and why they were not chosen.}
+
+## Impact
+
+- Affected specs: {affected capabilities}
+- Affected code: {list of affected files}
 ```
 
 ## Workflow
@@ -78,10 +132,12 @@ status: proposed
 ### Step 2: Draft Proposal
 
 **If creating new (existing_proposal is empty):**
-- Scaffold a complete proposal from `conclusions`
-- Infer the change name title from `change_name` (convert hyphens to spaces, title case)
-- Write all four sections: Summary, Motivation, Scope (In + Out), Success Criteria
-- Make Success Criteria measurable and verifiable (not vague like "works well")
+- Select the template matching `change_type` (Feature / Bug Fix / Refactor)
+- Scaffold a complete proposal from `conclusions` using the selected template
+- Fill all sections of the template — do not leave any section empty or with placeholder text
+- For Feature: ensure Capabilities lists specific kebab-case names that will become spec directories
+- For Bug Fix: ensure Success Criteria are verifiable conditions, not vague like "works well"
+- For Refactor: ensure Motivation explains the specific pain point, not generic "improve quality"
 
 **If updating (existing_proposal is non-empty):**
 - Merge `conclusions` into the existing proposal

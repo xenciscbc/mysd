@@ -239,6 +239,7 @@ Agent: mysd-proposal-writer
 Model: {model}
 Context: {
   "change_name": "{change_name}",
+  "change_type": "{change_type}",
   "conclusions": "{research findings + exploration conclusions + source content}",
   "existing_proposal": "{current proposal.md body if exists, else null}",
   "deferred_context": "{deferred notes from Step 4}",
@@ -316,6 +317,7 @@ Model: {reviewer_model}
 Context: {
   "change_name": "{change_name}",
   "phase": "propose",
+  "change_type": "{change_type}",
   "validate_output": "{validate_output}",
   "auto_mode": {auto_mode}
 }

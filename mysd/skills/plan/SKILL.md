@@ -71,6 +71,25 @@ If `research_enabled` is true (from context JSON) or `--research` flag present:
   If `auto_mode` is false:
     Present research summary and ask: "Research complete. Proceed to design? (Y/n)"
 
+## Step 3b: Evaluate Design Skip
+
+Before the design phase, evaluate whether design.md is needed.
+
+Design MAY be skipped when ALL of the following conditions are met:
+1. Proposal Impact section lists 2 or fewer affected files
+2. Proposal has no New Capabilities (only Modified Capabilities or none)
+3. Proposal does not contain keywords: "cross-cutting", "migration", "architecture", "new pattern"
+
+Read `proposal.md` and check these conditions.
+
+If conditions are met:
+- If `auto_mode` is true: skip design, show "⊘ Skipped design (not needed for this change)", go to Step 5.
+- If `auto_mode` is false: show the assessment and ask: "Design appears optional for this change. Skip design? [Y/n]"
+  - If user confirms skip: go to Step 5.
+  - If user declines: proceed to Step 4.
+
+If any condition is NOT met: proceed to Step 4.
+
 ## Step 4: Design Phase
 
 Show: "Spawning mysd-designer ({model})..."
@@ -131,6 +150,28 @@ Context: {
 
 Collect the reviewer summary. Include it in Step 7 output.
 
+## Step 5c: Analyze-Fix Loop
+
+Run cross-artifact structural analysis and fix Critical/Warning findings (max 2 iterations).
+
+### Iteration Loop (max 2):
+
+1. Run:
+   ```
+   mysd analyze {change_name} --json
+   ```
+
+2. Parse the JSON output. Filter findings to **Critical and Warning severity only** (ignore Suggestion).
+
+3. If no Critical/Warning findings: show "Artifacts look consistent ✓" and proceed to Step 6.
+
+4. If Critical/Warning findings exist:
+   - Show: "Found N issue(s), fixing... (attempt M/2)"
+   - For each finding: read the affected artifact, apply the recommended fix using the Edit tool
+   - Re-run `mysd analyze {change_name} --json`
+   - If still has findings and iteration < 2: repeat
+   - If iteration reaches 2 and findings remain: show remaining findings as a summary, proceed to Step 6 (do NOT block)
+
 ## Step 6: Plan Check (if check_enabled)
 
 If `check_enabled` is true:
@@ -151,6 +192,6 @@ Context: {check output JSON}
 ## Step 7: Confirm
 
 Show:
-1. "Planning complete. Pipeline: {research if enabled} -> design -> plan -> reviewer {-> check if enabled}."
+1. "Planning complete. Pipeline: {research if enabled} -> design {or skipped} -> plan -> reviewer -> analyze {-> check if enabled}."
 2. Reviewer summary from Step 5b (issues fixed, cannot-auto-fix items if any)
 3. Next: `/mysd:apply`
