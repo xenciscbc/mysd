@@ -4,6 +4,7 @@ description: Set response language and OpenSpec locale for the project.
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:lang — Language Settings

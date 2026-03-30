@@ -8,6 +8,7 @@ allowed-tools:
   - Write
   - Edit
   - Task
+  - AskUserQuestion
 ---
 
 # /mysd:fix -- Fix Failed Task

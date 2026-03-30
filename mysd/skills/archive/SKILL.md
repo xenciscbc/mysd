@@ -7,6 +7,7 @@ allowed-tools:
   - Write
   - Edit
   - Task
+  - AskUserQuestion
 ---
 
 # /mysd:archive — Archive Verified Change

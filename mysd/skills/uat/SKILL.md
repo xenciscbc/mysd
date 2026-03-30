@@ -5,6 +5,7 @@ allowed-tools:
   - Read
   - Write
   - Task
+  - AskUserQuestion
 ---
 
 # /mysd:uat — Interactive UAT Walkthrough

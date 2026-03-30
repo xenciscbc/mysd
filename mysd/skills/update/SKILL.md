@@ -5,6 +5,7 @@ argument-hint: "[--check] [--force]"
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:update -- Self-Update mysd Binary & Plugins

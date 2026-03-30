@@ -4,6 +4,7 @@ description: Display or set the AI model profile for mysd agent roles.
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:model — Model Profile Management

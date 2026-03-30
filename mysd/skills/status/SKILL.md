@@ -4,6 +4,7 @@ description: Show current workflow status dashboard with task progress and next 
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:status — Show Workflow Status

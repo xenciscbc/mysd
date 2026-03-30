@@ -6,6 +6,7 @@ allowed-tools:
   - Read
   - Write
   - Task
+  - AskUserQuestion
 ---
 
 # /mysd:verify — Verify Spec Change

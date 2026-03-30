@@ -4,6 +4,7 @@ description: Initialize mysd project structure (scaffold + locale setup).
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:init — Initialize mysd Project

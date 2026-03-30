@@ -5,6 +5,7 @@ argument-hint: "[add <path> | remove <path>]"
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:docs -- Manage Documentation Update List

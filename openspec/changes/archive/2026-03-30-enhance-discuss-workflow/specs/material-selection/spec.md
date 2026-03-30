@@ -1,8 +1,11 @@
 ---
 spec-version: "1.0"
 capability: Material Selection
+delta: MODIFIED
 status: draft
 ---
+
+## MODIFIED Requirements
 
 ### Requirement: Propose skill detects all available requirement sources
 
@@ -32,24 +35,6 @@ Each detected source SHALL be identified by type and a brief content preview (fi
 - **WHEN** the user enters the source-driven path in `mysd:discuss`
 - **THEN** the skill SHALL detect sources using the same 6-type detection logic as `mysd:propose`
 
-<!-- @trace
-source: enhance-discuss-workflow
-updated: 2026-03-30
-code:
-  - mysd/skills/propose/SKILL.md
-  - mysd/skills/discuss/SKILL.md
-tests: []
--->
-
-
-<!-- @trace
-source: enhance-discuss-workflow
-updated: 2026-03-30
-code:
-  - mysd/skills/discuss/SKILL.md
--->
-
----
 ### Requirement: User selects requirement sources interactively
 
 The `mysd:propose` and `mysd:discuss` (source-driven path) skills SHALL present all detected sources as a numbered list and allow the user to select one or more sources.
@@ -76,24 +61,6 @@ After selection, the skill SHALL read and aggregate the content from all selecte
 - **WHEN** only one source is detected (plus manual input)
 - **THEN** the skill SHALL still present the list for user confirmation, not auto-select
 
-<!-- @trace
-source: enhance-discuss-workflow
-updated: 2026-03-30
-code:
-  - mysd/skills/propose/SKILL.md
-  - mysd/skills/discuss/SKILL.md
-tests: []
--->
-
-
-<!-- @trace
-source: enhance-discuss-workflow
-updated: 2026-03-30
-code:
-  - mysd/skills/discuss/SKILL.md
--->
-
----
 ### Requirement: Auto mode uses all detected sources without interaction
 
 When `auto_mode` is true, the `mysd:propose` and `mysd:discuss` skills SHALL automatically aggregate content from all detected sources without presenting a selection prompt.
@@ -109,21 +76,3 @@ If no sources are detected in auto mode, the skill SHALL extract requirements fr
 
 - **WHEN** `auto_mode` is true AND no sources are detected
 - **THEN** the skill SHALL extract requirements from conversation context
-
-<!-- @trace
-source: enhance-discuss-workflow
-updated: 2026-03-30
-code:
-  - mysd/skills/propose/SKILL.md
-  - mysd/skills/discuss/SKILL.md
-tests: []
--->
-
-## Requirements
-
-<!-- @trace
-source: enhance-discuss-workflow
-updated: 2026-03-30
-code:
-  - mysd/skills/discuss/SKILL.md
--->

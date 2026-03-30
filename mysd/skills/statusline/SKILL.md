@@ -5,6 +5,7 @@ argument-hint: "[on|off]"
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:statusline -- Statusline Control

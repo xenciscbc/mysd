@@ -7,6 +7,7 @@ allowed-tools:
   - Write
   - Edit
   - Task
+  - AskUserQuestion
 ---
 
 # /mysd:ffe -- Full Fast-Forward (Research + Plan + Apply + Archive)

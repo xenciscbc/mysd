@@ -7,6 +7,7 @@ allowed-tools:
   - Write
   - Edit
   - Task
+  - AskUserQuestion
 ---
 
 # /mysd:ff -- Fast-Forward (Plan + Apply + Archive)

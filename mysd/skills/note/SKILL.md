@@ -5,6 +5,7 @@ argument-hint: "[add {content} | delete {id}]"
 allowed-tools:
   - Bash
   - Read
+  - AskUserQuestion
 ---
 
 # /mysd:note -- Manage Deferred Notes
