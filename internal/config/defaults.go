@@ -2,7 +2,7 @@ package config
 
 // ProjectConfig holds all user-configurable preferences for my-ssd.
 type ProjectConfig struct {
-	ExecutionMode    string            `yaml:"execution_mode" mapstructure:"execution_mode"`       // "single" | "wave"
+	ExecutionMode    string            `yaml:"execution_mode" mapstructure:"execution_mode"`       // "single" | "wave" | "spec"
 	AgentCount       int               `yaml:"agent_count" mapstructure:"agent_count"`             // default 1
 	AtomicCommits    bool              `yaml:"atomic_commits" mapstructure:"atomic_commits"`       // default false
 	TDD              bool              `yaml:"tdd" mapstructure:"tdd"`                             // default false

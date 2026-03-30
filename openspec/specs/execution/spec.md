@@ -44,11 +44,20 @@ AND the user SHALL be informed to run `/mysd:fix`
 
 ## Requirement: Execution Modes
 
-The system MUST support two execution modes:
-- **Single mode**: Tasks executed sequentially by one agent
+The system MUST support three execution modes:
+- **Single mode**: Tasks executed sequentially by one agent per task
 - **Wave mode**: Tasks grouped into parallel waves, each wave executed by multiple agents
+- **Spec mode**: Tasks grouped by spec field, each spec executed by one agent handling all tasks in that spec
 
 The `--agent-count` flag MUST control the number of parallel agents in wave mode.
+
+The `execution_mode` configuration value MUST accept "single", "wave", or "spec".
+
+### Scenario: Spec Execution
+
+- **WHEN** execute is called with execution_mode=spec
+- **THEN** tasks are grouped by spec field
+- **AND** each spec group is handled by one agent executing all tasks in that group sequentially
 
 ## Requirement: Task Status Updates
 
@@ -100,6 +109,52 @@ The `worktree` package MUST create isolated git worktrees at `.worktrees/T{id}/`
 
 **Migration**: Use `/mysd:discuss` to capture conversation context into structured proposals and specs.
 
+## Requirement: Executor pre-task checks
+
+The `mysd-executor` agent SHALL perform 4 pre-task checks before writing any implementation code for each task. These checks SHALL be executed after marking the task in-progress and before TDD or implementation steps.
+
+The checks SHALL be:
+1. **Reuse**: Search adjacent modules and shared utilities for existing implementations that could be reused instead of writing new code
+2. **Quality**: Verify that existing types and constants are used instead of redefining; derive values from existing state instead of duplicating
+3. **Efficiency**: Verify that independent async operations are parallelized; match operation scope to actual need
+4. **No Placeholders**: Read the spec and design sections relevant to this task and verify no TBD/TODO/FIXME/vague language exists. If placeholders are found, the executor SHALL pause and report instead of implementing against vague requirements.
+
+### Scenario: Pre-task checks find reuse opportunity
+
+- **WHEN** the executor is about to implement a string formatting utility
+- **AND** a similar utility exists in an adjacent module
+- **THEN** the executor SHALL use the existing utility instead of creating a new one
+
+### Scenario: Pre-task checks find placeholder in spec
+
+- **WHEN** the executor reads the spec for the current task
+- **AND** the spec contains "TBD" in the relevant requirement
+- **THEN** the executor SHALL pause and report the placeholder instead of implementing
+
+## Requirement: Executor pause conditions
+
+The `mysd-executor` agent SHALL pause and report (instead of guessing or continuing) when any of the following conditions are met:
+
+1. **Task unclear**: Task description is ambiguous or contradictory
+2. **Design issue discovered**: Implementation reveals a missing or contradictory design decision
+3. **Error/blocker**: Build failure, dependency issue, or technical obstacle
+4. **User interrupt**: User explicitly requests a pause
+
+When pausing, the executor SHALL output:
+- A description of the issue
+- Suggested resolution options (2-3 concrete choices)
+- A request for guidance before continuing
+
+### Scenario: Task description is ambiguous
+
+- **WHEN** the executor cannot determine the expected behavior from the task description
+- **THEN** the executor SHALL pause, describe the ambiguity, and present resolution options
+
+### Scenario: Design gap discovered during implementation
+
+- **WHEN** the executor discovers that the design does not cover a necessary decision
+- **THEN** the executor SHALL pause, describe the missing design decision, and suggest updating the design artifact
+
 ## Covered Packages
 
 - `cmd/execute.go`, `cmd/task_update.go`
@@ -130,7 +185,7 @@ The YAML frontmatter parser SHALL read and write the `spec` field in TasksFrontm
 - **THEN** the parsed `TaskItem` SHALL have `Spec: ""` (empty string)
 
 <!-- @trace
-source: enhance-plan-pipeline
+source: enhance-plan-pipeline, enhance-apply-pipeline
 updated: 2026-03-30
 code:
   - mysd/skills/apply/SKILL.md
@@ -149,4 +204,83 @@ tests:
   - cmd/instructions_test.go
   - internal/spec/schema_test.go
   - internal/executor/context_test.go
+-->
+
+---
+### Requirement: Executor pre-task checks
+
+The `mysd-executor` agent SHALL perform 4 pre-task checks before writing any implementation code for each task. These checks SHALL be executed after marking the task in-progress and before TDD or implementation steps.
+
+The checks SHALL be:
+1. **Reuse**: Search adjacent modules and shared utilities for existing implementations that could be reused instead of writing new code
+2. **Quality**: Verify that existing types and constants are used instead of redefining; derive values from existing state instead of duplicating
+3. **Efficiency**: Verify that independent async operations are parallelized; match operation scope to actual need
+4. **No Placeholders**: Read the spec and design sections relevant to this task and verify no TBD/TODO/FIXME/vague language exists. If placeholders are found, the executor SHALL pause and report instead of implementing against vague requirements.
+
+#### Scenario: Pre-task checks find reuse opportunity
+
+- **WHEN** the executor is about to implement a string formatting utility
+- **AND** a similar utility exists in an adjacent module
+- **THEN** the executor SHALL use the existing utility instead of creating a new one
+
+#### Scenario: Pre-task checks find placeholder in spec
+
+- **WHEN** the executor reads the spec for the current task
+- **AND** the spec contains "TBD" in the relevant requirement
+- **THEN** the executor SHALL pause and report the placeholder instead of implementing
+
+
+<!-- @trace
+source: enhance-apply-pipeline
+updated: 2026-03-30
+code:
+  - mysd/agents/mysd-executor.md
+  - internal/config/config.go
+  - cmd/execute.go
+  - mysd/skills/apply/SKILL.md
+  - internal/config/defaults.go
+tests:
+  - cmd/execute_test.go
+  - internal/executor/context_test.go
+  - internal/config/config_test.go
+-->
+
+---
+### Requirement: Executor pause conditions
+
+The `mysd-executor` agent SHALL pause and report (instead of guessing or continuing) when any of the following conditions are met:
+
+1. **Task unclear**: Task description is ambiguous or contradictory
+2. **Design issue discovered**: Implementation reveals a missing or contradictory design decision
+3. **Error/blocker**: Build failure, dependency issue, or technical obstacle
+4. **User interrupt**: User explicitly requests a pause
+
+When pausing, the executor SHALL output:
+- A description of the issue
+- Suggested resolution options (2-3 concrete choices)
+- A request for guidance before continuing
+
+#### Scenario: Task description is ambiguous
+
+- **WHEN** the executor cannot determine the expected behavior from the task description
+- **THEN** the executor SHALL pause, describe the ambiguity, and present resolution options
+
+#### Scenario: Design gap discovered during implementation
+
+- **WHEN** the executor discovers that the design does not cover a necessary decision
+- **THEN** the executor SHALL pause, describe the missing design decision, and suggest updating the design artifact
+
+<!-- @trace
+source: enhance-apply-pipeline
+updated: 2026-03-30
+code:
+  - mysd/agents/mysd-executor.md
+  - internal/config/config.go
+  - cmd/execute.go
+  - mysd/skills/apply/SKILL.md
+  - internal/config/defaults.go
+tests:
+  - cmd/execute_test.go
+  - internal/executor/context_test.go
+  - internal/config/config_test.go
 -->

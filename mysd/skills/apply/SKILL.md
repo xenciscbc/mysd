@@ -1,5 +1,5 @@
 ---
-description: Execute pending tasks with mandatory alignment gate. Supports single (sequential per-task) and wave (parallel per-task) modes. Usage: /mysd:apply [--auto]
+description: Execute pending tasks with mandatory alignment gate. Supports single (sequential per-task), wave (parallel per-task), and spec (per-spec grouping) modes. Usage: /mysd:apply [--auto]
 argument-hint: "[--auto]"
 allowed-tools:
   - Bash
@@ -35,7 +35,7 @@ Parse the JSON output. It contains:
 - `pending_tasks`: Tasks not yet done (id, name, description, status)
 - `tdd_mode`: Whether to use TDD (write tests first)
 - `atomic_commits`: Whether to commit after each task
-- `execution_mode`: "single" or "wave"
+- `execution_mode`: "single", "wave", or "spec"
 - `agent_count`: Number of parallel agents for wave mode
 - `wave_groups`: Task groups for wave execution
 - `worktree_dir`: Base directory for worktrees
@@ -70,6 +70,25 @@ If no `--spec` argument was provided and `auto_mode` is false:
 4. If user selects "All": proceed with the full unfiltered context
 
 If `auto_mode` is true and no `--spec`: proceed with all pending tasks.
+
+## Step 2c: Preflight Check
+
+Run pre-execution validation:
+```
+mysd execute --preflight
+```
+
+Parse the JSON output. The `status` field indicates:
+- `"ok"`: No issues found — proceed silently.
+- `"warning"`: Missing files or stale artifacts detected.
+- `"critical"`: Artifacts are severely stale (>30 days) or STATE.json is missing.
+
+If `status` is `"warning"` or `"critical"`:
+1. Display the issues found:
+   - Missing files: list `checks.missing_files`
+   - Staleness: show `checks.staleness.days_since_last_plan` and whether it's stale
+2. If `auto_mode` is false: ask the user to confirm continuing or aborting.
+3. If `auto_mode` is true: display warnings and proceed without confirmation.
 
 ## Step 3: Execute Based on Mode
 
@@ -136,6 +155,37 @@ For each wave in `wave_groups`:
   - On conflict resolution failure: preserve worktree, continue with next task (continue-on-failure policy)
 
   Then proceed to next wave.
+
+### Spec Mode (execution_mode == "spec")
+
+Group `pending_tasks` by their `spec` field. Change-level tasks (empty `spec`) are grouped separately and executed last.
+
+Resolve model using `spec-executor` role: run `mysd model resolve spec-executor --json` to get the model name.
+
+For each spec group (sequentially, one group at a time):
+
+Show: "Spawning mysd-executor for spec '{spec_name}' ({model})..."
+Use the Task tool to invoke `mysd-executor` with `model` parameter set to the spec-executor resolved model:
+```
+Task: Execute spec '{spec_name}' tasks (T{id1}, T{id2}, ...)
+Agent: mysd-executor
+Model: {spec-executor model}
+Context: {
+  "change_name": "{change_name}",
+  "must_items": [...],
+  "should_items": [...],
+  "may_items": [...],
+  "tasks": [...],
+  "assigned_tasks": [{task1}, {task2}, ...],
+  "tdd_mode": {tdd_mode},
+  "atomic_commits": {atomic_commits},
+  "auto_mode": {auto_mode}
+}
+```
+
+Wait for each spec group to complete before spawning the next. This ensures the agent maintains context continuity across all tasks within the same spec.
+
+After all spec groups, execute change-level tasks (if any) as a final group using the same pattern.
 
 ## Step 4: Post-Execution
 

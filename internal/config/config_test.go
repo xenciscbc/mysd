@@ -142,19 +142,19 @@ func TestResolveModel_AllRoles(t *testing.T) {
 	expected := map[string]map[string]string{
 		"quality": {
 			"spec-writer": "opus", "designer": "opus", "planner": "opus",
-			"executor": "sonnet", "verifier": "opus", "fast-forward": "sonnet",
+			"executor": "sonnet", "spec-executor": "opus", "verifier": "opus", "fast-forward": "sonnet",
 			"researcher": "opus", "advisor": "opus", "proposal-writer": "opus", "plan-checker": "opus",
 			"reviewer": "opus",
 		},
 		"balanced": {
 			"spec-writer": "opus", "designer": "opus", "planner": "opus",
-			"executor": "sonnet", "verifier": "opus", "fast-forward": "sonnet",
+			"executor": "sonnet", "spec-executor": "opus", "verifier": "opus", "fast-forward": "sonnet",
 			"researcher": "sonnet", "advisor": "opus", "proposal-writer": "sonnet", "plan-checker": "opus",
 			"reviewer": "sonnet",
 		},
 		"budget": {
 			"spec-writer": "sonnet", "designer": "haiku", "planner": "sonnet",
-			"executor": "haiku", "verifier": "sonnet", "fast-forward": "haiku",
+			"executor": "haiku", "spec-executor": "sonnet", "verifier": "sonnet", "fast-forward": "haiku",
 			"researcher": "sonnet", "advisor": "sonnet", "proposal-writer": "sonnet", "plan-checker": "sonnet",
 			"reviewer": "sonnet",
 		},
@@ -171,6 +171,13 @@ func TestResolveModel_AllRoles(t *testing.T) {
 	}
 }
 
+// TestResolveModel_SpecExecutorRole verifies spec-executor role returns correct model per profile.
+func TestResolveModel_SpecExecutorRole(t *testing.T) {
+	assert.Equal(t, "opus", ResolveModel("spec-executor", "quality", nil), "quality spec-executor should use opus")
+	assert.Equal(t, "opus", ResolveModel("spec-executor", "balanced", nil), "balanced spec-executor should use opus")
+	assert.Equal(t, "sonnet", ResolveModel("spec-executor", "budget", nil), "budget spec-executor should use sonnet")
+}
+
 // TestResolveModel_ReviewerRole verifies reviewer role returns correct model per profile.
 func TestResolveModel_ReviewerRole(t *testing.T) {
 	assert.Equal(t, "opus", ResolveModel("reviewer", "quality", nil), "quality reviewer should use opus")
@@ -185,6 +192,23 @@ func TestResolveModel_NewRoles_Override(t *testing.T) {
 	}
 	model := ResolveModel("plan-checker", "quality", overrides)
 	assert.Equal(t, "custom-model", model, "override should take precedence for new roles")
+}
+
+// TestLoad_WithSpecExecutionMode verifies execution_mode: "spec" is accepted in config parsing.
+func TestLoad_WithSpecExecutionMode(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	err := os.MkdirAll(claudeDir, 0755)
+	require.NoError(t, err)
+
+	configContent := `execution_mode: spec
+`
+	err = os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644)
+	require.NoError(t, err)
+
+	cfg, err := Load(tmpDir)
+	require.NoError(t, err)
+	assert.Equal(t, "spec", cfg.ExecutionMode)
 }
 
 // TestDefaults_NewFields verifies new ProjectConfig fields have correct defaults.

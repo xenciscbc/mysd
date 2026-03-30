@@ -11,7 +11,7 @@ import (
 
 // DefaultModelMap defines the model mapping per profile per agent role.
 // Profiles: "quality" | "balanced" | "budget"
-// Roles: "spec-writer" | "designer" | "planner" | "executor" | "verifier" | "fast-forward"
+// Roles: "spec-writer" | "designer" | "planner" | "executor" | "spec-executor" | "verifier" | "fast-forward"
 //
 // Values are short model names ("sonnet", "opus", "haiku") compatible with
 // Claude Code's Agent/Task tool model parameter.
@@ -21,6 +21,7 @@ var DefaultModelMap = map[string]map[string]string{
 		"designer":        "opus",
 		"planner":         "opus",
 		"executor":        "sonnet",
+		"spec-executor":   "opus",
 		"verifier":        "opus",
 		"fast-forward":    "sonnet",
 		"researcher":      "opus",
@@ -34,6 +35,7 @@ var DefaultModelMap = map[string]map[string]string{
 		"designer":        "opus",
 		"planner":         "opus",
 		"executor":        "sonnet",
+		"spec-executor":   "opus",
 		"verifier":        "opus",
 		"fast-forward":    "sonnet",
 		"researcher":      "sonnet",
@@ -47,6 +49,7 @@ var DefaultModelMap = map[string]map[string]string{
 		"designer":        "haiku",
 		"planner":         "sonnet",
 		"executor":        "haiku",
+		"spec-executor":   "sonnet",
 		"verifier":        "sonnet",
 		"fast-forward":    "haiku",
 		"researcher":      "sonnet",

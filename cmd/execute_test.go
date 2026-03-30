@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/xenciscbc/mysd/internal/executor"
 	"github.com/xenciscbc/mysd/internal/spec"
@@ -305,6 +306,194 @@ func TestExecuteContextOnly_SpecFilter(t *testing.T) {
 	}
 }
 
+// --- Preflight tests ---
+
+// setupTestChangeWithState creates a test change and writes STATE.json with a specific LastRun time.
+func setupTestChangeWithState(t *testing.T, dir string, tasks spec.TasksFrontmatterV2, phase state.Phase, lastRun time.Time) {
+	t.Helper()
+	setupTestChange(t, dir, tasks, phase)
+	specsDir := filepath.Join(dir, ".specs")
+	ws := state.WorkflowState{
+		ChangeName: "test-change",
+		Phase:      phase,
+		LastRun:    lastRun,
+	}
+	require.NoError(t, state.SaveState(specsDir, ws))
+}
+
+func TestExecutePreflight_AllFilesExist_StatusOK(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	// Create the file that the task references
+	require.NoError(t, os.MkdirAll(filepath.Join(tmpDir, "internal"), 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "internal", "auth.go"), []byte("package internal"), 0644))
+
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       1,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Update auth", Status: spec.StatusPending, Files: []string{"internal/auth.go"}},
+		},
+	}
+	setupTestChangeWithState(t, tmpDir, tasks, state.PhasePlanned, time.Now().Add(-2*24*time.Hour))
+
+	// Reset flags
+	preflight = false
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--preflight"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var report PreflightReport
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
+	assert.Equal(t, "ok", report.Status)
+	assert.Empty(t, report.Checks.MissingFiles)
+	assert.False(t, report.Checks.Staleness.IsStale)
+}
+
+func TestExecutePreflight_MissingFile_StatusWarning(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       1,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Update foo", Status: spec.StatusPending, Files: []string{"internal/foo.go"}},
+		},
+	}
+	setupTestChangeWithState(t, tmpDir, tasks, state.PhasePlanned, time.Now().Add(-1*24*time.Hour))
+
+	preflight = false
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--preflight"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var report PreflightReport
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
+	assert.Equal(t, "warning", report.Status)
+	assert.Contains(t, report.Checks.MissingFiles, "internal/foo.go")
+}
+
+func TestExecutePreflight_NewFileTaskExcluded(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       1,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Create internal/new.go", Status: spec.StatusPending, Files: []string{"internal/new.go"}},
+		},
+	}
+	setupTestChangeWithState(t, tmpDir, tasks, state.PhasePlanned, time.Now().Add(-1*24*time.Hour))
+
+	preflight = false
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--preflight"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var report PreflightReport
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
+	assert.Equal(t, "ok", report.Status)
+	assert.Empty(t, report.Checks.MissingFiles)
+}
+
+func TestExecutePreflight_StaleWarning(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       1,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Task One", Status: spec.StatusPending},
+		},
+	}
+	setupTestChangeWithState(t, tmpDir, tasks, state.PhasePlanned, time.Now().Add(-10*24*time.Hour))
+
+	preflight = false
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--preflight"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var report PreflightReport
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
+	assert.Equal(t, "warning", report.Status)
+	assert.True(t, report.Checks.Staleness.IsStale)
+	assert.GreaterOrEqual(t, report.Checks.Staleness.DaysSinceLastPlan, 10)
+}
+
+func TestExecutePreflight_CriticalStaleness(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       1,
+		Completed:   0,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Task One", Status: spec.StatusPending},
+		},
+	}
+	setupTestChangeWithState(t, tmpDir, tasks, state.PhasePlanned, time.Now().Add(-35*24*time.Hour))
+
+	preflight = false
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--preflight"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var report PreflightReport
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
+	assert.Equal(t, "critical", report.Status)
+	assert.True(t, report.Checks.Staleness.IsStale)
+	assert.GreaterOrEqual(t, report.Checks.Staleness.DaysSinceLastPlan, 35)
+}
+
 func TestExecuteContextOnly_SpecFilter_ChangeLevelExcluded(t *testing.T) {
 	tmpDir := t.TempDir()
 	origDir, err := os.Getwd()
@@ -325,8 +514,9 @@ func TestExecuteContextOnly_SpecFilter_ChangeLevelExcluded(t *testing.T) {
 	}
 	setupTestChange(t, tmpDir, tasks, state.PhasePlanned)
 
-	// Reset global flag
+	// Reset global flags
 	executeSpec = ""
+	preflight = false
 
 	var buf bytes.Buffer
 	rootCmd.SetOut(&buf)

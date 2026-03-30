@@ -239,6 +239,23 @@ func TestBuildContextFromParts_DocsToUpdateJSONOmitEmpty(t *testing.T) {
 	assert.NotContains(t, output, `"docs_to_update"`)
 }
 
+// TestBuildContextFromParts_SpecExecutionMode verifies execution_mode "spec" is accepted and passed through.
+func TestBuildContextFromParts_SpecExecutionMode(t *testing.T) {
+	cfg := config.ProjectConfig{
+		ExecutionMode: "spec",
+		AgentCount:    1,
+	}
+	tasks := []spec.TaskEntry{
+		{ID: 1, Name: "Task A", Status: spec.StatusPending, Spec: "auth"},
+		{ID: 2, Name: "Task B", Status: spec.StatusPending, Spec: "auth"},
+	}
+
+	ctx := BuildContextFromParts("my-change", tasks, nil, cfg)
+
+	assert.Equal(t, "spec", ctx.ExecutionMode)
+	assert.Len(t, ctx.PendingTasks, 2)
+}
+
 // TestTaskItemJSON_OmitEmpty verifies TaskItem with nil new fields does NOT emit those keys in JSON.
 func TestTaskItemJSON_OmitEmpty(t *testing.T) {
 	ti := TaskItem{

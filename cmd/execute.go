@@ -3,6 +3,11 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"math"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/xenciscbc/mysd/internal/config"
 	"github.com/xenciscbc/mysd/internal/executor"
@@ -15,6 +20,7 @@ import (
 var (
 	contextOnly bool
 	executeSpec string
+	preflight   bool
 )
 
 var executeCmd = &cobra.Command{
@@ -26,6 +32,7 @@ var executeCmd = &cobra.Command{
 func init() {
 	executeCmd.Flags().BoolVar(&contextOnly, "context-only", false, "output execution context as JSON (for SKILL.md consumption)")
 	executeCmd.Flags().StringVar(&executeSpec, "spec", "", "filter execution to tasks matching the specified spec")
+	executeCmd.Flags().BoolVar(&preflight, "preflight", false, "run pre-execution validation (file existence, artifact staleness)")
 	rootCmd.AddCommand(executeCmd)
 }
 
@@ -61,6 +68,16 @@ func runExecute(cmd *cobra.Command, args []string) error {
 		cfg.AgentCount, _ = cmd.Flags().GetInt("agent-count")
 	}
 
+	if preflight {
+		report, err := runPreflight(specDir, ws)
+		if err != nil {
+			return err
+		}
+		data, _ := json.MarshalIndent(report, "", "  ")
+		fmt.Fprintln(cmd.OutOrStdout(), string(data))
+		return nil
+	}
+
 	if contextOnly {
 		ctx, err := executor.BuildContext(specDir, ws.ChangeName, cfg)
 		if err != nil {
@@ -85,6 +102,88 @@ func runExecute(cmd *cobra.Command, args []string) error {
 	p.Info("Use /mysd:apply in Claude Code to run with AI alignment gate")
 	p.Info("Or use: mysd execute --context-only | jq")
 	return nil
+}
+
+// PreflightReport is the JSON output of --preflight validation.
+type PreflightReport struct {
+	Status string          `json:"status"`
+	Checks PreflightChecks `json:"checks"`
+}
+
+// PreflightChecks contains the individual check results.
+type PreflightChecks struct {
+	MissingFiles []string          `json:"missing_files"`
+	Staleness    StalenessCheck    `json:"staleness"`
+}
+
+// StalenessCheck reports artifact freshness.
+type StalenessCheck struct {
+	DaysSinceLastPlan int  `json:"days_since_last_plan"`
+	IsStale           bool `json:"is_stale"`
+}
+
+// runPreflight performs pre-execution validation: file existence and artifact staleness.
+func runPreflight(specDir string, ws state.WorkflowState) (PreflightReport, error) {
+	changeDir := filepath.Join(specDir, "changes", ws.ChangeName)
+	tasksPath := filepath.Join(changeDir, "tasks.md")
+
+	fm, _, err := spec.ParseTasksV2(tasksPath)
+	if err != nil {
+		return PreflightReport{}, fmt.Errorf("parse tasks: %w", err)
+	}
+
+	// Check file existence for pending tasks
+	var missingFiles []string
+	for _, task := range fm.Tasks {
+		if task.Status == spec.StatusDone {
+			continue
+		}
+		nameLower := strings.ToLower(task.Name)
+		descLower := strings.ToLower(task.Description)
+		isCreateTask := strings.Contains(nameLower, "create") || strings.Contains(nameLower, "add") ||
+			strings.Contains(descLower, "create") || strings.Contains(descLower, "add")
+
+		for _, f := range task.Files {
+			if isCreateTask {
+				continue
+			}
+			if _, err := os.Stat(f); os.IsNotExist(err) {
+				missingFiles = append(missingFiles, f)
+			}
+		}
+	}
+
+	// Check staleness from STATE.json last_run
+	staleness := StalenessCheck{}
+	if ws.LastRun.IsZero() {
+		staleness.DaysSinceLastPlan = -1
+		staleness.IsStale = true
+	} else {
+		days := int(math.Floor(time.Since(ws.LastRun).Hours() / 24))
+		staleness.DaysSinceLastPlan = days
+		staleness.IsStale = days > 7
+	}
+
+	// Determine overall status
+	status := "ok"
+	if len(missingFiles) > 0 || staleness.IsStale {
+		status = "warning"
+	}
+	if staleness.DaysSinceLastPlan > 30 || staleness.DaysSinceLastPlan == -1 {
+		status = "critical"
+	}
+
+	if missingFiles == nil {
+		missingFiles = []string{}
+	}
+
+	return PreflightReport{
+		Status: status,
+		Checks: PreflightChecks{
+			MissingFiles: missingFiles,
+			Staleness:    staleness,
+		},
+	}, nil
 }
 
 // filterTasksBySpec returns only tasks whose Spec field matches the given spec name.
