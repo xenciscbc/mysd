@@ -93,6 +93,10 @@ func runExecute(cmd *cobra.Command, args []string) error {
 			ctx.HasParallelOpp = executor.HasParallelOpportunity(ctx.PendingTasks)
 		}
 
+		// Generate dynamic instruction from current state + preflight
+		report, _ := runPreflight(specDir, ws)
+		ctx.Instruction = executor.GenerateInstruction(ctx, &report)
+
 		data, _ := json.MarshalIndent(ctx, "", "  ")
 		fmt.Fprintln(cmd.OutOrStdout(), string(data))
 		return nil
@@ -104,32 +108,14 @@ func runExecute(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// PreflightReport is the JSON output of --preflight validation.
-type PreflightReport struct {
-	Status string          `json:"status"`
-	Checks PreflightChecks `json:"checks"`
-}
-
-// PreflightChecks contains the individual check results.
-type PreflightChecks struct {
-	MissingFiles []string          `json:"missing_files"`
-	Staleness    StalenessCheck    `json:"staleness"`
-}
-
-// StalenessCheck reports artifact freshness.
-type StalenessCheck struct {
-	DaysSinceLastPlan int  `json:"days_since_last_plan"`
-	IsStale           bool `json:"is_stale"`
-}
-
 // runPreflight performs pre-execution validation: file existence and artifact staleness.
-func runPreflight(specDir string, ws state.WorkflowState) (PreflightReport, error) {
+func runPreflight(specDir string, ws state.WorkflowState) (executor.PreflightReport, error) {
 	changeDir := filepath.Join(specDir, "changes", ws.ChangeName)
 	tasksPath := filepath.Join(changeDir, "tasks.md")
 
 	fm, _, err := spec.ParseTasksV2(tasksPath)
 	if err != nil {
-		return PreflightReport{}, fmt.Errorf("parse tasks: %w", err)
+		return executor.PreflightReport{}, fmt.Errorf("parse tasks: %w", err)
 	}
 
 	// Check file existence for pending tasks
@@ -154,7 +140,7 @@ func runPreflight(specDir string, ws state.WorkflowState) (PreflightReport, erro
 	}
 
 	// Check staleness from STATE.json last_run
-	staleness := StalenessCheck{}
+	staleness := executor.StalenessCheck{}
 	if ws.LastRun.IsZero() {
 		staleness.DaysSinceLastPlan = -1
 		staleness.IsStale = true
@@ -177,9 +163,9 @@ func runPreflight(specDir string, ws state.WorkflowState) (PreflightReport, erro
 		missingFiles = []string{}
 	}
 
-	return PreflightReport{
+	return executor.PreflightReport{
 		Status: status,
-		Checks: PreflightChecks{
+		Checks: executor.PreflightChecks{
 			MissingFiles: missingFiles,
 			Staleness:    staleness,
 		},

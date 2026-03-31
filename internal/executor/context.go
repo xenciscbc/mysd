@@ -28,6 +28,8 @@ type ExecutionContext struct {
 	HasParallelOpp bool         `json:"has_parallel_opportunity"`
 	// Doc update fields (Phase 11 extension — additive only per D-11/D-12)
 	DocsToUpdate []string `json:"docs_to_update,omitempty"`
+	// Dynamic instruction for orchestrator (dynamic-apply-instructions change)
+	Instruction string `json:"instruction"`
 }
 
 // RequirementItem is a flattened requirement for JSON output.

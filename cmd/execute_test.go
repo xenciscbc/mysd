@@ -353,7 +353,7 @@ func TestExecutePreflight_AllFilesExist_StatusOK(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	var report PreflightReport
+	var report executor.PreflightReport
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
 	assert.Equal(t, "ok", report.Status)
 	assert.Empty(t, report.Checks.MissingFiles)
@@ -387,7 +387,7 @@ func TestExecutePreflight_MissingFile_StatusWarning(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	var report PreflightReport
+	var report executor.PreflightReport
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
 	assert.Equal(t, "warning", report.Status)
 	assert.Contains(t, report.Checks.MissingFiles, "internal/foo.go")
@@ -420,7 +420,7 @@ func TestExecutePreflight_NewFileTaskExcluded(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	var report PreflightReport
+	var report executor.PreflightReport
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
 	assert.Equal(t, "ok", report.Status)
 	assert.Empty(t, report.Checks.MissingFiles)
@@ -453,7 +453,7 @@ func TestExecutePreflight_StaleWarning(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	var report PreflightReport
+	var report executor.PreflightReport
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
 	assert.Equal(t, "warning", report.Status)
 	assert.True(t, report.Checks.Staleness.IsStale)
@@ -487,7 +487,7 @@ func TestExecutePreflight_CriticalStaleness(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	var report PreflightReport
+	var report executor.PreflightReport
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &report))
 	assert.Equal(t, "critical", report.Status)
 	assert.True(t, report.Checks.Staleness.IsStale)
@@ -531,4 +531,43 @@ func TestExecuteContextOnly_SpecFilter_ChangeLevelExcluded(t *testing.T) {
 
 	assert.Len(t, ctx.PendingTasks, 1, "change-level task should be excluded from per-spec filter")
 	assert.Equal(t, "Auth setup", ctx.PendingTasks[0].Name)
+}
+
+func TestExecuteContextOnly_InstructionField(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	// Reset global flags
+	contextOnly = false
+	executeSpec = ""
+	preflight = false
+
+	// 2 tasks: 1 done, 1 pending — triggers "resume" instruction
+	tasks := spec.TasksFrontmatterV2{
+		SpecVersion: "1",
+		Total:       2,
+		Completed:   1,
+		Tasks: []spec.TaskEntry{
+			{ID: 1, Name: "Task One", Status: spec.StatusDone},
+			{ID: 2, Name: "Task Two", Status: spec.StatusPending},
+		},
+	}
+	setupTestChange(t, tmpDir, tasks, state.PhasePlanned)
+
+	var buf bytes.Buffer
+	rootCmd.SetOut(&buf)
+	rootCmd.SetErr(&buf)
+	rootCmd.SetArgs([]string{"execute", "--context-only"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	var ctx executor.ExecutionContext
+	require.NoError(t, json.Unmarshal([]byte(buf.String()), &ctx))
+
+	assert.NotEmpty(t, ctx.Instruction, "instruction field must be non-empty")
+	assert.Contains(t, ctx.Instruction, "T2", "should reference the pending task")
 }
