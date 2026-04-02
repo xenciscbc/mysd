@@ -78,14 +78,17 @@ mysd 支援四種使用模式，依你的情況選擇。
 
 ### 純執行模式
 
-已經有來自其他工具的 specs 或設計文件？用 `/mysd:plan` 將它們轉換為可執行的任務，然後執行：
+已經有來自其他工具的 specs、設計文件，或對話中的想法？用 `/mysd:plan` 將它們轉換為可執行的任務，然後執行：
 
 ```bash
 # 從外部文件轉換為任務
 /mysd:plan --from design.md          # 載入外部檔案作為 planner context
 /mysd:plan --spec auth --from notes  # 對指定 spec 搭配外部輸入進行規劃
 
-# 或者如果已經有 tasks.md，直接跳到執行
+# 或者直接在對話中描述需求，然後：
+/mysd:plan                           # planner 會擷取對話中的 context
+
+# 如果已經有 tasks.md，直接跳到執行
 /mysd:apply             # 執行 tasks.md 中的待辦任務
 /mysd:verify            # 獨立驗證 MUST 項目
 /mysd:archive           # 完成後封存
@@ -190,6 +193,8 @@ propose → [discuss] → plan → apply（含驗證）→ archive
 - **互動式 spec 選擇** — 當存在多個 spec 且未指定 `--spec` 時，互動式選擇器讓你選擇要規劃哪些 spec。
 - **研究階段**（`--research`）— 在規劃前執行一輪聚焦的架構研究，適合複雜或不熟悉的領域。
 - **Plan checker**（`--check`）— 規劃後由獨立 agent 驗證 spec 中每個 MUST 項目都有對應的任務。
+
+- **對話 context** — 在對話中描述需求或想法，然後執行 `/mysd:plan`。planner 會擷取討論 context 並搭配現有的 spec 產出物一起使用。
 
 規劃管線還包含自動 self-review（placeholder 偵測、一致性檢查、範圍警告、模糊修正）和 reviewer agent 審查。
 

@@ -78,14 +78,17 @@ Same as fast-forward but with a research phase before planning.
 
 ### Execution-Only Mode
 
-Already have specs or design docs from another tool? Use `/mysd:plan` to convert them into executable tasks, then run:
+Already have specs, design docs, or ideas from conversation? Use `/mysd:plan` to convert them into executable tasks, then run:
 
 ```bash
 # Convert external docs into tasks
 /mysd:plan --from design.md          # Load external file as planner context
 /mysd:plan --spec auth --from notes  # Plan a specific spec with external input
 
-# Or if you already have tasks.md, jump straight to execution
+# Or just describe what you want in the conversation, then:
+/mysd:plan                           # Planner picks up conversation context
+
+# If you already have tasks.md, jump straight to execution
 /mysd:apply             # Execute pending tasks from existing tasks.md
 /mysd:verify            # Verify MUST items independently
 /mysd:archive           # Archive when done
@@ -190,6 +193,8 @@ propose → [discuss] → plan → apply (with verification) → archive
 - **Interactive spec selection** — when multiple specs exist and no `--spec` flag is given, an interactive picker lets you choose which specs to plan for.
 - **Research phase** (`--research`) — runs a focused architecture research pass before planning, useful for complex or unfamiliar areas.
 - **Plan checker** (`--check`) — after planning, an independent agent verifies every MUST item in the spec has a corresponding task.
+
+- **Conversation context** — describe requirements or ideas in the conversation, then run `/mysd:plan`. The planner picks up the discussion context alongside existing spec artifacts.
 
 The plan pipeline also includes automated self-review (placeholder detection, consistency checks, scope warnings, ambiguity fixes) and a reviewer agent pass before finalizing.
 
