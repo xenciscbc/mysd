@@ -37,4 +37,7 @@ Show confirmation or error if path not found.
 ## Step 3: Context Hint
 
 After any operation, show:
-"Files in docs_to_update are automatically updated with change context after `/mysd:archive`. Manage the list with `/mysd:docs`."
+"Files in docs_to_update are automatically updated with change context after `/mysd:archive`. Manage the list with `/mysd:docs`.
+
+To trigger doc updates independently (outside of archive), use `/mysd:docs-update`.
+Supported scopes: default (latest archive), `--change <name>`, `--last N`, `--full`, or free-text description."

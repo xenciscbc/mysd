@@ -1,16 +1,13 @@
 package cmd
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/charmbracelet/x/term"
 	"github.com/xenciscbc/mysd/internal/roadmap"
 	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/xenciscbc/mysd/internal/state"
@@ -25,13 +22,11 @@ var archiveCmd = &cobra.Command{
 }
 
 func init() {
-	archiveCmd.Flags().Bool("yes", false, "Skip UAT prompt (for non-interactive/CI usage)")
 	archiveCmd.Flags().Bool("analyze-skipped", false, "Output skipped tasks and their spec requirement relationships as JSON")
 	rootCmd.AddCommand(archiveCmd)
 }
 
 func runArchiveCmd(cmd *cobra.Command, args []string) error {
-	skipPrompt, _ := cmd.Flags().GetBool("yes")
 	analyzeSkipped, _ := cmd.Flags().GetBool("analyze-skipped")
 
 	specsDir, _, err := spec.DetectSpecDir(".")
@@ -49,23 +44,11 @@ func runArchiveCmd(cmd *cobra.Command, args []string) error {
 		return runAnalyzeSkipped(cmd, specsDir, ws)
 	}
 
-	// Handle interactive UAT prompt before the gate checks
-	if !skipPrompt && isInteractive() {
-		fmt.Fprint(cmd.OutOrStdout(), "Run UAT first? [y/N] ")
-		reader := bufio.NewReader(os.Stdin)
-		resp, _ := reader.ReadString('\n')
-		resp = strings.TrimSpace(strings.ToLower(resp))
-		if resp == "y" || resp == "yes" {
-			fmt.Fprintln(cmd.OutOrStdout(), "Hint: Run /mysd:uat to start UAT. Continuing with archive...")
-		}
-	}
-
-	return runArchive(specsDir, ws, skipPrompt)
+	return runArchive(specsDir, ws)
 }
 
 // runArchive is the testable core of the archive command.
-// skipPrompt=true suppresses the interactive UAT prompt.
-func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error {
+func runArchive(specsDir string, ws state.WorkflowState) error {
 	// Gate 1: state must be verified
 	if ws.Phase != state.PhaseVerified {
 		return fmt.Errorf("cannot archive: phase is %s, must be verified", ws.Phase)
@@ -292,11 +275,6 @@ func copyFile(src, dst string) error {
 
 	_, err = io.Copy(dstFile, srcFile)
 	return err
-}
-
-// isInteractive returns true if stdin is a terminal.
-func isInteractive() bool {
-	return term.IsTerminal(os.Stdin.Fd())
 }
 
 // truncate returns s truncated to max characters, with "..." appended if truncated.

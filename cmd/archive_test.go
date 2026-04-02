@@ -67,7 +67,7 @@ func TestArchiveGate_WrongPhase(t *testing.T) {
 	specsDir, changeName, _ := setupArchiveTestChange(t, state.PhaseExecuted, false)
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseExecuted}
-	err := runArchive(specsDir, ws, false)
+	err := runArchive(specsDir, ws)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "cannot archive")
 	assert.Contains(t, err.Error(), "executed")
@@ -92,7 +92,7 @@ func TestArchiveGate_MustNotDone(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "gap-report.md"), []byte("---\nfailed_must_ids:\n  - spec.md::must-somehash\n---\n# Gap Report\n"), 0644))
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	err := runArchive(specsDir, ws, false)
+	err := runArchive(specsDir, ws)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "cannot archive")
 	assert.Contains(t, err.Error(), "MUST item")
@@ -129,7 +129,7 @@ func TestArchiveSuccess(t *testing.T) {
 	require.NoError(t, spec.WriteVerificationStatus(changeDir, vs))
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	err := runArchive(specsDir, ws, false)
+	err := runArchive(specsDir, ws)
 	require.NoError(t, err)
 
 	// Change directory should have moved to changes/archive/YYYY-MM-DD-<name>/
@@ -156,33 +156,6 @@ func TestArchiveSuccess(t *testing.T) {
 	var archivedWS state.WorkflowState
 	require.NoError(t, json.Unmarshal(data, &archivedWS))
 	assert.Equal(t, changeName, archivedWS.ChangeName)
-}
-
-// TestArchiveGateNoUAT tests that archive does NOT check UAT status anywhere.
-func TestArchiveGateNoUAT(t *testing.T) {
-	specsDir, changeName, changeDir := setupArchiveTestChange(t, state.PhaseVerified, false)
-
-	// Remove spec so no MUST items to check
-	specsSubDir := filepath.Join(changeDir, "specs", "capability-a")
-	require.NoError(t, os.WriteFile(filepath.Join(specsSubDir, "spec.md"), []byte("# Spec\nNo requirements here.\n"), 0644))
-
-	// Write empty verification-status
-	vs := spec.VerificationStatus{
-		ChangeName:   changeName,
-		VerifiedAt:   time.Now().UTC(),
-		Requirements: map[string]spec.ItemStatus{},
-	}
-	require.NoError(t, spec.WriteVerificationStatus(changeDir, vs))
-
-	// Create a "UAT not done" marker — archive should NOT care
-	uatDir := filepath.Join(specsDir, ".mysd", "uat")
-	require.NoError(t, os.MkdirAll(uatDir, 0755))
-	require.NoError(t, os.WriteFile(filepath.Join(uatDir, changeName+"-uat.md"), []byte("---\nstatus: not_done\n---\n# UAT\n"), 0644))
-
-	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	// Archive should succeed regardless of UAT status
-	err := runArchive(specsDir, ws, true) // --yes skips interactive prompt
-	assert.NoError(t, err)
 }
 
 // TestArchiveDeletesResearchCache tests that deleteResearchCache removes the cache file.

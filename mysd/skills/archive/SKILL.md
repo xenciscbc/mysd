@@ -1,5 +1,5 @@
 ---
-description: Archive a verified spec change to .specs/archive/.
+description: Archive a verified spec change to openspec/changes/archive/.
 argument-hint: "[--auto]"
 allowed-tools:
   - Bash
@@ -39,7 +39,7 @@ Inform the user:
 ```
 Change archived successfully.
 
-Archive location: .specs/archive/{change_name}/
+Archive location: openspec/changes/archive/YYYY-MM-DD-{change_name}/
 All spec files, verification report, and history preserved.
 ```
 
@@ -97,9 +97,9 @@ If user types 'n': skip to Step 3.
 ### Step 2b: Read Context for Updates (D-11b)
 
 For the archived change, read:
-- `.specs/archive/{change_name}/proposal.md` — what and why
-- `.specs/archive/{change_name}/tasks.md` — what was done
-- `.specs/archive/{change_name}/specs/` — all spec files (MUST/SHOULD/MAY requirements)
+- `openspec/changes/archive/YYYY-MM-DD-{change_name}/proposal.md` — what and why
+- `openspec/changes/archive/YYYY-MM-DD-{change_name}/tasks.md` — what was done
+- `openspec/changes/archive/YYYY-MM-DD-{change_name}/specs/` — all spec files (MUST/SHOULD/MAY requirements)
 
 Combine into `update_context`.
 

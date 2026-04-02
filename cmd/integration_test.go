@@ -84,7 +84,7 @@ func TestArchiveIntegration_Success(t *testing.T) {
 	specsDir, changeName, changeDir := setupVerifiedChangeDir(t, state.PhaseVerified, false)
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	err := runArchive(specsDir, ws, true) // --yes skips interactive UAT prompt
+	err := runArchive(specsDir, ws)
 	require.NoError(t, err)
 
 	// 1. Archive directory exists (with date prefix)
@@ -110,7 +110,7 @@ func TestArchiveIntegration_GateRejectsExecuted(t *testing.T) {
 	specsDir, changeName, _ := setupVerifiedChangeDir(t, state.PhaseExecuted, false)
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseExecuted}
-	err := runArchive(specsDir, ws, true)
+	err := runArchive(specsDir, ws)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "must be verified", "error should mention 'must be verified'")
 }
@@ -132,28 +132,9 @@ func TestArchiveIntegration_GateRejectsMustNotDone(t *testing.T) {
 	// empty verification map, triggering "not done" error.
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	err := runArchive(specsDir, ws, true)
+	err := runArchive(specsDir, ws)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "not done", "error should mention MUST item is not done")
-}
-
-// TestArchiveIntegration_NoUATCheck tests that archive succeeds without any UAT files (UAT-02).
-func TestArchiveIntegration_NoUATCheck(t *testing.T) {
-	specsDir, changeName, _ := setupVerifiedChangeDir(t, state.PhaseVerified, false)
-
-	// Ensure no .mysd/uat/ directory exists at all
-	uatDir := filepath.Join(specsDir, ".mysd", "uat")
-	_, statErr := os.Stat(uatDir)
-	assert.True(t, os.IsNotExist(statErr), ".mysd/uat/ should not exist before test")
-
-	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	// Archive should succeed even without any UAT files
-	err := runArchive(specsDir, ws, true) // --yes skips interactive UAT prompt
-	assert.NoError(t, err, "archive should succeed regardless of UAT file absence")
-
-	// Verify archive completed
-	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
-	assert.DirExists(t, archiveDir)
 }
 
 // TestArchiveIntegration_DeltaSpecMerge tests the full pipeline:
@@ -217,7 +198,7 @@ func TestArchiveIntegration_DeltaSpecMerge(t *testing.T) {
 	require.NoError(t, spec.WriteVerificationStatus(changeDir, vs))
 
 	// Run archive
-	err := runArchive(specsDir, ws, true)
+	err := runArchive(specsDir, ws)
 	require.NoError(t, err)
 
 	// 1. Archive directory exists with date prefix
@@ -254,7 +235,7 @@ func TestArchiveIntegration_TaskGateBlocksIncomplete(t *testing.T) {
 	))
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	err := runArchive(specsDir, ws, true)
+	err := runArchive(specsDir, ws)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "incomplete task")
 }
@@ -271,7 +252,7 @@ func TestArchiveIntegration_SkippedTasksPassGate(t *testing.T) {
 	))
 
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
-	err := runArchive(specsDir, ws, true)
+	err := runArchive(specsDir, ws)
 	require.NoError(t, err)
 
 	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
