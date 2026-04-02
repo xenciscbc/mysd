@@ -78,17 +78,9 @@ Same as fast-forward but with a research phase before planning.
 
 ### Execution-Only Mode
 
-Already have specs, design docs, or ideas from conversation? Use `/mysd:plan` to convert them into executable tasks, then run:
+Already have specs and tasks from another tool or manual authoring? Jump straight to execution:
 
 ```bash
-# Convert external docs into tasks
-/mysd:plan --from design.md          # Load external file as planner context
-/mysd:plan --spec auth --from notes  # Plan a specific spec with external input
-
-# Or just describe what you want in the conversation, then:
-/mysd:plan                           # Planner picks up conversation context
-
-# If you already have tasks.md, jump straight to execution
 /mysd:apply             # Execute pending tasks from existing tasks.md
 /mysd:verify            # Verify MUST items independently
 /mysd:archive           # Archive when done
@@ -102,7 +94,7 @@ Already have specs, design docs, or ideas from conversation? Use `/mysd:plan` to
 |---------|-------------|-----------|
 | `/mysd:propose` | Create a change proposal with spec, design, and tasks | `[change-name\|file\|dir] [--auto]` |
 | `/mysd:discuss` | Ad-hoc research with 4-dimension exploration and advisor agents | `[topic\|change-name\|file\|dir] [--auto]` |
-| `/mysd:plan` | Break design into executable tasks with MUST coverage check | `[--research] [--check] [--spec <name>] [--from <file>] [--auto]` |
+| `/mysd:plan` | Break design into executable tasks with MUST coverage check | `[--research] [--check] [--auto]` |
 | `/mysd:apply` | Execute tasks with spec alignment gate; supports single/wave/spec modes | `[--auto]` |
 | `/mysd:verify` | Goal-backward verification of all MUST items by independent verifier | |
 | `/mysd:archive` | Archive completed change to `openspec/changes/archive/` with delta spec sync | `[--auto]` |
@@ -186,15 +178,12 @@ propose → [discuss] → plan → apply (with verification) → archive
 
 ### Planning with Context
 
-`/mysd:plan` supports multiple ways to feed context into the planner:
+`/mysd:plan` supports multiple ways to control the planning process:
 
-- **Per-spec planning** (`--spec <name>`) — restrict planning to a single spec capability. Useful when you have a multi-spec change and want to plan incrementally.
-- **External input** (`--from <file>`) — load a file (e.g., a design doc, meeting notes, or existing plan from another tool) as additional planner context. The planner uses this alongside the spec artifacts to generate tasks.
-- **Interactive spec selection** — when multiple specs exist and no `--spec` flag is given, an interactive picker lets you choose which specs to plan for.
+- **Interactive spec selection** — when multiple specs exist, an interactive picker lets you choose which specs to plan for.
 - **Research phase** (`--research`) — runs a focused architecture research pass before planning, useful for complex or unfamiliar areas.
 - **Plan checker** (`--check`) — after planning, an independent agent verifies every MUST item in the spec has a corresponding task.
-
-- **Conversation context** — describe requirements or ideas in the conversation, then run `/mysd:plan`. The planner picks up the discussion context alongside existing spec artifacts.
+- **Design skip evaluation** — for simple changes (few files, no new capabilities), the planner can automatically skip the design phase.
 
 The plan pipeline also includes automated self-review (placeholder detection, consistency checks, scope warnings, ambiguity fixes) and a reviewer agent pass before finalizing.
 
