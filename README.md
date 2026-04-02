@@ -2,13 +2,11 @@
 
 **Spec-Driven Development for AI Programming**
 
-mysd is a Go CLI tool + Claude Code plugin that integrates [OpenSpec](https://github.com/openspec-dev/openspec)'s Spec-Driven Development (SDD) methodology with [GSD (Get Shit Done)](https://github.com/bfra-me/get-shit-done)'s planning/execution/verification engine into one seamless system.
+mysd is a Go CLI tool + Claude Code plugin that integrates [OpenSpec](https://github.com/openspec-dev/openspec)'s Spec-Driven Development (SDD) methodology with a planning/execution/verification engine into one seamless system.
 
 It lets solo developers (1 human + N AI agents) drive AI coding with structured specs — ensuring AI reads and aligns with requirements before writing code, and automatically verifies results after execution.
 
 ## Why mysd?
-
-OpenSpec gives you a complete SDD methodology but no execution engine. GSD gives you a powerful execution engine but no spec management. mysd fills the gap:
 
 - **Specs are the single source of truth** — not just documentation, but what directly drives AI execution and verification
 - **Alignment gate** — AI must read and acknowledge the spec before writing any code (non-bypassable)
@@ -41,92 +39,150 @@ cp -r plugin/ ~/.claude/plugins/mysd/
 
 All `/mysd:*` slash commands will be available in your next Claude Code session.
 
-## Quick Start
+## Usage Modes
+
+mysd supports three usage modes — pick whichever fits your situation.
+
+### Step-by-Step (Interactive)
+
+Full control over each phase. Best for complex features or when you want to review between steps.
 
 ```bash
-# Initialize mysd in your project
-/mysd:init
-
-# Create a change proposal — auto-generates spec, design, and tasks
-/mysd:propose add-user-auth
-
-# (Optional) Explore before committing — 4-dimension interactive research
-/mysd:discuss
-
-# Break design into executable tasks (includes plan-checker MUST coverage verification)
-/mysd:plan
-
-# Execute tasks — AI reads spec first, then codes
-# Verification is mandatory and runs automatically after execution
-/mysd:apply
-
-# Archive completed change
-/mysd:archive
+/mysd:init                        # One-time project setup
+/mysd:propose add-user-auth       # Create change proposal + artifacts
+/mysd:discuss                     # (Optional) 4-dimension research
+/mysd:plan                        # Break design into tasks
+/mysd:apply                       # Execute tasks (alignment gate + verification)
+/mysd:archive                     # Archive completed change
 ```
 
-Or fast-forward the entire workflow:
+### Fast-Forward (Semi-Automated)
+
+Skip interactive confirmations. Good for well-understood changes.
 
 ```bash
-# propose -> plan in one shot (with auto research)
-/mysd:ff my-feature
+/mysd:ff my-feature     # propose → plan → apply → archive (with auto research)
+```
 
-# propose -> plan -> apply -> verify -> archive in one shot (fully automated)
-/mysd:ffe my-feature
+### Full Fast-Forward (Fully Automated)
+
+End-to-end in one command. Good for small, well-scoped changes.
+
+```bash
+/mysd:ffe my-feature    # propose → plan → apply → verify → archive (zero prompts)
+```
+
+### Execution-Only Mode
+
+Already have specs and tasks from another tool or manual authoring? Jump straight to execution:
+
+```bash
+/mysd:apply             # Execute pending tasks from existing tasks.md
+/mysd:verify            # Verify MUST items independently
+/mysd:archive           # Archive when done
 ```
 
 ## Commands
 
-### Workflow
+### Core Workflow
 
-| Command | Description |
-|---------|-------------|
-| `/mysd:propose` | Create a change proposal with auto-generated spec, design, and tasks |
-| `/mysd:discuss` | Interactive exploration with 4-dimension research and advisor agents |
-| `/mysd:plan` | Break design into executable tasks with plan-checker MUST coverage verification |
-| `/mysd:apply` | Execute tasks with mandatory spec alignment gate and built-in verification; supports wave parallel execution |
-| `/mysd:archive` | Archive completed change to `openspec/changes/archive/` |
+| Command | Description | Arguments |
+|---------|-------------|-----------|
+| `/mysd:propose` | Create a change proposal with spec, design, and tasks | `[change-name\|file\|dir] [--auto]` |
+| `/mysd:discuss` | Ad-hoc research with 4-dimension exploration and advisor agents | `[topic\|change-name\|file\|dir] [--auto]` |
+| `/mysd:plan` | Break design into executable tasks with MUST coverage check | `[--research] [--check] [--spec <name>] [--from <file>] [--auto]` |
+| `/mysd:apply` | Execute tasks with spec alignment gate; supports single/wave/spec modes | `[--auto]` |
+| `/mysd:verify` | Goal-backward verification of all MUST items by independent verifier | |
+| `/mysd:archive` | Archive completed change to `openspec/changes/archive/` with delta spec sync | `[--auto]` |
 
 ### Fast-Forward
 
-| Command | Description |
-|---------|-------------|
-| `/mysd:ff` | Fast-forward: propose through plan (with auto research) |
-| `/mysd:ffe` | Full fast-forward: propose → plan → apply → verify → archive (fully automated) |
+| Command | Description | Arguments |
+|---------|-------------|-----------|
+| `/mysd:ff` | Fast-forward: propose → plan → apply → archive (auto research, no prompts) | `[change-name]` |
+| `/mysd:ffe` | Full fast-forward: propose → plan → apply → verify → archive (fully automated) | `[change-name]` |
+
+### Documentation
+
+| Command | Description | Arguments |
+|---------|-------------|-----------|
+| `/mysd:docs` | Manage `docs_to_update` list (files auto-updated after archive) | `[add <path> \| remove <path>]` |
+| `/mysd:docs-update` | Trigger doc updates independently — supports multiple scopes | `[--change <name> \| --last N \| --full \| "text"]` |
+
+`/mysd:docs-update` scopes:
+- **No arguments** — update from the most recent archived change
+- `--change <name>` — update from a specific archived change
+- `--last N` — update from the N most recent archived changes
+- `--full` — scan the codebase and update docs to reflect actual project state
+- `"free text"` — use the provided description as update context
 
 ### Utility
 
-| Command | Description |
-|---------|-------------|
-| `/mysd:status` | Show current workflow state and progress |
-| `/mysd:scan` | Scan existing codebase and generate specs |
-| `/mysd:fix` | Fix failed tasks in worktree isolation with optional research mode |
-| `/mysd:note` | Manage deferred notes — capture out-of-scope ideas without interrupting work |
-| `/mysd:model` | View or set model profile (quality / balanced / budget) |
-| `/mysd:lang` | Set response language and OpenSpec locale |
-| `/mysd:update` | Check for updates and install new mysd binary + sync plugin files |
-| `/mysd:init` | Initialize project configuration |
-| `/mysd:uat` | Interactive user acceptance testing |
+| Command | Description | Arguments |
+|---------|-------------|-----------|
+| `/mysd:status` | Show workflow state, task progress, and next step recommendation | |
+| `/mysd:scan` | Scan existing codebase and generate OpenSpec-format specs | |
+| `/mysd:fix` | Fix failed tasks in worktree isolation with optional research | `[change-name] [T{id}]` |
+| `/mysd:note` | Manage deferred notes — capture out-of-scope ideas | `[add {content} \| delete {id}]` |
+| `/mysd:model` | View or set model profile (quality / balanced / budget) | |
+| `/mysd:lang` | Set response language and OpenSpec locale | |
+| `/mysd:update` | Check for updates and install new binary + sync plugin files | `[--check] [--force]` |
+| `/mysd:init` | Initialize project configuration and openspec structure | |
+| `/mysd:uat` | Interactive user acceptance testing walkthrough | |
+| `/mysd:statusline` | Toggle statusline display | `[on\|off]` |
 
 ## How It Works
 
-mysd follows a structured lifecycle for every code change:
+### Lifecycle
+
+Every code change follows a structured lifecycle:
 
 ```
-propose -> [discuss] -> plan -> apply (with verification) -> archive
+propose → [discuss] → plan → apply (with verification) → archive
 ```
 
-1. **Propose** — Create a change proposal and auto-generate all artifacts (proposal.md, specs/, design.md, tasks.md) in `openspec/changes/`
+1. **Propose** — Create a change proposal and auto-generate all artifacts (proposal.md, specs/, design.md, tasks.md) in `openspec/changes/<name>/`
 2. **Discuss** *(optional)* — Run 4-dimension interactive research (Codebase/Domain/Architecture/Pitfalls) to explore unknowns before committing to requirements
 3. **Plan** — Break the design into ordered, executable tasks; plan-checker verifies every MUST item has a corresponding task
-4. **Apply** — AI reads the spec (alignment gate), then implements each task. Verification is mandatory and runs automatically after execution. Tasks with no file overlap are grouped into waves and run in parallel git worktrees.
-5. **Archive** — Move completed change to `openspec/changes/archive/` with delta spec sync
+4. **Apply** — AI reads the spec (alignment gate), then implements each task. Verification runs automatically after execution.
+5. **Archive** — Move completed change to `openspec/changes/archive/YYYY-MM-DD-<name>/` with delta spec sync back to main specs
 
-### Key Architecture
+### Architecture
 
 - **Go binary** handles state management, spec parsing, config, and structured JSON output
 - **SKILL.md files** orchestrate the AI workflow (invoke binary, present results, delegate to agents)
-- **Agent definitions** perform the actual AI work (spec writing, execution, verification)
+- **Agent definitions** (13 agents) perform the actual AI work (spec writing, execution, verification, research, etc.)
 - **Reverse-calling pattern** — Claude Code calls the binary, not the other way around. No MCP server needed.
+
+### Agent Roles
+
+| Agent | Role |
+|-------|------|
+| mysd-proposal-writer | Write change proposals from user descriptions |
+| mysd-spec-writer | Write requirements specs with RFC 2119 keywords |
+| mysd-designer | Architecture and technical design |
+| mysd-researcher | 4-dimension codebase research |
+| mysd-advisor | Trade-off analysis for gray areas |
+| mysd-planner | Task breakdown and dependency analysis |
+| mysd-plan-checker | Verify plan covers all MUST items |
+| mysd-executor | Implement tasks from plan |
+| mysd-verifier | Goal-backward verification of MUST items |
+| mysd-reviewer | Code review |
+| mysd-scanner | Codebase scanning for spec generation |
+| mysd-uat-guide | User acceptance testing guidance |
+| mysd-fast-forward | Orchestrate accelerated workflows |
+
+### Planning with Context
+
+`/mysd:plan` supports multiple ways to feed context into the planner:
+
+- **Per-spec planning** (`--spec <name>`) — restrict planning to a single spec capability. Useful when you have a multi-spec change and want to plan incrementally.
+- **External input** (`--from <file>`) — load a file (e.g., a design doc, meeting notes, or existing plan from another tool) as additional planner context. The planner uses this alongside the spec artifacts to generate tasks.
+- **Interactive spec selection** — when multiple specs exist and no `--spec` flag is given, an interactive picker lets you choose which specs to plan for.
+- **Research phase** (`--research`) — runs a focused architecture research pass before planning, useful for complex or unfamiliar areas.
+- **Plan checker** (`--check`) — after planning, an independent agent verifies every MUST item in the spec has a corresponding task.
+
+The plan pipeline also includes automated self-review (placeholder detection, consistency checks, scope warnings, ambiguity fixes) and a reviewer agent pass before finalizing.
 
 ### Wave Parallel Execution
 
@@ -144,7 +200,7 @@ When a spec's tasks.md contains `depends` fields, mysd performs dependency analy
 
 - **4 research dimensions**: Codebase (existing patterns), Domain (requirements & constraints), Architecture (approach options), Pitfalls (known failure modes)
 - Advisor agents surface unknowns per dimension; you terminate each loop when you have enough context
-- Output feeds directly into `/mysd:spec` so nothing is lost
+- Output feeds directly into spec artifacts so nothing is lost
 
 ## Self-Update
 
