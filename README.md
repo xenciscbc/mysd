@@ -78,9 +78,14 @@ Same as fast-forward but with a research phase before planning.
 
 ### Execution-Only Mode
 
-Already have specs and tasks from another tool or manual authoring? Jump straight to execution:
+Already have specs or design docs from another tool? Use `/mysd:plan` to convert them into executable tasks, then run:
 
 ```bash
+# Convert external docs into tasks
+/mysd:plan --from design.md          # Load external file as planner context
+/mysd:plan --spec auth --from notes  # Plan a specific spec with external input
+
+# Or if you already have tasks.md, jump straight to execution
 /mysd:apply             # Execute pending tasks from existing tasks.md
 /mysd:verify            # Verify MUST items independently
 /mysd:archive           # Archive when done

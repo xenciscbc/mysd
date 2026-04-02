@@ -78,9 +78,14 @@ mysd 支援四種使用模式，依你的情況選擇。
 
 ### 純執行模式
 
-已經有來自其他工具或手動撰寫的 specs 和 tasks？直接跳到執行：
+已經有來自其他工具的 specs 或設計文件？用 `/mysd:plan` 將它們轉換為可執行的任務，然後執行：
 
 ```bash
+# 從外部文件轉換為任務
+/mysd:plan --from design.md          # 載入外部檔案作為 planner context
+/mysd:plan --spec auth --from notes  # 對指定 spec 搭配外部輸入進行規劃
+
+# 或者如果已經有 tasks.md，直接跳到執行
 /mysd:apply             # 執行 tasks.md 中的待辦任務
 /mysd:verify            # 獨立驗證 MUST 項目
 /mysd:archive           # 完成後封存
