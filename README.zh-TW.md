@@ -78,9 +78,14 @@ mysd 支援四種使用模式，依你的情況選擇。
 
 ### 純執行模式
 
-已經有來自其他工具或手動撰寫的 specs 和 tasks？直接跳到執行：
+已經有來自其他工具的 specs 或設計文件？用 `/mysd:plan` 將它們轉換為可執行的任務，然後執行：
 
 ```bash
+# 從外部文件轉換為任務
+/mysd:plan --from design.md          # 載入外部檔案作為 planner context
+/mysd:plan --spec auth --from notes  # 對指定 spec 搭配外部輸入進行規劃
+
+# 如果已經有 tasks.md，直接跳到執行
 /mysd:apply             # 執行 tasks.md 中的待辦任務
 /mysd:verify            # 獨立驗證 MUST 項目
 /mysd:archive           # 完成後封存
@@ -94,7 +99,7 @@ mysd 支援四種使用模式，依你的情況選擇。
 |------|------|------|
 | `/mysd:propose` | 建立變更提案，自動產生 spec、design、tasks | `[change-name\|file\|dir] [--auto]` |
 | `/mysd:discuss` | 臨時研究，4 維度探索與 advisor agent | `[topic\|change-name\|file\|dir] [--auto]` |
-| `/mysd:plan` | 將設計拆解為可執行任務，含 MUST 覆蓋率檢查 | `[--research] [--check] [--auto]` |
+| `/mysd:plan` | 將設計拆解為可執行任務，含 MUST 覆蓋率檢查 | `[--research] [--check] [--spec <name>] [--from <file>] [--auto]` |
 | `/mysd:apply` | 執行任務，含 spec 對齊閘門；支援 single/wave/spec 模式 | `[--auto]` |
 | `/mysd:verify` | 由獨立 verifier agent 對所有 MUST 項目進行目標回推驗證 | |
 | `/mysd:archive` | 封存已完成的變更到 `openspec/changes/archive/`，同步 delta spec | `[--auto]` |
@@ -180,7 +185,9 @@ propose → [discuss] → plan → apply（含驗證）→ archive
 
 `/mysd:plan` 支援多種方式控制規劃流程：
 
-- **互動式 spec 選擇** — 當存在多個 spec 時，互動式選擇器讓你選擇要規劃哪些 spec。
+- **Per-spec 規劃**（`--spec <name>`）— 限制規劃範圍為單一 spec capability。適合多 spec 的變更需要增量規劃時使用。
+- **外部輸入**（`--from <file>`）— 載入檔案（如設計文件、會議記錄、或其他工具產出的計畫）作為 planner 的額外 context。planner 會將此與 spec 產出物一起使用來產生任務。
+- **互動式 spec 選擇** — 當存在多個 spec 且未指定 `--spec` 時，互動式選擇器讓你選擇要規劃哪些 spec。
 - **研究階段**（`--research`）— 在規劃前執行一輪聚焦的架構研究，適合複雜或不熟悉的領域。
 - **Plan checker**（`--check`）— 規劃後由獨立 agent 驗證 spec 中每個 MUST 項目都有對應的任務。
 - **Design 跳過評估** — 對於簡單的變更（少量檔案、無新增 capability），planner 可自動跳過 design 階段。

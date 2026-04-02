@@ -78,9 +78,14 @@ Same as fast-forward but with a research phase before planning.
 
 ### Execution-Only Mode
 
-Already have specs and tasks from another tool or manual authoring? Jump straight to execution:
+Already have specs or design docs from another tool? Use `/mysd:plan` to convert them into executable tasks, then run:
 
 ```bash
+# Convert external docs into tasks
+/mysd:plan --from design.md          # Load external file as planner context
+/mysd:plan --spec auth --from notes  # Plan a specific spec with external input
+
+# If you already have tasks.md, jump straight to execution
 /mysd:apply             # Execute pending tasks from existing tasks.md
 /mysd:verify            # Verify MUST items independently
 /mysd:archive           # Archive when done
@@ -94,7 +99,7 @@ Already have specs and tasks from another tool or manual authoring? Jump straigh
 |---------|-------------|-----------|
 | `/mysd:propose` | Create a change proposal with spec, design, and tasks | `[change-name\|file\|dir] [--auto]` |
 | `/mysd:discuss` | Ad-hoc research with 4-dimension exploration and advisor agents | `[topic\|change-name\|file\|dir] [--auto]` |
-| `/mysd:plan` | Break design into executable tasks with MUST coverage check | `[--research] [--check] [--auto]` |
+| `/mysd:plan` | Break design into executable tasks with MUST coverage check | `[--research] [--check] [--spec <name>] [--from <file>] [--auto]` |
 | `/mysd:apply` | Execute tasks with spec alignment gate; supports single/wave/spec modes | `[--auto]` |
 | `/mysd:verify` | Goal-backward verification of all MUST items by independent verifier | |
 | `/mysd:archive` | Archive completed change to `openspec/changes/archive/` with delta spec sync | `[--auto]` |
@@ -180,7 +185,9 @@ propose → [discuss] → plan → apply (with verification) → archive
 
 `/mysd:plan` supports multiple ways to control the planning process:
 
-- **Interactive spec selection** — when multiple specs exist, an interactive picker lets you choose which specs to plan for.
+- **Per-spec planning** (`--spec <name>`) — restrict planning to a single spec capability. Useful when you have a multi-spec change and want to plan incrementally.
+- **External input** (`--from <file>`) — load a file (e.g., a design doc, meeting notes, or existing plan from another tool) as additional planner context. The planner uses this alongside the spec artifacts to generate tasks.
+- **Interactive spec selection** — when multiple specs exist and no `--spec` flag is given, an interactive picker lets you choose which specs to plan for.
 - **Research phase** (`--research`) — runs a focused architecture research pass before planning, useful for complex or unfamiliar areas.
 - **Plan checker** (`--check`) — after planning, an independent agent verifies every MUST item in the spec has a corresponding task.
 - **Design skip evaluation** — for simple changes (few files, no new capabilities), the planner can automatically skip the design phase.
