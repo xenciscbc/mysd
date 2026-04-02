@@ -99,10 +99,10 @@ func TestArchiveIntegration_Success(t *testing.T) {
 	archivedStatePath := filepath.Join(archiveDir, "ARCHIVED-STATE.json")
 	assert.FileExists(t, archivedStatePath)
 
-	// 4. STATE.json has phase == archived
+	// 4. STATE.json should be deleted after archive
 	loadedWS, err := state.LoadState(specsDir)
 	require.NoError(t, err)
-	assert.Equal(t, state.PhaseArchived, loadedWS.Phase)
+	assert.Equal(t, state.PhaseNone, loadedWS.Phase, "STATE.json should be cleaned up after archive")
 }
 
 // TestArchiveIntegration_GateRejectsExecuted tests archive fails when state is executed.
@@ -217,10 +217,10 @@ func TestArchiveIntegration_DeltaSpecMerge(t *testing.T) {
 	assert.Contains(t, string(content), "SHOULD support OAuth2 authentication")
 	assert.Contains(t, string(content), "version: 1.0.0") // new spec gets initial frontmatter
 
-	// 4. State is archived
+	// 4. STATE.json should be deleted after archive
 	loadedWS, err := state.LoadState(specsDir)
 	require.NoError(t, err)
-	assert.Equal(t, state.PhaseArchived, loadedWS.Phase)
+	assert.Equal(t, state.PhaseNone, loadedWS.Phase, "STATE.json should be cleaned up after archive")
 }
 
 // TestArchiveIntegration_TaskGateBlocksIncomplete tests that archive fails when tasks are incomplete.

@@ -13,13 +13,17 @@ import (
 
 func TestLoadState_MissingFile_ReturnsZeroState(t *testing.T) {
 	tmpDir := t.TempDir()
-	ws, err := LoadState(tmpDir)
+	specsDir := filepath.Join(tmpDir, "openspec")
+	require.NoError(t, os.MkdirAll(specsDir, 0755))
+	ws, err := LoadState(specsDir)
 	require.NoError(t, err, "missing STATE.json should not return error (convention over config)")
 	assert.Equal(t, WorkflowState{}, ws, "missing file should return zero-value WorkflowState")
 }
 
 func TestSaveState_LoadState_Roundtrip(t *testing.T) {
 	tmpDir := t.TempDir()
+	specsDir := filepath.Join(tmpDir, "openspec")
+	require.NoError(t, os.MkdirAll(specsDir, 0755))
 	verifyPass := true
 	original := WorkflowState{
 		ChangeName: "add-auth",
@@ -28,10 +32,13 @@ func TestSaveState_LoadState_Roundtrip(t *testing.T) {
 		VerifyPass: &verifyPass,
 	}
 
-	err := SaveState(tmpDir, original)
+	err := SaveState(specsDir, original)
 	require.NoError(t, err, "SaveState should not error")
 
-	loaded, err := LoadState(tmpDir)
+	// Verify file is in .mysd/ not specsDir
+	assert.FileExists(t, filepath.Join(tmpDir, ".mysd", "STATE.json"))
+
+	loaded, err := LoadState(specsDir)
 	require.NoError(t, err, "LoadState should not error")
 	assert.Equal(t, original.ChangeName, loaded.ChangeName)
 	assert.Equal(t, original.Phase, loaded.Phase)
@@ -40,14 +47,32 @@ func TestSaveState_LoadState_Roundtrip(t *testing.T) {
 	assert.Equal(t, *original.VerifyPass, *loaded.VerifyPass)
 }
 
-func TestSaveState_CreatesDirectory(t *testing.T) {
+func TestSaveState_CreatesMysdDirectory(t *testing.T) {
 	tmpDir := t.TempDir()
-	nestedDir := filepath.Join(tmpDir, "nested", ".specs")
+	specsDir := filepath.Join(tmpDir, "nested", "openspec")
 	ws := WorkflowState{ChangeName: "test", Phase: PhaseNone}
-	err := SaveState(nestedDir, ws)
-	require.NoError(t, err, "SaveState should create nested directories")
-	_, err = os.Stat(filepath.Join(nestedDir, "STATE.json"))
-	require.NoError(t, err, "STATE.json should exist after SaveState")
+	err := SaveState(specsDir, ws)
+	require.NoError(t, err, "SaveState should create .mysd directory")
+	_, err = os.Stat(filepath.Join(tmpDir, "nested", ".mysd", "STATE.json"))
+	require.NoError(t, err, "STATE.json should exist in .mysd/ after SaveState")
+}
+
+func TestLoadState_BackwardCompatibility(t *testing.T) {
+	tmpDir := t.TempDir()
+	specsDir := filepath.Join(tmpDir, "openspec")
+	require.NoError(t, os.MkdirAll(specsDir, 0755))
+
+	// Write STATE.json in legacy location (specsDir)
+	ws := WorkflowState{ChangeName: "legacy-change", Phase: PhaseProposed}
+	data, err := json.MarshalIndent(ws, "", "  ")
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(specsDir, "STATE.json"), data, 0644))
+
+	// LoadState should find it via fallback
+	loaded, err := LoadState(specsDir)
+	require.NoError(t, err)
+	assert.Equal(t, "legacy-change", loaded.ChangeName)
+	assert.Equal(t, PhaseProposed, loaded.Phase)
 }
 
 func TestWorkflowState_JSONMarshaling(t *testing.T) {

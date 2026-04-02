@@ -140,10 +140,15 @@ func TestArchiveSuccess(t *testing.T) {
 	_, statErr := os.Stat(changeDir)
 	assert.True(t, os.IsNotExist(statErr))
 
-	// STATE.json in specsDir should have phase == archived
+	// STATE.json should be deleted after archive
+	mysdStateFile := filepath.Join(filepath.Dir(specsDir), ".mysd", "STATE.json")
+	_, statFileErr := os.Stat(mysdStateFile)
+	assert.True(t, os.IsNotExist(statFileErr), "STATE.json should be deleted after archive")
+
+	// LoadState should return zero-value (no file)
 	loadedWS, err := state.LoadState(specsDir)
 	require.NoError(t, err)
-	assert.Equal(t, state.PhaseArchived, loadedWS.Phase)
+	assert.Equal(t, state.PhaseNone, loadedWS.Phase)
 
 	// ARCHIVED-STATE.json should exist in archive directory
 	archivedStateDir := archiveDir

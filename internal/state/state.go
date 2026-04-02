@@ -33,11 +33,25 @@ type WorkflowState struct {
 	VerifyPass *bool     `json:"verify_pass,omitempty"`
 }
 
-// LoadState reads WorkflowState from specsDir/STATE.json.
-// If the file does not exist, it returns a zero-value WorkflowState (convention over config).
+// MysdDir returns the .mysd directory path derived from specsDir.
+// specsDir is always a child of the project root (e.g., "openspec/" or ".specs/"),
+// so filepath.Dir(specsDir) gives the project root.
+func MysdDir(specsDir string) string {
+	return filepath.Join(filepath.Dir(specsDir), ".mysd")
+}
+
+// LoadState reads WorkflowState from .mysd/STATE.json (derived from specsDir).
+// Falls back to legacy locations (specsDir/STATE.json) for backward compatibility.
+// If no state file exists, it returns a zero-value WorkflowState (convention over config).
 func LoadState(specsDir string) (WorkflowState, error) {
-	statePath := filepath.Join(specsDir, "STATE.json")
+	// Primary location: .mysd/STATE.json
+	statePath := filepath.Join(MysdDir(specsDir), "STATE.json")
 	data, err := os.ReadFile(statePath)
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		// Fallback: legacy location specsDir/STATE.json
+		statePath = filepath.Join(specsDir, "STATE.json")
+		data, err = os.ReadFile(statePath)
+	}
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return WorkflowState{}, nil
@@ -52,10 +66,11 @@ func LoadState(specsDir string) (WorkflowState, error) {
 	return ws, nil
 }
 
-// SaveState writes WorkflowState to specsDir/STATE.json.
-// It creates specsDir if it does not exist.
+// SaveState writes WorkflowState to .mysd/STATE.json (derived from specsDir).
+// It creates the .mysd directory if it does not exist.
 func SaveState(specsDir string, ws WorkflowState) error {
-	if err := os.MkdirAll(specsDir, 0755); err != nil {
+	dir := MysdDir(specsDir)
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
@@ -64,6 +79,6 @@ func SaveState(specsDir string, ws WorkflowState) error {
 		return err
 	}
 
-	statePath := filepath.Join(specsDir, "STATE.json")
+	statePath := filepath.Join(dir, "STATE.json")
 	return os.WriteFile(statePath, data, 0644)
 }

@@ -88,8 +88,8 @@ func TestPropose_CreatesStateJSON(t *testing.T) {
 	err = rootCmd.Execute()
 	require.NoError(t, err)
 
-	// STATE.json should be created in .specs/
-	stateFile := filepath.Join(tmpDir, ".specs", "STATE.json")
+	// STATE.json should be created in .mysd/
+	stateFile := filepath.Join(tmpDir, ".mysd", "STATE.json")
 	require.FileExists(t, stateFile)
 
 	data, err := os.ReadFile(stateFile)

@@ -59,13 +59,20 @@ If `--spec` was NOT passed in the original command:
    2. planning (5 tasks)
    3. execution (3 tasks)
    4. [All]
+   5. [From conversation context]
 
    Select:
    ```
 6. If user selects a specific spec: re-run `mysd plan --spec {selected} --context-only` to get filtered context
-7. If user selects "All": proceed with full context
+7. If user selects "All": proceed with full context (all specs)
+8. If user selects "From conversation context":
+   a. Extract relevant requirements, task descriptions, and design decisions from the current conversation history
+   b. Write the extracted content to `{changeDir}/conversation-context.md`
+   c. Re-run `mysd plan --from {changeDir}/conversation-context.md --context-only` to get context with external input
+   d. Proceed with the enriched context
 
 If `--spec` WAS passed: skip this step (context already filtered).
+If `--from` WAS passed: skip this step (external input already provided).
 
 ## Step 2c: External Input Display
 
@@ -312,7 +319,12 @@ Agent: mysd-plan-checker
 Model: {model}
 Context: {check output JSON}
 
-## Step 7: Confirm
+## Step 7: Cleanup
+
+Delete temporary files created during the plan pipeline:
+- If `conversation-context.md` exists in the change directory, delete it (best-effort, ignore errors)
+
+## Step 8: Confirm
 
 Show:
 1. "Planning complete. Pipeline: {research if enabled} -> design {or skipped} -> plan -> reviewer -> analyze {-> check if enabled}."

@@ -162,11 +162,20 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 
 ## Documentation Sync
 
-When mysd project features, commands, configuration, or workflow change, **always update README.md** to reflect the changes. This includes:
+When mysd project features, commands, configuration, or workflow change, **always update both README.md and README.zh-TW.md** to reflect the changes. This includes:
 - Adding/removing/renaming commands
 - Changing workflow steps or flow
 - Modifying model profile assignments
 - Updating configuration options
+- Adding/changing SKILL.md capabilities or arguments
+
+## Build After Changes
+
+When Go source code is modified (cmd/, internal/, etc.), **always rebuild the binary** before testing or committing:
+```bash
+go build -o mysd.exe .
+```
+This ensures the installed binary matches the source code. Skipping this step causes `mysd --help` and runtime behavior to be out of sync with the code.
 
 <!-- GSD:profile-start -->
 ## Developer Profile

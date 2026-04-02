@@ -188,6 +188,7 @@ propose → [discuss] → plan → apply（含驗證）→ archive
 - **Per-spec 規劃**（`--spec <name>`）— 限制規劃範圍為單一 spec capability。適合多 spec 的變更需要增量規劃時使用。
 - **外部輸入**（`--from <file>`）— 載入檔案（如設計文件、會議記錄、或其他工具產出的計畫）作為 planner 的額外 context。planner 會將此與 spec 產出物一起使用來產生任務。
 - **互動式 spec 選擇** — 當存在多個 spec 且未指定 `--spec` 時，互動式選擇器讓你選擇要規劃哪些 spec。
+- **對話 context** — 在 spec 選擇器中選擇「From conversation context」，從當前對話中提取需求和任務想法。planner 會自動寫入暫存檔並透過 `--from` 傳入。
 - **研究階段**（`--research`）— 在規劃前執行一輪聚焦的架構研究，適合複雜或不熟悉的領域。
 - **Plan checker**（`--check`）— 規劃後由獨立 agent 驗證 spec 中每個 MUST 項目都有對應的任務。
 - **Design 跳過評估** — 對於簡單的變更（少量檔案、無新增 capability），planner 可自動跳過 design 階段。

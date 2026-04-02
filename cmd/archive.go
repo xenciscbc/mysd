@@ -103,6 +103,12 @@ func runArchive(specsDir string, ws state.WorkflowState) error {
 		fmt.Fprintf(os.Stderr, "warning: roadmap tracking update failed: %v\n", trackErr)
 	}
 
+	// Clean up STATE.json after successful archive (best-effort)
+	stateFile := filepath.Join(state.MysdDir(specsDir), "STATE.json")
+	if rmErr := os.Remove(stateFile); rmErr != nil && !os.IsNotExist(rmErr) {
+		fmt.Fprintf(os.Stderr, "warning: could not remove STATE.json: %v\n", rmErr)
+	}
+
 	fmt.Printf("Archived %s to %s\n", ws.ChangeName, archiveDir)
 	return nil
 }
