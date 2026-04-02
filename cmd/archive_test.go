@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/xenciscbc/mysd/internal/state"
 	"github.com/stretchr/testify/assert"
@@ -130,8 +132,8 @@ func TestArchiveSuccess(t *testing.T) {
 	err := runArchive(specsDir, ws, false)
 	require.NoError(t, err)
 
-	// Change directory should have moved to archive/
-	archiveDir := filepath.Join(specsDir, "archive", changeName)
+	// Change directory should have moved to changes/archive/YYYY-MM-DD-<name>/
+	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
 	assert.DirExists(t, archiveDir)
 
 	// Original changeDir should no longer exist
@@ -144,7 +146,8 @@ func TestArchiveSuccess(t *testing.T) {
 	assert.Equal(t, state.PhaseArchived, loadedWS.Phase)
 
 	// ARCHIVED-STATE.json should exist in archive directory
-	archivedStatePath := filepath.Join(archiveDir, "ARCHIVED-STATE.json")
+	archivedStateDir := archiveDir
+	archivedStatePath := filepath.Join(archivedStateDir, "ARCHIVED-STATE.json")
 	assert.FileExists(t, archivedStatePath)
 
 	// Validate ARCHIVED-STATE.json content
@@ -205,6 +208,77 @@ func TestArchiveDeletesCacheSilentFail(t *testing.T) {
 	assert.NotPanics(t, func() {
 		deleteResearchCache(changeDir)
 	})
+}
+
+// TestCheckTasksDone_AllDone tests that the task gate passes when all tasks are done.
+func TestCheckTasksDone_AllDone(t *testing.T) {
+	changeDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "tasks.md"), []byte("- [x] Task 1\n- [x] Task 2\n"), 0644))
+	assert.NoError(t, checkTasksDone(changeDir))
+}
+
+// TestCheckTasksDone_WithSkipped tests that the task gate passes when tasks are done or skipped.
+func TestCheckTasksDone_WithSkipped(t *testing.T) {
+	changeDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "tasks.md"), []byte("- [x] Task 1\n- [~] Task 2（跳過：不需要）\n"), 0644))
+	assert.NoError(t, checkTasksDone(changeDir))
+}
+
+// TestCheckTasksDone_IncompleteTasks tests that the task gate blocks when pending tasks exist.
+func TestCheckTasksDone_IncompleteTasks(t *testing.T) {
+	changeDir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "tasks.md"), []byte("- [x] Task 1\n- [ ] Task 2\n"), 0644))
+	err := checkTasksDone(changeDir)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "1 incomplete task(s)")
+}
+
+// TestRunAnalyzeSkipped_WithSkipped tests --analyze-skipped output with skipped tasks.
+func TestRunAnalyzeSkipped_WithSkipped(t *testing.T) {
+	tmp := t.TempDir()
+	changeName := "analyze-test"
+	changeDir := filepath.Join(tmp, "changes", changeName)
+	require.NoError(t, os.MkdirAll(changeDir, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "tasks.md"),
+		[]byte("- [x] Task 1\n- [~] Task 2（跳過：需求變更）\n- [~] Task 3（跳過：技術限制）\n"), 0644))
+
+	ws := state.WorkflowState{ChangeName: changeName}
+	require.NoError(t, state.SaveState(tmp, ws))
+
+	// Create a cobra command with a buffer to capture output
+	cmd := &cobra.Command{}
+	buf := new(strings.Builder)
+	cmd.SetOut(buf)
+
+	err := runAnalyzeSkipped(cmd, tmp, ws)
+	require.NoError(t, err)
+
+	output := buf.String()
+	assert.Contains(t, output, "Task 2")
+	assert.Contains(t, output, "需求變更")
+	assert.Contains(t, output, "Task 3")
+	assert.Contains(t, output, "技術限制")
+}
+
+// TestRunAnalyzeSkipped_NoSkipped tests --analyze-skipped output with no skipped tasks.
+func TestRunAnalyzeSkipped_NoSkipped(t *testing.T) {
+	tmp := t.TempDir()
+	changeName := "analyze-test"
+	changeDir := filepath.Join(tmp, "changes", changeName)
+	require.NoError(t, os.MkdirAll(changeDir, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "tasks.md"),
+		[]byte("- [x] Task 1\n- [x] Task 2\n"), 0644))
+
+	ws := state.WorkflowState{ChangeName: changeName}
+	require.NoError(t, state.SaveState(tmp, ws))
+
+	cmd := &cobra.Command{}
+	buf := new(strings.Builder)
+	cmd.SetOut(buf)
+
+	err := runAnalyzeSkipped(cmd, tmp, ws)
+	require.NoError(t, err)
+	assert.Contains(t, buf.String(), "[]")
 }
 
 // TestMoveDir_Fallback tests that moveDir falls back to copy+delete when os.Rename fails.

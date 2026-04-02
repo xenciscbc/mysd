@@ -159,8 +159,12 @@ func ParseTasks(path string) ([]Task, TasksFrontmatter, error) {
 	return tasks, fm, nil
 }
 
-// reTaskLine matches markdown task list items: `- [ ] text` or `- [x] text`
-var reTaskLine = regexp.MustCompile(`^-\s+\[([xX ])\]\s+(.+)$`)
+// reTaskLine matches markdown task list items: `- [ ] text`, `- [x] text`, or `- [~] text`
+var reTaskLine = regexp.MustCompile(`^-\s+\[([xX ~])\]\s+(.+)$`)
+
+// reSkipReason extracts skip reason from parenthetical or colon notation.
+// Matches: "（跳過：reason）", "(跳過：reason)", "（reason）", or trailing "：reason" / ": reason"
+var reSkipReason = regexp.MustCompile(`[（(](?:跳過[：:]?\s*)?(.+?)[）)]`)
 
 // parseTaskLines extracts Task entries from a task list body.
 func parseTaskLines(body string) []Task {
@@ -176,16 +180,29 @@ func parseTaskLines(body string) []Task {
 		}
 
 		id++
-		status := StatusPending
-		if m[1] == "x" || m[1] == "X" {
-			status = StatusDone
+		marker := m[1]
+		text := strings.TrimSpace(m[2])
+
+		task := Task{
+			ID:   id,
+			Name: text,
 		}
 
-		tasks = append(tasks, Task{
-			ID:     id,
-			Name:   strings.TrimSpace(m[2]),
-			Status: status,
-		})
+		switch {
+		case marker == "x" || marker == "X":
+			task.Status = StatusDone
+		case marker == "~":
+			task.Status = StatusDone
+			task.Skipped = true
+			// Extract skip reason
+			if rm := reSkipReason.FindStringSubmatch(text); rm != nil {
+				task.SkipReason = strings.TrimSpace(rm[1])
+			}
+		default:
+			task.Status = StatusPending
+		}
+
+		tasks = append(tasks, task)
 	}
 
 	return tasks

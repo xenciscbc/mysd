@@ -18,6 +18,7 @@ const (
 	DeltaAdded    DeltaOp = "ADDED"
 	DeltaModified DeltaOp = "MODIFIED"
 	DeltaRemoved  DeltaOp = "REMOVED"
+	DeltaRenamed  DeltaOp = "RENAMED"
 	DeltaNone     DeltaOp = ""
 )
 
@@ -57,6 +58,10 @@ type ProposalFrontmatter struct {
 
 // SpecFrontmatter holds the YAML frontmatter fields for spec.md files.
 type SpecFrontmatter struct {
+	Name        string     `yaml:"name,omitempty"`
+	Description string     `yaml:"description,omitempty"`
+	Version     string     `yaml:"version,omitempty"`
+	GeneratedBy string     `yaml:"generatedBy,omitempty"`
 	SpecVersion string     `yaml:"spec-version"`
 	Capability  string     `yaml:"capability"`
 	Delta       DeltaOp    `yaml:"delta"`
@@ -115,12 +120,20 @@ type Requirement struct {
 	SourceFile string // basename of the source spec file, e.g. "spec.md"
 }
 
+// RenamedRequirement represents a rename operation pairing old and new names.
+type RenamedRequirement struct {
+	From string
+	To   string
+}
+
 // Task represents a single task entry in tasks.md.
 type Task struct {
 	ID          int
 	Name        string
 	Description string
 	Status      ItemStatus
+	Skipped     bool
+	SkipReason  string
 }
 
 // Change is the fully assembled representation of a change directory.

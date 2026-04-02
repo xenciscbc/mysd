@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/x/term"
 	"github.com/xenciscbc/mysd/internal/roadmap"
@@ -25,11 +26,13 @@ var archiveCmd = &cobra.Command{
 
 func init() {
 	archiveCmd.Flags().Bool("yes", false, "Skip UAT prompt (for non-interactive/CI usage)")
+	archiveCmd.Flags().Bool("analyze-skipped", false, "Output skipped tasks and their spec requirement relationships as JSON")
 	rootCmd.AddCommand(archiveCmd)
 }
 
 func runArchiveCmd(cmd *cobra.Command, args []string) error {
 	skipPrompt, _ := cmd.Flags().GetBool("yes")
+	analyzeSkipped, _ := cmd.Flags().GetBool("analyze-skipped")
 
 	specsDir, _, err := spec.DetectSpecDir(".")
 	if err != nil {
@@ -39,6 +42,11 @@ func runArchiveCmd(cmd *cobra.Command, args []string) error {
 	ws, err := state.LoadState(specsDir)
 	if err != nil {
 		return err
+	}
+
+	// --analyze-skipped: output skipped tasks as JSON and exit
+	if analyzeSkipped {
+		return runAnalyzeSkipped(cmd, specsDir, ws)
 	}
 
 	// Handle interactive UAT prompt before the gate checks
@@ -63,14 +71,19 @@ func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error 
 		return fmt.Errorf("cannot archive: phase is %s, must be verified", ws.Phase)
 	}
 
-	// Gate 2: all MUST items must be DONE
+	// Gate 2: all tasks must be completed or skipped
 	changeDir := filepath.Join(specsDir, "changes", ws.ChangeName)
+	if err := checkTasksDone(changeDir); err != nil {
+		return err
+	}
+
+	// Gate 3: all MUST items must be DONE
 	if err := checkMustItemsDone(changeDir, ws.ChangeName); err != nil {
 		return err
 	}
 
 	// Archive: move directory
-	archiveDir := filepath.Join(specsDir, "archive", ws.ChangeName)
+	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+ws.ChangeName)
 	if err := os.MkdirAll(filepath.Dir(archiveDir), 0755); err != nil {
 		return fmt.Errorf("create archive parent dir: %w", err)
 	}
@@ -79,6 +92,13 @@ func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error 
 	if err := saveArchivedState(changeDir, ws); err != nil {
 		// Log warning but don't fail — snapshot is best-effort
 		fmt.Fprintf(os.Stderr, "warning: could not save ARCHIVED-STATE.json: %v\n", err)
+	}
+
+	// Delta spec merge: merge delta specs back into main specs before moving
+	if mergeWarnings := mergeDeltaSpecs(specsDir, changeDir); len(mergeWarnings) > 0 {
+		for _, w := range mergeWarnings {
+			fmt.Fprintf(os.Stderr, "warning: %s\n", w)
+		}
 	}
 
 	// Delete discuss research cache before moving (D-18)
@@ -107,6 +127,71 @@ func runArchive(specsDir string, ws state.WorkflowState, skipPrompt bool) error 
 // deleteResearchCache removes the discuss research cache file from changeDir (best-effort, D-18).
 func deleteResearchCache(changeDir string) {
 	_ = os.Remove(filepath.Join(changeDir, "discuss-research-cache.json"))
+}
+
+// SkippedTaskInfo represents a skipped task and its relationship to spec requirements.
+type SkippedTaskInfo struct {
+	TaskID     int    `json:"task_id"`
+	TaskName   string `json:"task_name"`
+	SkipReason string `json:"skip_reason"`
+}
+
+// runAnalyzeSkipped outputs skipped tasks as JSON without performing the archive.
+func runAnalyzeSkipped(cmd *cobra.Command, specsDir string, ws state.WorkflowState) error {
+	changeDir := filepath.Join(specsDir, "changes", ws.ChangeName)
+	tasksPath := filepath.Join(changeDir, "tasks.md")
+
+	tasks, _, err := spec.ParseTasks(tasksPath)
+	if err != nil {
+		return fmt.Errorf("parse tasks: %w", err)
+	}
+
+	var skipped []SkippedTaskInfo
+	for _, t := range tasks {
+		if t.Skipped {
+			skipped = append(skipped, SkippedTaskInfo{
+				TaskID:     t.ID,
+				TaskName:   t.Name,
+				SkipReason: t.SkipReason,
+			})
+		}
+	}
+
+	if skipped == nil {
+		skipped = []SkippedTaskInfo{}
+	}
+
+	data, err := json.MarshalIndent(skipped, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal skipped tasks: %w", err)
+	}
+	fmt.Fprintln(cmd.OutOrStdout(), string(data))
+	return nil
+}
+
+// checkTasksDone verifies that all tasks in tasks.md are completed ([x]) or skipped ([~]).
+// Returns an error if any task is still pending ([ ]).
+func checkTasksDone(changeDir string) error {
+	tasksPath := filepath.Join(changeDir, "tasks.md")
+	tasks, _, err := spec.ParseTasks(tasksPath)
+	if err != nil {
+		// If tasks.md doesn't exist, no task gate to enforce
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("parse tasks for gate check: %w", err)
+	}
+
+	var incomplete int
+	for _, t := range tasks {
+		if t.Status == spec.StatusPending {
+			incomplete++
+		}
+	}
+	if incomplete > 0 {
+		return fmt.Errorf("cannot archive: %d incomplete task(s) remain", incomplete)
+	}
+	return nil
 }
 
 // checkMustItemsDone verifies that all MUST items in the change are done in verification-status.json.
@@ -220,4 +305,52 @@ func truncate(s string, max int) string {
 		return s
 	}
 	return s[:max-3] + "..."
+}
+
+// mergeDeltaSpecs iterates over delta spec directories in changes/<name>/specs/
+// and merges each delta spec into the corresponding main spec at openspec/specs/<capability>/spec.md.
+// Returns accumulated warnings from all merge operations.
+func mergeDeltaSpecs(specsDir, changeDir string) []string {
+	var allWarnings []string
+
+	deltaSpecsDir := filepath.Join(changeDir, "specs")
+	entries, err := os.ReadDir(deltaSpecsDir)
+	if err != nil {
+		// No specs directory — nothing to merge
+		return nil
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		capName := entry.Name()
+		deltaSpecPath := filepath.Join(deltaSpecsDir, capName, "spec.md")
+
+		deltaContent, err := os.ReadFile(deltaSpecPath)
+		if err != nil {
+			continue // no spec.md in this capability dir
+		}
+
+		mainSpecPath := filepath.Join(specsDir, "specs", capName, "spec.md")
+
+		merged, warnings, err := spec.MergeSpecs(mainSpecPath, string(deltaContent))
+		if err != nil {
+			allWarnings = append(allWarnings, fmt.Sprintf("merge %s: %v", capName, err))
+			continue
+		}
+		allWarnings = append(allWarnings, warnings...)
+
+		// Ensure the main spec directory exists
+		if err := os.MkdirAll(filepath.Dir(mainSpecPath), 0755); err != nil {
+			allWarnings = append(allWarnings, fmt.Sprintf("create dir for %s: %v", capName, err))
+			continue
+		}
+
+		if err := os.WriteFile(mainSpecPath, []byte(merged), 0644); err != nil {
+			allWarnings = append(allWarnings, fmt.Sprintf("write merged spec %s: %v", capName, err))
+		}
+	}
+
+	return allWarnings
 }

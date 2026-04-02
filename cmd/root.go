@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/xenciscbc/mysd/internal/spec"
 )
 
 var rootCmd = &cobra.Command{
@@ -51,6 +52,7 @@ func init() {
 // Called by main.go with build-time ldflags values.
 func SetVersion(v string) {
 	rootCmd.Version = v
+	spec.AppVersion = v
 }
 
 func initConfig() {

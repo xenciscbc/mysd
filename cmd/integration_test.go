@@ -87,8 +87,8 @@ func TestArchiveIntegration_Success(t *testing.T) {
 	err := runArchive(specsDir, ws, true) // --yes skips interactive UAT prompt
 	require.NoError(t, err)
 
-	// 1. Archive directory exists
-	archiveDir := filepath.Join(specsDir, "archive", changeName)
+	// 1. Archive directory exists (with date prefix)
+	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
 	assert.DirExists(t, archiveDir)
 
 	// 2. Change directory was removed
@@ -152,6 +152,128 @@ func TestArchiveIntegration_NoUATCheck(t *testing.T) {
 	assert.NoError(t, err, "archive should succeed regardless of UAT file absence")
 
 	// Verify archive completed
-	archiveDir := filepath.Join(specsDir, "archive", changeName)
+	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
+	assert.DirExists(t, archiveDir)
+}
+
+// TestArchiveIntegration_DeltaSpecMerge tests the full pipeline:
+// create change with delta specs → archive → verify main specs merged, archive path correct, skipped tasks handled.
+func TestArchiveIntegration_DeltaSpecMerge(t *testing.T) {
+	tmp := t.TempDir()
+	specsDir := tmp
+	changeName := "e2e-merge-test"
+	changeDir := filepath.Join(specsDir, "changes", changeName)
+
+	// Create change directory structure
+	deltaSpecDir := filepath.Join(changeDir, "specs", "auth")
+	require.NoError(t, os.MkdirAll(deltaSpecDir, 0755))
+
+	// .openspec.yaml
+	require.NoError(t, os.WriteFile(
+		filepath.Join(changeDir, ".openspec.yaml"),
+		[]byte("schema: openspec/v1\ncreated: 2026-04-02\n"),
+		0644,
+	))
+
+	// proposal.md
+	require.NoError(t, os.WriteFile(
+		filepath.Join(changeDir, "proposal.md"),
+		[]byte("# Proposal\nE2E merge test.\n"),
+		0644,
+	))
+
+	// tasks.md with completed and skipped tasks
+	require.NoError(t, os.WriteFile(
+		filepath.Join(changeDir, "tasks.md"),
+		[]byte("- [x] Task 1\n- [x] Task 2\n- [~] Task 3（跳過：需求變更）\n"),
+		0644,
+	))
+
+	// Delta spec with ADDED requirement (use SHOULD to avoid MUST gate complexity)
+	require.NoError(t, os.WriteFile(
+		filepath.Join(deltaSpecDir, "spec.md"),
+		[]byte("## ADDED Requirements\n\nThe system SHOULD support OAuth2 authentication.\n"),
+		0644,
+	))
+
+	// Create a main specs directory (empty — simulates no existing main spec)
+	mainSpecsDir := filepath.Join(specsDir, "specs", "auth")
+	require.NoError(t, os.MkdirAll(mainSpecsDir, 0755))
+
+	// Save state as verified
+	ws := state.WorkflowState{
+		ChangeName: changeName,
+		Phase:      state.PhaseVerified,
+		LastRun:    time.Now(),
+	}
+	require.NoError(t, state.SaveState(specsDir, ws))
+
+	// Write empty verification-status
+	vs := spec.VerificationStatus{
+		ChangeName:   changeName,
+		VerifiedAt:   time.Now().UTC(),
+		Requirements: map[string]spec.ItemStatus{},
+	}
+	require.NoError(t, spec.WriteVerificationStatus(changeDir, vs))
+
+	// Run archive
+	err := runArchive(specsDir, ws, true)
+	require.NoError(t, err)
+
+	// 1. Archive directory exists with date prefix
+	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
+	assert.DirExists(t, archiveDir)
+
+	// 2. Original change directory is gone
+	_, statErr := os.Stat(changeDir)
+	assert.True(t, os.IsNotExist(statErr))
+
+	// 3. Main spec was created with merged content
+	mainSpecPath := filepath.Join(mainSpecsDir, "spec.md")
+	assert.FileExists(t, mainSpecPath)
+	content, err := os.ReadFile(mainSpecPath)
+	require.NoError(t, err)
+	assert.Contains(t, string(content), "SHOULD support OAuth2 authentication")
+	assert.Contains(t, string(content), "version: 1.0.0") // new spec gets initial frontmatter
+
+	// 4. State is archived
+	loadedWS, err := state.LoadState(specsDir)
+	require.NoError(t, err)
+	assert.Equal(t, state.PhaseArchived, loadedWS.Phase)
+}
+
+// TestArchiveIntegration_TaskGateBlocksIncomplete tests that archive fails when tasks are incomplete.
+func TestArchiveIntegration_TaskGateBlocksIncomplete(t *testing.T) {
+	specsDir, changeName, changeDir := setupVerifiedChangeDir(t, state.PhaseVerified, false)
+
+	// Overwrite tasks.md with an incomplete task
+	require.NoError(t, os.WriteFile(
+		filepath.Join(changeDir, "tasks.md"),
+		[]byte("- [x] Task 1\n- [ ] Task 2\n"),
+		0644,
+	))
+
+	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
+	err := runArchive(specsDir, ws, true)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "incomplete task")
+}
+
+// TestArchiveIntegration_SkippedTasksPassGate tests that archive succeeds with skipped tasks.
+func TestArchiveIntegration_SkippedTasksPassGate(t *testing.T) {
+	specsDir, changeName, changeDir := setupVerifiedChangeDir(t, state.PhaseVerified, false)
+
+	// Overwrite tasks.md with completed and skipped tasks
+	require.NoError(t, os.WriteFile(
+		filepath.Join(changeDir, "tasks.md"),
+		[]byte("- [x] Task 1\n- [~] Task 2（跳過：不需要）\n"),
+		0644,
+	))
+
+	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseVerified}
+	err := runArchive(specsDir, ws, true)
+	require.NoError(t, err)
+
+	archiveDir := filepath.Join(specsDir, "changes", "archive", time.Now().Format("2006-01-02")+"-"+changeName)
 	assert.DirExists(t, archiveDir)
 }

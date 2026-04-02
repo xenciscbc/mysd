@@ -161,3 +161,37 @@ func TestParseChange_Native(t *testing.T) {
 	assert.NotEmpty(t, c.Specs)
 	assert.Equal(t, "spec-driven", c.Meta.Schema)
 }
+
+func TestParseTaskLines_SkippedWithReason(t *testing.T) {
+	body := "- [~] 3.2 Implement caching（跳過：需求變更）\n"
+	tasks := parseTaskLines(body)
+	require.Len(t, tasks, 1)
+	assert.True(t, tasks[0].Skipped)
+	assert.Equal(t, StatusDone, tasks[0].Status)
+	assert.Equal(t, "需求變更", tasks[0].SkipReason)
+}
+
+func TestParseTaskLines_SkippedWithoutReason(t *testing.T) {
+	body := "- [~] 3.2 Implement caching\n"
+	tasks := parseTaskLines(body)
+	require.Len(t, tasks, 1)
+	assert.True(t, tasks[0].Skipped)
+	assert.Equal(t, StatusDone, tasks[0].Status)
+	assert.Equal(t, "", tasks[0].SkipReason)
+}
+
+func TestParseTaskLines_MixedStatuses(t *testing.T) {
+	body := `- [x] Task 1
+- [~] Task 2（跳過：不需要）
+- [ ] Task 3
+`
+	tasks := parseTaskLines(body)
+	require.Len(t, tasks, 3)
+	assert.Equal(t, StatusDone, tasks[0].Status)
+	assert.False(t, tasks[0].Skipped)
+	assert.Equal(t, StatusDone, tasks[1].Status)
+	assert.True(t, tasks[1].Skipped)
+	assert.Equal(t, "不需要", tasks[1].SkipReason)
+	assert.Equal(t, StatusPending, tasks[2].Status)
+	assert.False(t, tasks[2].Skipped)
+}
