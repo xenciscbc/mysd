@@ -61,7 +61,7 @@ func runDesign(cmd *cobra.Command, args []string) error {
 			"phase":            ws.Phase,
 			"proposal_summary": change.Proposal.Body,
 			"specs":            reqTexts,
-			"model":            config.ResolveModel("designer", cfg.ModelProfile, cfg.ModelOverrides),
+			"model":            config.ResolveModel("designer", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles),
 		}
 		data, err := json.MarshalIndent(ctx, "", "  ")
 		if err != nil {

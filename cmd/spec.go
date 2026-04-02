@@ -54,7 +54,7 @@ func runSpec(cmd *cobra.Command, args []string) error {
 			"change_name": ws.ChangeName,
 			"phase":       ws.Phase,
 			"proposal":    change.Proposal.Body,
-			"model":       config.ResolveModel("spec-writer", cfg.ModelProfile, cfg.ModelOverrides),
+			"model":       config.ResolveModel("spec-writer", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles),
 		}
 		data, err := json.MarshalIndent(ctx, "", "  ")
 		if err != nil {

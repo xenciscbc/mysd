@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -61,12 +62,29 @@ var DefaultModelMap = map[string]map[string]string{
 }
 
 // ResolveModel returns the short model name for the given agent role and profile.
-// Checks overrides first, then DefaultModelMap[profile][agentRole],
-// falling back to "sonnet" if not found.
-func ResolveModel(agentRole string, profile string, overrides map[string]string) string {
+// Resolution order:
+//  1. ModelOverrides[role]
+//  2. CustomProfiles[profile].Models[role]
+//  3. DefaultModelMap[CustomProfiles[profile].Base][role]
+//  4. DefaultModelMap[profile][role] (when profile is a built-in)
+//  5. "sonnet" (fallback)
+func ResolveModel(agentRole string, profile string, overrides map[string]string, customProfiles map[string]CustomProfile) string {
 	if overrides != nil {
 		if model, ok := overrides[agentRole]; ok {
 			return model
+		}
+	}
+	if customProfiles != nil {
+		if cp, ok := customProfiles[profile]; ok {
+			if model, ok := cp.Models[agentRole]; ok {
+				return model
+			}
+			if baseMap, ok := DefaultModelMap[cp.Base]; ok {
+				if model, ok := baseMap[agentRole]; ok {
+					return model
+				}
+			}
+			return "sonnet"
 		}
 	}
 	if profileMap, ok := DefaultModelMap[profile]; ok {
@@ -75,6 +93,29 @@ func ResolveModel(agentRole string, profile string, overrides map[string]string)
 		}
 	}
 	return "sonnet"
+}
+
+// ValidateCustomProfiles checks custom profiles for unknown role names and invalid base profiles.
+// Returns a list of warning messages (empty if no issues found).
+func ValidateCustomProfiles(knownRoles []string, customProfiles map[string]CustomProfile) []string {
+	var warnings []string
+	roleSet := make(map[string]bool, len(knownRoles))
+	for _, r := range knownRoles {
+		roleSet[r] = true
+	}
+	for name, cp := range customProfiles {
+		if cp.Base != "" {
+			if _, ok := DefaultModelMap[cp.Base]; !ok {
+				warnings = append(warnings, fmt.Sprintf("custom profile %q: base %q is not a valid built-in profile", name, cp.Base))
+			}
+		}
+		for role := range cp.Models {
+			if !roleSet[role] {
+				warnings = append(warnings, fmt.Sprintf("custom profile %q: role %q is not a known role", name, role))
+			}
+		}
+	}
+	return warnings
 }
 
 // Load reads the project configuration from .claude/mysd.yaml (project-level)

@@ -166,3 +166,101 @@ func TestModelSet_PreservesOtherConfig(t *testing.T) {
 	assert.Contains(t, content, "tdd: true")
 	assert.Contains(t, content, "execution_mode: wave")
 }
+
+// TestModelSet_CustomProfile verifies that model set accepts a custom profile name.
+func TestModelSet_CustomProfile(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	initialConfig := `custom_profiles:
+  my-team:
+    base: balanced
+    models:
+      executor: opus
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(initialConfig), 0644))
+
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model", "set", "my-team"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	data, err := os.ReadFile(filepath.Join(claudeDir, "mysd.yaml"))
+	require.NoError(t, err)
+	assert.Contains(t, string(data), "model_profile: my-team")
+}
+
+// TestModelSet_UnknownProfile_ListsCustomProfiles verifies error lists both built-in and custom profiles.
+func TestModelSet_UnknownProfile_WithCustom(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	initialConfig := `custom_profiles:
+  my-team:
+    base: balanced
+    models:
+      executor: opus
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(initialConfig), 0644))
+
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	errBuf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(errBuf)
+	rootCmd.SetArgs([]string{"model", "set", "nonexistent"})
+
+	err = rootCmd.Execute()
+	require.Error(t, err)
+
+	errMsg := err.Error()
+	assert.Contains(t, errMsg, "unknown profile")
+	assert.Contains(t, errMsg, "my-team")
+}
+
+// TestModelRead_CustomProfile verifies model display works with a custom profile.
+func TestModelRead_CustomProfile(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	configContent := `model_profile: my-team
+custom_profiles:
+  my-team:
+    base: balanced
+    models:
+      executor: opus
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644))
+
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+
+	out := buf.String()
+	assert.Contains(t, out, "Profile: my-team")
+	assert.Contains(t, out, "executor")
+}

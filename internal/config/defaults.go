@@ -1,5 +1,11 @@
 package config
 
+// CustomProfile defines a user-defined model profile that inherits from a built-in profile.
+type CustomProfile struct {
+	Base   string            `yaml:"base" mapstructure:"base"`
+	Models map[string]string `yaml:"models" mapstructure:"models"`
+}
+
 // ProjectConfig holds all user-configurable preferences for my-ssd.
 type ProjectConfig struct {
 	ExecutionMode    string            `yaml:"execution_mode" mapstructure:"execution_mode"`       // "single" | "wave" | "spec"
@@ -10,7 +16,8 @@ type ProjectConfig struct {
 	ResponseLanguage string            `yaml:"response_language" mapstructure:"response_language"` // e.g. "zh-TW"
 	DocumentLanguage string            `yaml:"document_language" mapstructure:"document_language"` // e.g. "en"
 	ModelProfile     string            `yaml:"model_profile" mapstructure:"model_profile"`         // "quality" | "balanced" | "budget"
-	ModelOverrides   map[string]string `yaml:"model_overrides" mapstructure:"model_overrides"`     // per-agent model overrides
+	ModelOverrides   map[string]string            `yaml:"model_overrides" mapstructure:"model_overrides"`     // per-agent model overrides
+	CustomProfiles   map[string]CustomProfile     `yaml:"custom_profiles" mapstructure:"custom_profiles"`     // user-defined model profiles
 	WorktreeDir      string            `yaml:"worktree_dir" mapstructure:"worktree_dir"`           // default ".worktrees"
 	AutoMode         bool              `yaml:"auto_mode" mapstructure:"auto_mode"`                 // default false
 	DocsToUpdate     []string          `yaml:"docs_to_update" mapstructure:"docs_to_update"`       // files to update after archive

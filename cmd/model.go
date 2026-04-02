@@ -35,11 +35,20 @@ func init() {
 	rootCmd.AddCommand(modelCmd)
 }
 
+func emitCustomProfileWarnings(cmd *cobra.Command, customProfiles map[string]config.CustomProfile) {
+	warnings := config.ValidateCustomProfiles(knownRoles, customProfiles)
+	for _, w := range warnings {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", w)
+	}
+}
+
 func runModelRead(cmd *cobra.Command, args []string) error {
 	cfg, err := config.Load(".")
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
 	}
+
+	emitCustomProfileWarnings(cmd, cfg.CustomProfiles)
 
 	profile := cfg.ModelProfile
 	if profile == "" {
@@ -53,7 +62,7 @@ func runModelRead(cmd *cobra.Command, args []string) error {
 	fmt.Fprintf(w, "%-20s %s\n", "Role", "Model")
 	fmt.Fprintf(w, "%s\n", strings.Repeat("-", 40))
 	for _, role := range knownRoles {
-		model := config.ResolveModel(role, profile, cfg.ModelOverrides)
+		model := config.ResolveModel(role, profile, cfg.ModelOverrides, cfg.CustomProfiles)
 		fmt.Fprintf(w, "%-20s %s\n", role, model)
 	}
 
@@ -63,9 +72,22 @@ func runModelRead(cmd *cobra.Command, args []string) error {
 func runModelSet(cmd *cobra.Command, args []string) error {
 	profile := args[0]
 
-	// Validate profile against DefaultModelMap
-	if _, ok := config.DefaultModelMap[profile]; !ok {
-		return fmt.Errorf("unknown profile %q; valid profiles: quality, balanced, budget", profile)
+	// Validate profile: built-in → custom → error
+	cfg, err := config.Load(".")
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
+	}
+
+	emitCustomProfileWarnings(cmd, cfg.CustomProfiles)
+
+	_, isBuiltin := config.DefaultModelMap[profile]
+	_, isCustom := cfg.CustomProfiles[profile]
+	if !isBuiltin && !isCustom {
+		valid := []string{"quality", "balanced", "budget"}
+		for name := range cfg.CustomProfiles {
+			valid = append(valid, name)
+		}
+		return fmt.Errorf("unknown profile %q; valid profiles: %s", profile, strings.Join(valid, ", "))
 	}
 
 	configPath := filepath.Join(".", ".claude", "mysd.yaml")

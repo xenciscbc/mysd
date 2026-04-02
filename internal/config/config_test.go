@@ -115,17 +115,17 @@ func TestLoad_WithModelProfile_ReturnsQuality(t *testing.T) {
 }
 
 func TestResolveModel_QualityProfile_ExecutorReturnsSonnet(t *testing.T) {
-	model := ResolveModel("executor", "quality", nil)
+	model := ResolveModel("executor", "quality", nil, nil)
 	assert.Equal(t, "sonnet", model, "quality profile executor should map to sonnet")
 }
 
 func TestResolveModel_BudgetProfile_ExecutorReturnsHaiku(t *testing.T) {
-	model := ResolveModel("executor", "budget", nil)
+	model := ResolveModel("executor", "budget", nil, nil)
 	assert.Equal(t, "haiku", model, "budget profile executor should map to haiku")
 }
 
 func TestResolveModel_BalancedProfile_PlannerReturnsOpus(t *testing.T) {
-	model := ResolveModel("planner", "balanced", nil)
+	model := ResolveModel("planner", "balanced", nil, nil)
 	assert.Equal(t, "opus", model, "balanced profile planner should map to opus")
 }
 
@@ -133,7 +133,7 @@ func TestResolveModel_WithOverride_UsesOverride(t *testing.T) {
 	overrides := map[string]string{
 		"executor": "opus",
 	}
-	model := ResolveModel("executor", "quality", overrides)
+	model := ResolveModel("executor", "quality", overrides, nil)
 	assert.Equal(t, "opus", model, "model_overrides should take precedence over profile mapping")
 }
 
@@ -163,7 +163,7 @@ func TestResolveModel_AllRoles(t *testing.T) {
 	for profile, roles := range expected {
 		for role, want := range roles {
 			t.Run(role+"/"+profile, func(t *testing.T) {
-				got := ResolveModel(role, profile, nil)
+				got := ResolveModel(role, profile, nil, nil)
 				assert.Equal(t, want, got,
 					"role %s profile %s should map to %s", role, profile, want)
 			})
@@ -173,16 +173,16 @@ func TestResolveModel_AllRoles(t *testing.T) {
 
 // TestResolveModel_SpecExecutorRole verifies spec-executor role returns correct model per profile.
 func TestResolveModel_SpecExecutorRole(t *testing.T) {
-	assert.Equal(t, "opus", ResolveModel("spec-executor", "quality", nil), "quality spec-executor should use opus")
-	assert.Equal(t, "opus", ResolveModel("spec-executor", "balanced", nil), "balanced spec-executor should use opus")
-	assert.Equal(t, "sonnet", ResolveModel("spec-executor", "budget", nil), "budget spec-executor should use sonnet")
+	assert.Equal(t, "opus", ResolveModel("spec-executor", "quality", nil, nil), "quality spec-executor should use opus")
+	assert.Equal(t, "opus", ResolveModel("spec-executor", "balanced", nil, nil), "balanced spec-executor should use opus")
+	assert.Equal(t, "sonnet", ResolveModel("spec-executor", "budget", nil, nil), "budget spec-executor should use sonnet")
 }
 
 // TestResolveModel_ReviewerRole verifies reviewer role returns correct model per profile.
 func TestResolveModel_ReviewerRole(t *testing.T) {
-	assert.Equal(t, "opus", ResolveModel("reviewer", "quality", nil), "quality reviewer should use opus")
-	assert.Equal(t, "sonnet", ResolveModel("reviewer", "balanced", nil), "balanced reviewer should use sonnet")
-	assert.Equal(t, "sonnet", ResolveModel("reviewer", "budget", nil), "budget reviewer should use sonnet")
+	assert.Equal(t, "opus", ResolveModel("reviewer", "quality", nil, nil), "quality reviewer should use opus")
+	assert.Equal(t, "sonnet", ResolveModel("reviewer", "balanced", nil, nil), "balanced reviewer should use sonnet")
+	assert.Equal(t, "sonnet", ResolveModel("reviewer", "budget", nil, nil), "budget reviewer should use sonnet")
 }
 
 // TestResolveModel_NewRoles_Override verifies overrides work for new roles.
@@ -190,7 +190,7 @@ func TestResolveModel_NewRoles_Override(t *testing.T) {
 	overrides := map[string]string{
 		"plan-checker": "custom-model",
 	}
-	model := ResolveModel("plan-checker", "quality", overrides)
+	model := ResolveModel("plan-checker", "quality", overrides, nil)
 	assert.Equal(t, "custom-model", model, "override should take precedence for new roles")
 }
 
@@ -235,4 +235,139 @@ auto_mode: true
 	require.NoError(t, err)
 	assert.Equal(t, ".wt", cfg.WorktreeDir)
 	assert.True(t, cfg.AutoMode)
+}
+
+// --- CustomProfile tests ---
+
+func TestLoad_WithCustomProfiles_LoadsCorrectly(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	configContent := `model_profile: my-team
+custom_profiles:
+  my-team:
+    base: balanced
+    models:
+      executor: opus
+      researcher: opus
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644))
+
+	cfg, err := Load(tmpDir)
+	require.NoError(t, err)
+	assert.Equal(t, "my-team", cfg.ModelProfile)
+	require.Contains(t, cfg.CustomProfiles, "my-team")
+	assert.Equal(t, "balanced", cfg.CustomProfiles["my-team"].Base)
+	assert.Equal(t, "opus", cfg.CustomProfiles["my-team"].Models["executor"])
+	assert.Equal(t, "opus", cfg.CustomProfiles["my-team"].Models["researcher"])
+}
+
+func TestLoad_WithCustomProfile_EmptyModels(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	configContent := `custom_profiles:
+  minimal:
+    base: quality
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644))
+
+	cfg, err := Load(tmpDir)
+	require.NoError(t, err)
+	require.Contains(t, cfg.CustomProfiles, "minimal")
+	assert.Equal(t, "quality", cfg.CustomProfiles["minimal"].Base)
+	assert.Empty(t, cfg.CustomProfiles["minimal"].Models)
+}
+
+func TestLoad_WithCustomProfile_NoBase(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	configContent := `custom_profiles:
+  nobase:
+    models:
+      executor: opus
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644))
+
+	cfg, err := Load(tmpDir)
+	require.NoError(t, err)
+	require.Contains(t, cfg.CustomProfiles, "nobase")
+	assert.Equal(t, "", cfg.CustomProfiles["nobase"].Base)
+}
+
+// --- ResolveModel with custom profiles ---
+
+func TestResolveModel_CustomProfile_OverriddenRole(t *testing.T) {
+	cp := map[string]CustomProfile{
+		"my-team": {Base: "balanced", Models: map[string]string{"executor": "opus"}},
+	}
+	model := ResolveModel("executor", "my-team", nil, cp)
+	assert.Equal(t, "opus", model)
+}
+
+func TestResolveModel_CustomProfile_FallbackToBase(t *testing.T) {
+	cp := map[string]CustomProfile{
+		"my-team": {Base: "balanced", Models: map[string]string{"executor": "opus"}},
+	}
+	model := ResolveModel("planner", "my-team", nil, cp)
+	assert.Equal(t, "opus", model, "planner should fall back to balanced profile value")
+}
+
+func TestResolveModel_CustomProfile_ModelOverrideTakesPrecedence(t *testing.T) {
+	cp := map[string]CustomProfile{
+		"my-team": {Base: "balanced", Models: map[string]string{"executor": "opus"}},
+	}
+	overrides := map[string]string{"executor": "haiku"}
+	model := ResolveModel("executor", "my-team", overrides, cp)
+	assert.Equal(t, "haiku", model, "ModelOverrides should take precedence over custom profile")
+}
+
+func TestResolveModel_CustomProfile_EmptyModels_UsesBase(t *testing.T) {
+	cp := map[string]CustomProfile{
+		"minimal": {Base: "quality", Models: nil},
+	}
+	model := ResolveModel("executor", "minimal", nil, cp)
+	assert.Equal(t, "sonnet", model, "should fall back to quality profile executor=sonnet")
+}
+
+// --- ValidateCustomProfiles ---
+
+func TestValidateCustomProfiles_UnknownRole(t *testing.T) {
+	roles := []string{"executor", "planner"}
+	cp := map[string]CustomProfile{
+		"test": {Base: "balanced", Models: map[string]string{"excutor": "opus"}},
+	}
+	warnings := ValidateCustomProfiles(roles, cp)
+	require.Len(t, warnings, 1)
+	assert.Contains(t, warnings[0], "excutor")
+	assert.Contains(t, warnings[0], "not a known role")
+}
+
+func TestValidateCustomProfiles_UnknownBase(t *testing.T) {
+	roles := []string{"executor"}
+	cp := map[string]CustomProfile{
+		"test": {Base: "premium", Models: map[string]string{"executor": "opus"}},
+	}
+	warnings := ValidateCustomProfiles(roles, cp)
+	require.Len(t, warnings, 1)
+	assert.Contains(t, warnings[0], "premium")
+	assert.Contains(t, warnings[0], "not a valid built-in profile")
+}
+
+func TestValidateCustomProfiles_ValidProfile_NoWarnings(t *testing.T) {
+	roles := []string{"executor", "planner"}
+	cp := map[string]CustomProfile{
+		"test": {Base: "balanced", Models: map[string]string{"executor": "opus"}},
+	}
+	warnings := ValidateCustomProfiles(roles, cp)
+	assert.Empty(t, warnings)
+}
+
+func TestValidateCustomProfiles_NilProfiles(t *testing.T) {
+	warnings := ValidateCustomProfiles([]string{"executor"}, nil)
+	assert.Empty(t, warnings)
 }
