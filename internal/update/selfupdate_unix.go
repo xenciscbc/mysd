@@ -21,7 +21,7 @@ func replaceExecutable(currentExe, newBinaryPath string) error {
 	}
 
 	// Step 2: Copy new binary to exe path with executable permissions
-	if err := copyFile(newBinaryPath, currentExe, 0755); err != nil {
+	if err := copyFileWithPerm(newBinaryPath, currentExe, 0755); err != nil {
 		// Try to restore original on failure
 		_ = os.Rename(oldPath, currentExe)
 		return fmt.Errorf("update: failed to copy new binary into place: %w", err)
@@ -33,8 +33,8 @@ func replaceExecutable(currentExe, newBinaryPath string) error {
 	return nil
 }
 
-// copyFile copies src to dst with the given permissions.
-func copyFile(src, dst string, perm os.FileMode) error {
+// copyFileWithPerm copies src to dst with the given permissions.
+func copyFileWithPerm(src, dst string, perm os.FileMode) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("update: cannot open source file: %w", err)
