@@ -1,5 +1,7 @@
 # mysd
 
+> **Testing / 測試中** — This project is under active development. APIs and workflows may change.
+
 **Spec-Driven Development for AI Programming**
 
 mysd is a Go CLI tool + Claude Code plugin that integrates [OpenSpec](https://github.com/openspec-dev/openspec)'s Spec-Driven Development (SDD) methodology with a planning/execution/verification engine into one seamless system.
@@ -58,18 +60,20 @@ Full control over each phase. Best for complex features or when you want to revi
 
 ### Fast-Forward (Semi-Automated)
 
-Skip interactive confirmations. Good for well-understood changes.
+Skip interactive confirmations. Requires an active change (run `/mysd:propose` first).
 
 ```bash
-/mysd:ff my-feature     # propose → plan → apply → archive (with auto research)
+/mysd:propose my-feature   # Create change first
+/mysd:ff my-feature        # plan → apply → archive (no research, auto mode)
 ```
 
 ### Full Fast-Forward (Fully Automated)
 
-End-to-end in one command. Good for small, well-scoped changes.
+Same as fast-forward but with a research phase before planning.
 
 ```bash
-/mysd:ffe my-feature    # propose → plan → apply → verify → archive (zero prompts)
+/mysd:propose my-feature   # Create change first
+/mysd:ffe my-feature       # research → plan → apply → archive (auto mode)
 ```
 
 ### Execution-Only Mode
@@ -99,8 +103,8 @@ Already have specs and tasks from another tool or manual authoring? Jump straigh
 
 | Command | Description | Arguments |
 |---------|-------------|-----------|
-| `/mysd:ff` | Fast-forward: propose → plan → apply → archive (auto research, no prompts) | `[change-name]` |
-| `/mysd:ffe` | Full fast-forward: propose → plan → apply → verify → archive (fully automated) | `[change-name]` |
+| `/mysd:ff` | Fast-forward: plan → apply → archive (assumes spec ready, no research, auto mode) | `[change-name]` |
+| `/mysd:ffe` | Full fast-forward: research → plan → apply → archive (with research, auto mode) | `[change-name]` |
 
 ### Documentation
 
