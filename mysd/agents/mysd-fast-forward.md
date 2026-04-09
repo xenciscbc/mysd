@@ -35,6 +35,8 @@ Read the proposal:
 
 Based on the proposal and description, write spec files in `.specs/changes/{change_name}/specs/`.
 
+**File path**: Each spec goes in `specs/{capability-slug}/spec.md` (e.g., `specs/authentication/spec.md`). Never use flat files like `specs/authentication.md`.
+
 **Spec writing defaults:**
 - Create 1-3 spec files depending on scope
 - Focus on MUST requirements that directly relate to the proposal's success criteria

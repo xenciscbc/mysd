@@ -39,9 +39,9 @@ Understand:
 
 ### Step 2: Write Spec File for `{capability_area}`
 
-Create one spec file in `.specs/changes/{change_name}/specs/` for the `{capability_area}`.
+Create one spec file in `.specs/changes/{change_name}/specs/{capability-slug}/` for the `{capability_area}`.
 
-**File naming**: `{capability-slug}.md` (e.g., `authentication.md`, `data-validation.md`)
+**File path**: `specs/{capability-slug}/spec.md` (e.g., `specs/authentication/spec.md`, `specs/data-validation/spec.md`)
 
 **File format** — the spec file MUST have YAML frontmatter followed by content:
 
@@ -95,10 +95,10 @@ If `existing_spec_body` is provided, use it as the base and apply updates rather
 
 After writing, verify the spec file exists and has correct frontmatter:
 ```
-ls .specs/changes/{change_name}/specs/{capability-slug}.md
+ls .specs/changes/{change_name}/specs/{capability-slug}/spec.md
 ```
 
 ### Step 4: Confirm
 
 Tell the user:
-- Spec file `{capability-slug}.md` written with {N} MUST, {M} SHOULD, {K} MAY requirements.
+- Spec file `specs/{capability-slug}/spec.md` written with {N} MUST, {M} SHOULD, {K} MAY requirements.
