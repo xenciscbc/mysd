@@ -40,15 +40,12 @@ Run:
 mysd model
 ```
 
-Parse the output to find `Profile: {profile_name}`. The profile determines agent models:
-
-| Role | quality | balanced | budget |
-|------|---------|----------|--------|
-| researcher / advisor | `sonnet` | `sonnet` | `haiku` |
-| proposal-writer / spec-writer | `sonnet` | `sonnet` | `sonnet` |
-| reviewer | `opus` | `sonnet` | `sonnet` |
-
-Set `model` for researcher/advisor/proposal-writer/spec-writer, and `reviewer_model` for the reviewer agent.
+Parse the output table to find the model for each role. Extract:
+- `researcher_model` from the `researcher` row
+- `advisor_model` from the `advisor` row
+- `proposal_writer_model` from the `proposal-writer` row
+- `spec_writer_model` from the `spec-writer` row
+- `reviewer_model` from the `reviewer` row
 
 ## Step 3: Load Deferred Notes
 
@@ -242,14 +239,14 @@ Would you like to run 4-dimension research on this proposal?
 
 ### Step 9a: Parallel Research Spawning
 
-Show: "Spawning 4 mysd-researcher agents ({model})..."
-Spawn 4 `mysd-researcher` agents in parallel using the Task tool, each with `model` parameter set to `{model}`:
+Show: "Spawning 4 mysd-researcher agents ({researcher_model})..."
+Spawn 4 `mysd-researcher` agents in parallel using the Task tool, each with `model` parameter set to `{researcher_model}`:
 
 For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
 ```
 Task: Research {dimension} for proposal: {change_name}
 Agent: mysd-researcher
-Model: {model}
+Model: {researcher_model}
 Context: {
   "change_name": "{change_name}",
   "dimension": "{dimension}",
@@ -269,11 +266,11 @@ This step is ONLY executed if the user accepted research in Step 9.
 
 From the 4 research outputs, identify gray areas: ambiguous design decisions where multiple valid approaches exist, conflicting recommendations between dimensions, or areas needing user input.
 
-For each gray area, show: "Spawning mysd-advisor ({model})..." and spawn one `mysd-advisor` agent in parallel using the Task tool with `model` parameter set to `{model}`:
+For each gray area, show: "Spawning mysd-advisor ({advisor_model})..." and spawn one `mysd-advisor` agent in parallel using the Task tool with `model` parameter set to `{advisor_model}`:
 ```
 Task: Analyze gray area: {gray_area_description}
 Agent: mysd-advisor
-Model: {model}
+Model: {advisor_model}
 Context: {
   "change_name": "{change_name}",
   "gray_area": "{gray_area_description}",
@@ -332,13 +329,13 @@ If user chooses "Finish exploration": proceed to Step 12.
 
 ## Step 12: Invoke Proposal Writer
 
-Show: "Spawning mysd-proposal-writer ({model})..."
-Use the Task tool to invoke `mysd-proposal-writer` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-proposal-writer ({proposal_writer_model})..."
+Use the Task tool to invoke `mysd-proposal-writer` with `model` parameter set to `{proposal_writer_model}`:
 
 ```
 Task: Write proposal for {change_name}
 Agent: mysd-proposal-writer
-Model: {model}
+Model: {proposal_writer_model}
 Context: {
   "change_name": "{change_name}",
   "change_type": "{change_type}",
@@ -367,12 +364,12 @@ ls .specs/changes/{change_name}/specs/
 
 For each capability area found in the proposal (or a single "core" area if not structured by capability):
 
-Show: "Spawning mysd-spec-writer ({model})..."
-Use the Task tool to invoke `mysd-spec-writer` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-spec-writer ({spec_writer_model})..."
+Use the Task tool to invoke `mysd-spec-writer` with `model` parameter set to `{spec_writer_model}`:
 ```
 Task: Generate specs for {change_name} — {capability_area}
 Agent: mysd-spec-writer
-Model: {model}
+Model: {spec_writer_model}
 Context: {
   "change_name": "{change_name}",
   "capability_area": "{capability_area}",
