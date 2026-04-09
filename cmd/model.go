@@ -15,6 +15,7 @@ import (
 var knownRoles = []string{
 	"spec-writer", "designer", "planner", "executor", "verifier",
 	"fast-forward", "researcher", "advisor", "proposal-writer", "plan-checker",
+	"reviewer", "scanner", "uat-guide",
 }
 
 var modelCmd = &cobra.Command{

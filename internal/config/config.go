@@ -30,6 +30,8 @@ var DefaultModelMap = map[string]map[string]string{
 		"proposal-writer": "opus",
 		"plan-checker":    "opus",
 		"reviewer":        "opus",
+		"scanner":         "opus",
+		"uat-guide":       "opus",
 	},
 	"balanced": {
 		"spec-writer":     "opus",
@@ -44,6 +46,8 @@ var DefaultModelMap = map[string]map[string]string{
 		"proposal-writer": "sonnet",
 		"plan-checker":    "opus",
 		"reviewer":        "sonnet",
+		"scanner":         "sonnet",
+		"uat-guide":       "sonnet",
 	},
 	"budget": {
 		"spec-writer":     "sonnet",
@@ -58,6 +62,8 @@ var DefaultModelMap = map[string]map[string]string{
 		"proposal-writer": "sonnet",
 		"plan-checker":    "sonnet",
 		"reviewer":        "sonnet",
+		"scanner":         "sonnet",
+		"uat-guide":       "sonnet",
 	},
 }
 
