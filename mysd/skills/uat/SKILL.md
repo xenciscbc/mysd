@@ -44,13 +44,23 @@ Read the file contents:
 .mysd/uat/{change_name}-uat.md
 ```
 
+## Step 1b: Resolve UAT Guide Model
+
+Run:
+```
+mysd model
+```
+
+Parse the output to find the model for the `uat-guide` role. Set `uat_model` to that value.
+
 ## Step 2: Invoke UAT Guide Agent
 
-Use the Task tool to invoke the mysd-uat-guide agent with the UAT file content:
+Use the Task tool to invoke the mysd-uat-guide agent with `model` parameter set to `{uat_model}`:
 
 ```
 Task: Invoke mysd-uat-guide agent for interactive UAT walkthrough
 Agent: mysd-uat-guide
+Model: {uat_model}
 Context: {
   "change_name": "{change_name}",
   "uat_file_path": ".mysd/uat/{change_name}-uat.md",

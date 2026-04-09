@@ -70,15 +70,25 @@ If the user types 'yes', proceed with all modules that do not yet have specs.
 If the user provides a list of exclusions, remove those modules from the list and proceed.
 If the user types 'no' or 'cancel', stop and inform the user that no specs were generated.
 
+## Step 2b: Resolve Scanner Model
+
+Run:
+```
+mysd model
+```
+
+Parse the output to find the model for the `scanner` role. Set `scanner_model` to that value.
+
 ## Step 3: Invoke Scanner Agent for Each Confirmed Module
 
 For EACH confirmed module that does NOT already have a spec:
 
-Use the Task tool to invoke the mysd-scanner agent:
+Use the Task tool to invoke the mysd-scanner agent with `model` parameter set to `{scanner_model}`:
 
 ```
 Task: Generate OpenSpec spec for module {module.name}
 Agent: mysd-scanner
+Model: {scanner_model}
 Context:
   module_name: {module.name}
   module_dir: {module.dir}
