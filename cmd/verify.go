@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/xenciscbc/mysd/internal/config"
 	"github.com/xenciscbc/mysd/internal/roadmap"
 	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/xenciscbc/mysd/internal/state"
@@ -46,8 +47,13 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	cfg, cfgErr := config.Load(".")
+	if cfgErr != nil {
+		return cfgErr
+	}
+
 	if contextOnly {
-		return runVerifyContextOnly(cmd.OutOrStdout(), specsDir, ws)
+		return runVerifyContextOnly(cmd.OutOrStdout(), specsDir, ws, cfg)
 	}
 
 	// write-results path
@@ -61,7 +67,7 @@ func runVerifyNoFlags(cmd *cobra.Command) error {
 
 // runVerifyContextOnly builds and outputs the VerificationContext JSON to out.
 // Returns an error if there is no active change (empty ChangeName).
-func runVerifyContextOnly(out io.Writer, specsDir string, ws state.WorkflowState) error {
+func runVerifyContextOnly(out io.Writer, specsDir string, ws state.WorkflowState, cfg config.ProjectConfig) error {
 	if ws.ChangeName == "" {
 		return fmt.Errorf("no active change: run 'mysd propose' to start a new change")
 	}
@@ -71,6 +77,7 @@ func runVerifyContextOnly(out io.Writer, specsDir string, ws state.WorkflowState
 		return fmt.Errorf("build verification context: %w", err)
 	}
 	ctx.SpecDir = specsDir
+	ctx.Model = config.ResolveModel("verifier", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles)
 
 	data, err := json.MarshalIndent(ctx, "", "  ")
 	if err != nil {

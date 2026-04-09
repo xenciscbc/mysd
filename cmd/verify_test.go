@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/xenciscbc/mysd/internal/config"
 	"github.com/xenciscbc/mysd/internal/spec"
 	"github.com/xenciscbc/mysd/internal/state"
 	"github.com/xenciscbc/mysd/internal/verifier"
@@ -62,7 +63,7 @@ func TestVerifyContextOnly(t *testing.T) {
 	// Directly call the function with the specsDir and state
 	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseExecuted}
 	var buf bytes.Buffer
-	err = runVerifyContextOnly(&buf, specsDir, ws)
+	err = runVerifyContextOnly(&buf, specsDir, ws, config.Defaults())
 	require.NoError(t, err)
 
 	// Parse output as JSON
@@ -83,7 +84,7 @@ func TestVerifyContextOnly_NoChange(t *testing.T) {
 	tmp := t.TempDir()
 	ws := state.WorkflowState{ChangeName: "", Phase: state.PhaseNone}
 	var buf bytes.Buffer
-	err := runVerifyContextOnly(&buf, tmp, ws)
+	err := runVerifyContextOnly(&buf, tmp, ws, config.Defaults())
 	assert.Error(t, err)
 }
 

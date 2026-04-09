@@ -36,11 +36,15 @@ If `must_items` is empty, inform the user: "No MUST requirements found. Add MUST
 
 ## Step 2: Invoke Independent Verifier Agent
 
+The JSON context from Step 1 includes a `model` field — the profile-resolved model name for the verifier agent.
+
+Show: "Spawning mysd-verifier ({model})..."
 Use the Task tool to invoke the mysd-verifier agent with the full context:
 
 ```
 Task: Invoke mysd-verifier agent for independent spec verification
 Agent: mysd-verifier
+Model: {model}
 Context: {full context JSON from Step 1}
 ```
 

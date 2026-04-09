@@ -23,6 +23,8 @@ type VerificationContext struct {
 	ShouldItems  []VerifyItem `json:"should_items"`
 	MayItems     []VerifyItem `json:"may_items"`
 	TasksSummary []TaskItem   `json:"tasks_summary"`
+	// Profile-resolved model name for verifier agent spawning
+	Model string `json:"model,omitempty"`
 }
 
 // VerifyItem represents a single requirement in the verification context.

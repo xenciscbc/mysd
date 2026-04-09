@@ -34,7 +34,8 @@ mysd execute --context-only
 Parse the JSON output. It contains:
 - `spec_dir`: The detected spec directory (`.specs` or `openspec`) — pass to all agents
 - `change_name`: The current change
-- `model`: Profile-resolved short model name (e.g., "sonnet", "opus", "haiku") for agent spawning
+- `model`: Profile-resolved short model name for executor agent spawning (e.g., "sonnet", "opus", "haiku")
+- `verifier_model`: Profile-resolved short model name for verifier agent spawning
 - `must_items`: Array of MUST requirements (id, text)
 - `should_items`: Array of SHOULD requirements (id, text)
 - `may_items`: Array of MAY requirements (id, text)
@@ -233,12 +234,12 @@ mysd execute --context-only
 ```
 Parse JSON to get `must_items`, `should_items`, `may_items`.
 
-Show: "Spawning mysd-verifier ({model})..."
-Use the Task tool to invoke `mysd-verifier` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-verifier ({verifier_model})..."
+Use the Task tool to invoke `mysd-verifier` with `model` parameter set to `{verifier_model}`:
 ```
 Task: Verify spec coverage for {change_name}
 Agent: mysd-verifier
-Model: {model}
+Model: {verifier_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
