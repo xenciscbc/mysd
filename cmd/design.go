@@ -57,6 +57,7 @@ func runDesign(cmd *cobra.Command, args []string) error {
 		}
 
 		ctx := map[string]interface{}{
+			"spec_dir":         specDir,
 			"change_name":      ws.ChangeName,
 			"phase":            ws.Phase,
 			"proposal_summary": change.Proposal.Body,

@@ -14,6 +14,7 @@ import (
 // It is language-agnostic — primary_language indicates the detected stack,
 // and files/modules provide universal metadata for any language.
 type ScanContext struct {
+	SpecDir         string         `json:"spec_dir"`
 	RootDir         string         `json:"root_dir"`
 	PrimaryLanguage string         `json:"primary_language"` // "go" | "nodejs" | "python" | "unknown"
 	Files           map[string]int `json:"files"`            // extension -> count, e.g. {".go": 42}

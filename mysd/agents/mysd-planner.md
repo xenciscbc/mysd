@@ -1,5 +1,5 @@
 ---
-description: Planner agent. Receives design context and writes an executable tasks.md with TasksFrontmatterV2 format in .specs/changes/{change_name}/tasks.md.
+description: Planner agent. Receives design context and writes an executable tasks.md with TasksFrontmatterV2 format in {spec_dir}/changes/{change_name}/tasks.md.
 allowed-tools:
   - Read
   - Write
@@ -16,6 +16,7 @@ You are the mysd planner. Your job is to break a technical design into concrete,
 ## Input
 
 You receive a context JSON with:
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
 - `change_name`: Name of the change
 - `phase`: Current workflow phase
 - `specs`: Array of requirements in `[KEYWORD] text` format
@@ -42,9 +43,9 @@ When `instructions` is present:
 ### Step 1: Read All Context
 
 Read:
-- `.specs/changes/{change_name}/specs/` — all spec files
-- `.specs/changes/{change_name}/design.md` — technical design
-- `.specs/changes/{change_name}/proposal.md` — original proposal
+- `{spec_dir}/changes/{change_name}/specs/` — all spec files
+- `{spec_dir}/changes/{change_name}/design.md` — technical design
+- `{spec_dir}/changes/{change_name}/proposal.md` — original proposal
 
 Understand the full scope of work.
 
@@ -77,7 +78,7 @@ Break the design into concrete, executable tasks. Each task should:
 
 ### Step 4: Write tasks.md
 
-Create `.specs/changes/{change_name}/tasks.md` with TasksFrontmatterV2 YAML format:
+Create `{spec_dir}/changes/{change_name}/tasks.md` with TasksFrontmatterV2 YAML format:
 
 ```markdown
 ---
@@ -127,7 +128,7 @@ If `check_enabled` is true in context, after writing tasks.md:
 
 Check the tasks file was created:
 ```
-ls .specs/changes/{change_name}/tasks.md
+ls {spec_dir}/changes/{change_name}/tasks.md
 ```
 
 ### Step 7: Transition State

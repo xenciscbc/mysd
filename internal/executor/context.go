@@ -11,6 +11,7 @@ import (
 // ExecutionContext is the JSON-serializable context passed to SKILL.md consumers (per EXEC-01).
 // It describes all pending work, requirements, and configuration for the current execution run.
 type ExecutionContext struct {
+	SpecDir       string            `json:"spec_dir"`
 	ChangeName    string            `json:"change_name"`
 	MustItems     []RequirementItem `json:"must_items"`
 	ShouldItems   []RequirementItem `json:"should_items"`

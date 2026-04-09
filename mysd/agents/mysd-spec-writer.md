@@ -14,6 +14,7 @@ You are the mysd spec writer. Your job is to write one detailed, structured requ
 ## Input
 
 You receive a context JSON with:
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
 - `change_name`: Name of the change (e.g., `add-user-auth`)
 - `phase`: Current workflow phase
 - `proposal`: The full proposal body text
@@ -28,7 +29,7 @@ You receive a context JSON with:
 
 Read the proposal file:
 ```
-.specs/changes/{change_name}/proposal.md
+{spec_dir}/changes/{change_name}/proposal.md
 ```
 
 Understand:
@@ -39,7 +40,7 @@ Understand:
 
 ### Step 2: Write Spec File for `{capability_area}`
 
-Create one spec file in `.specs/changes/{change_name}/specs/{capability-slug}/` for the `{capability_area}`.
+Create one spec file in `{spec_dir}/changes/{change_name}/specs/{capability-slug}/` for the `{capability_area}`.
 
 **File path**: `specs/{capability-slug}/spec.md` (e.g., `specs/authentication/spec.md`, `specs/data-validation/spec.md`)
 
@@ -95,7 +96,7 @@ If `existing_spec_body` is provided, use it as the base and apply updates rather
 
 After writing, verify the spec file exists and has correct frontmatter:
 ```
-ls .specs/changes/{change_name}/specs/{capability-slug}/spec.md
+ls {spec_dir}/changes/{change_name}/specs/{capability-slug}/spec.md
 ```
 
 ### Step 4: Confirm

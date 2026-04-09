@@ -16,7 +16,8 @@ You are the mysd proposal writer. Your job is to create or update `proposal.md` 
 ## Input
 
 You receive a context JSON with:
-- `change_name`: Name of the change (used to locate `.specs/changes/{change_name}/`)
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
+- `change_name`: Name of the change (used to locate `{spec_dir}/changes/{change_name}/`)
 - `change_type`: One of `"feature"`, `"bugfix"`, `"refactor"` — determines template selection
 - `conclusions`: Discussion conclusions or requirements to incorporate (string, may be multi-line)
 - `existing_proposal`: Body text of the current proposal if updating (empty string if creating new)
@@ -120,16 +121,16 @@ status: proposed
 
 1. Read the change directory to understand what already exists:
    ```bash
-   ls .specs/changes/{change_name}/
+   ls {spec_dir}/changes/{change_name}/
    ```
 
 2. If `existing_proposal` is non-empty, also read the current file:
    ```
-   .specs/changes/{change_name}/proposal.md
+   {spec_dir}/changes/{change_name}/proposal.md
    ```
    Understand which sections are already well-formed and which need updating.
 
-3. If any spec files exist in `.specs/changes/{change_name}/specs/`, read them for additional context.
+3. If any spec files exist in `{spec_dir}/changes/{change_name}/specs/`, read them for additional context.
 
 ### Step 2: Draft Proposal
 
@@ -161,7 +162,7 @@ Skip review and proceed directly to Step 4.
 
 ### Step 4: Write File
 
-Write the final proposal to `.specs/changes/{change_name}/proposal.md` using the Write tool.
+Write the final proposal to `{spec_dir}/changes/{change_name}/proposal.md` using the Write tool.
 
 ### Step 5: Run State Transition (new proposals only)
 
@@ -179,7 +180,7 @@ This marks the change as `proposed` in the workflow state.
 
 Report to the user:
 - Whether the proposal was created or updated
-- The path written: `.specs/changes/{change_name}/proposal.md`
+- The path written: `{spec_dir}/changes/{change_name}/proposal.md`
 - Next step: "Run `/mysd:plan` to create execution plan, or `/mysd:discuss` to explore requirements interactively"
 
 ## Constraints

@@ -70,6 +70,7 @@ func runVerifyContextOnly(out io.Writer, specsDir string, ws state.WorkflowState
 	if err != nil {
 		return fmt.Errorf("build verification context: %w", err)
 	}
+	ctx.SpecDir = specsDir
 
 	data, err := json.MarshalIndent(ctx, "", "  ")
 	if err != nil {

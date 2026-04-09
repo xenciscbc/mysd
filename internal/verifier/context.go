@@ -15,6 +15,7 @@ import (
 // VerificationContext is the JSON-serializable context passed to the verifier agent.
 // It contains all MUST/SHOULD/MAY items from the spec and a summary of tasks.
 type VerificationContext struct {
+	SpecDir      string       `json:"spec_dir"`
 	ChangeName   string       `json:"change_name"`
 	ChangeDir    string       `json:"change_dir"`
 	SpecsDir     string       `json:"specs_dir"`

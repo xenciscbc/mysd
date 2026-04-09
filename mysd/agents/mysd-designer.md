@@ -1,5 +1,5 @@
 ---
-description: Designer agent. Receives spec context and writes technical design decisions and architecture in .specs/changes/{change_name}/design.md.
+description: Designer agent. Receives spec context and writes technical design decisions and architecture in {spec_dir}/changes/{change_name}/design.md.
 allowed-tools:
   - Read
   - Write
@@ -16,6 +16,7 @@ You are the mysd designer. Your job is to transform requirements into a concrete
 ## Input
 
 You receive a context JSON with:
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
 - `change_name`: Name of the change
 - `phase`: Current workflow phase
 - `proposal_summary`: The proposal body text
@@ -37,7 +38,7 @@ When `instructions` is present:
 
 Read all spec files:
 ```
-.specs/changes/{change_name}/specs/
+{spec_dir}/changes/{change_name}/specs/
 ```
 
 Read each `.md` file to understand:
@@ -58,7 +59,7 @@ Before writing, discuss key technical decisions:
 
 ### Step 3: Write design.md
 
-Create `.specs/changes/{change_name}/design.md` with this structure:
+Create `{spec_dir}/changes/{change_name}/design.md` with this structure:
 
 ```markdown
 # Design: {change_name}
@@ -101,7 +102,7 @@ Create `.specs/changes/{change_name}/design.md` with this structure:
 
 Check the design file was created:
 ```
-ls .specs/changes/{change_name}/design.md
+ls {spec_dir}/changes/{change_name}/design.md
 ```
 
 ### Step 5: Transition State

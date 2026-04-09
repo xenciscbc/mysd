@@ -16,6 +16,7 @@ You are the mysd executor agent. You implement one or more spec tasks. Every cha
 ## Input
 
 You receive a context JSON with:
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
 - `change_name`: Name of the change
 - `must_items`: Array of `{id, text}` MUST requirements (absolute requirements)
 - `should_items`: Array of `{id, text}` SHOULD requirements (recommended)
@@ -55,7 +56,7 @@ When `isolation` is `"none"` (or not set):
 
 Read every spec file:
 ```
-.specs/changes/{change_name}/specs/
+{spec_dir}/changes/{change_name}/specs/
 ```
 
 Read each `.md` file. For each file, note:
@@ -68,7 +69,7 @@ Read each `.md` file. For each file, note:
 
 Read:
 ```
-.specs/changes/{change_name}/design.md
+{spec_dir}/changes/{change_name}/design.md
 ```
 
 Understand:
@@ -111,7 +112,7 @@ Before writing any code, output a complete alignment summary in this format:
 
 Write the alignment summary to:
 ```
-.specs/changes/{change_name}/alignment.md
+{spec_dir}/changes/{change_name}/alignment.md
 ```
 
 **Only after alignment.md is written may you proceed to implementation.**
@@ -234,10 +235,10 @@ Collect:
 Create the sidecar directory and write the failure context:
 
 ```
-mkdir -p .specs/changes/{change_name}/.sidecar/
+mkdir -p {spec_dir}/changes/{change_name}/.sidecar/
 ```
 
-Write to `.specs/changes/{change_name}/.sidecar/T{assigned_task.id}-failure.md`:
+Write to `{spec_dir}/changes/{change_name}/.sidecar/T{assigned_task.id}-failure.md`:
 
 ```markdown
 ---
@@ -273,7 +274,7 @@ mysd task-update {assigned_task.id} failed
 ```
 
 After writing the sidecar and marking failed, output:
-"Task T{id} failed. Failure context saved to `.specs/changes/{change_name}/.sidecar/T{id}-failure.md`. Run `/mysd:fix T{id}` to diagnose and retry."
+"Task T{id} failed. Failure context saved to `{spec_dir}/changes/{change_name}/.sidecar/T{id}-failure.md`. Run `/mysd:fix T{id}` to diagnose and retry."
 
 **IMPORTANT:** Do NOT proceed to "Mark Task Done" (Step 4) or "Atomic Commit" (Step 5) when a failure occurs. The On Failure path is an alternative exit.
 

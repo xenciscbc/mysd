@@ -61,7 +61,7 @@ Based on your source code analysis, group the package's capabilities into three 
 
 **MUST** — Core functionality that the package exists to provide. If this doesn't work, the package is broken.
 - Example: "The scanner MUST walk the directory tree and return a list of Go packages"
-- Example: "The scanner MUST set HasSpec=true when .specs/changes/{name}/ exists"
+- Example: "The scanner MUST set HasSpec=true when {spec_dir}/changes/{name}/ exists"
 
 **SHOULD** — Quality attributes and secondary behaviors that make the package robust and production-ready.
 - Example: "The scanner SHOULD skip hidden directories (prefix '.')"

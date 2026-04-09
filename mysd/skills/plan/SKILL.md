@@ -37,11 +37,12 @@ mysd plan --context-only [--research] [--check]
 ```
 
 Parse the JSON output. It contains:
-- `change_name`, `phase`, `specs`, `design`, `model`
+- `spec_dir`, `change_name`, `phase`, `specs`, `design`, `model`
 - `reviewer_model`, `plan_checker_model`
 - `research_enabled`, `check_enabled`, `test_generation`
 
 Extract the following fields:
+- `spec_dir`: the detected spec directory (`.specs` or `openspec`) — pass to all agents
 - `model`: profile-resolved model for designer and planner agents
 - `reviewer_model`: profile-resolved model for mysd-reviewer
 - `plan_checker_model`: profile-resolved model for mysd-plan-checker
@@ -104,6 +105,7 @@ If `research_enabled` is true (from context JSON) or `--research` flag present:
   Agent: mysd-researcher
   Model: {model}
   Context: {
+    "spec_dir": "{spec_dir}",
     "change_name": "{change_name}",
     "dimension": "architecture",
     "topic": "implementation of {change_name} — validate technical feasibility and supplement implementation details",
@@ -150,6 +152,7 @@ Task: Create design document for {change_name}
 Agent: mysd-designer
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "specs": [{spec content}],
   "research_findings": [{from Step 3, or empty if no research}],
@@ -178,7 +181,8 @@ Use the Task tool to invoke `mysd-planner` with `model` parameter set to `{model
 Task: Create task list for {change_name}
 Agent: mysd-planner
 Model: {model}
-Context: {full context JSON from Step 2, plus research_findings and design content, plus auto_mode, plus:
+Context: {full context JSON from Step 2 (including spec_dir), plus research_findings and design content, plus auto_mode, plus:
+  "spec_dir": "{spec_dir}",
   "instructions": {instructions JSON from mysd instructions},
   "external_input": {external_input from context, if present},
   "target_spec": {spec name from Step 2b selection, if per-spec planning}
@@ -278,6 +282,7 @@ Task: Review artifacts for {change_name}
 Agent: mysd-reviewer
 Model: {reviewer_model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "phase": "plan",
   "validate_output": "{validate_output}",

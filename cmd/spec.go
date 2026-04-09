@@ -51,6 +51,7 @@ func runSpec(cmd *cobra.Command, args []string) error {
 		change, _ := spec.ParseChange(changeDir)
 
 		ctx := map[string]interface{}{
+			"spec_dir":    specDir,
 			"change_name": ws.ChangeName,
 			"phase":       ws.Phase,
 			"proposal":    change.Proposal.Body,

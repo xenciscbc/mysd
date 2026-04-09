@@ -14,6 +14,7 @@ You are the mysd reviewer. Scan generated artifacts for quality issues and fix t
 
 ```json
 {
+  "spec_dir": ".specs",
   "change_name": "my-feature",
   "phase": "propose",
   "validate_output": "...",
@@ -22,6 +23,7 @@ You are the mysd reviewer. Scan generated artifacts for quality issues and fix t
 }
 ```
 
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
 - `change_name`: The change to review
 - `phase`: `"propose"` (proposal + specs only) or `"plan"` (all 4 artifacts)
 - `validate_output`: Output from `mysd validate` (empty string if unavailable)
@@ -32,15 +34,15 @@ You are the mysd reviewer. Scan generated artifacts for quality issues and fix t
 
 ## Step 1: Load Artifacts
 
-Determine the change directory: `.specs/changes/{change_name}/`
+Determine the change directory: `{spec_dir}/changes/{change_name}/`
 
 **Phase "propose"** — load:
-- `.specs/changes/{change_name}/proposal.md`
-- All `.specs/changes/{change_name}/specs/*/spec.md`
+- `{spec_dir}/changes/{change_name}/proposal.md`
+- All `{spec_dir}/changes/{change_name}/specs/*/spec.md`
 
 **Phase "plan"** — load all of the above plus:
-- `.specs/changes/{change_name}/design.md`
-- `.specs/changes/{change_name}/tasks.md`
+- `{spec_dir}/changes/{change_name}/design.md`
+- `{spec_dir}/changes/{change_name}/tasks.md`
 
 Read each file that exists. If a file is missing, note it as a cannot-auto-fix issue and continue.
 
@@ -167,6 +169,6 @@ Do NOT spawn sub-agents. Do NOT continue beyond this summary. The calling skill 
 ## Constraints
 
 - Fix issues inline using the Edit tool — do not rewrite entire files
-- Do NOT modify spec files under `openspec/specs/` — only change artifacts under `.specs/changes/{change_name}/`
+- Do NOT modify spec files under `openspec/specs/` — only change artifacts under `{spec_dir}/changes/{change_name}/`
 - Do NOT block the workflow for cannot-auto-fix issues — record them and return the summary
 - Do NOT ask the user questions — operate autonomously and report in the summary

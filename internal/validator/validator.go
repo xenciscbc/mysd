@@ -210,46 +210,50 @@ func validateTasks(changeDir string, result *ValidationResult) {
 		return // tasks.md is optional at early stages
 	}
 
-	f, err := os.Open(path)
-	if err != nil {
-		addError(result, "tasks.md", fmt.Sprintf("cannot read: %v", err))
+	// Try V2 first (tasks in YAML frontmatter)
+	fmV2, body, v2Err := spec.ParseTasksV2(path)
+	if v2Err != nil {
+		addError(result, "tasks.md", fmt.Sprintf("parse error: %v", v2Err))
 		return
 	}
-	defer f.Close()
 
-	var fm spec.TasksFrontmatter
-	_, fmErr := frontmatter.Parse(f, &fm)
-	if fmErr != nil {
+	// Detect brownfield: all fields zero-value and no tasks
+	if fmV2.SpecVersion == "" && fmV2.Total == 0 && fmV2.Completed == 0 && len(fmV2.Tasks) == 0 {
 		addWarning(result, "tasks.md", "no valid frontmatter found (brownfield format)")
 		return
 	}
 
-	// Detect brownfield: all fields zero-value
-	if fm.SpecVersion == "" && fm.Total == 0 && fm.Completed == 0 {
-		addWarning(result, "tasks.md", "no valid frontmatter found (brownfield format)")
-		return
-	}
-
-	if fm.SpecVersion == "" {
+	if fmV2.SpecVersion == "" {
 		addError(result, "tasks.md", "missing required field: spec-version")
 	}
 
-	// Count actual tasks from file
-	tasks, _, parseErr := spec.ParseTasks(path)
-	if parseErr != nil {
-		addError(result, "tasks.md", fmt.Sprintf("parse error: %v", parseErr))
-		return
-	}
-
-	actualCount := len(tasks)
-	if fm.Total != actualCount {
-		addWarning(result, "tasks.md", fmt.Sprintf("total (%d) does not match actual task count (%d)", fm.Total, actualCount))
-	}
-
-	// Check for empty task names
-	for _, t := range tasks {
-		if strings.TrimSpace(t.Name) == "" {
-			addWarning(result, "tasks.md", fmt.Sprintf("task T%d has empty name", t.ID))
+	// Count actual tasks: V2 (frontmatter tasks array) or V1 (markdown checkboxes)
+	var actualCount int
+	if len(fmV2.Tasks) > 0 {
+		// V2: tasks defined in frontmatter
+		actualCount = len(fmV2.Tasks)
+		for _, t := range fmV2.Tasks {
+			if strings.TrimSpace(t.Name) == "" {
+				addWarning(result, "tasks.md", fmt.Sprintf("task T%d has empty name", t.ID))
+			}
 		}
+	} else {
+		// V1 fallback: count markdown checkboxes in body
+		tasks, _, parseErr := spec.ParseTasks(path)
+		if parseErr != nil {
+			addError(result, "tasks.md", fmt.Sprintf("parse error: %v", parseErr))
+			return
+		}
+		actualCount = len(tasks)
+		for _, t := range tasks {
+			if strings.TrimSpace(t.Name) == "" {
+				addWarning(result, "tasks.md", fmt.Sprintf("task T%d has empty name", t.ID))
+			}
+		}
+	}
+	_ = body // body is not needed for validation
+
+	if fmV2.Total != actualCount {
+		addWarning(result, "tasks.md", fmt.Sprintf("total (%d) does not match actual task count (%d)", fmV2.Total, actualCount))
 	}
 }

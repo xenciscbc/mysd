@@ -83,6 +83,7 @@ func runExecute(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+		ctx.SpecDir = specDir
 
 		// Filter by --spec flag
 		if executeSpec != "" {

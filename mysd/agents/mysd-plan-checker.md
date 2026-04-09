@@ -20,7 +20,7 @@ You operate deterministically — coverage is determined by exact string matchin
 
 ## Input
 
-You receive a planning context JSON from `mysd plan --check --context-only`. The relevant field is:
+You receive a planning context JSON from `mysd plan --check --context-only`. The context includes `spec_dir` (`.specs` or `openspec`). The relevant field is:
 
 ```json
 {
@@ -79,8 +79,8 @@ Uncovered requirement IDs:
 
 Before proposing fixes, read the relevant files:
 
-1. Read all spec files in `.specs/changes/{change_name}/specs/*/spec.md` to understand what each uncovered requirement demands.
-2. Read `.specs/changes/{change_name}/tasks.md` to understand existing tasks and their current `satisfies` fields.
+1. Read all spec files in `{spec_dir}/changes/{change_name}/specs/*/spec.md` to understand what each uncovered requirement demands.
+2. Read `{spec_dir}/changes/{change_name}/tasks.md` to understand existing tasks and their current `satisfies` fields.
 
 ### Step 4: Offer Resolution Options
 

@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/xenciscbc/mysd/internal/output"
 	"github.com/xenciscbc/mysd/internal/scanner"
+	"github.com/xenciscbc/mysd/internal/spec"
 )
 
 var scanCmd = &cobra.Command{
@@ -44,6 +45,8 @@ func runScanContextOnly(out io.Writer, root string, exclude []string) error {
 	if err != nil {
 		return fmt.Errorf("build scan context: %w", err)
 	}
+	specDir, _, _ := spec.DetectSpecDir(root)
+	ctx.SpecDir = specDir
 	data, err := json.MarshalIndent(ctx, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal scan context: %w", err)

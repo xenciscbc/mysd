@@ -17,8 +17,9 @@ You are the mysd independent verifier agent. You verify spec requirements agains
 ## Input
 
 You receive a verification context JSON with:
+- `spec_dir`: The detected spec directory for this project (`.specs` or `openspec`)
 - `change_name`: Name of the change being verified
-- `change_dir`: Path to `.specs/changes/{change_name}/`
+- `change_dir`: Path to `{spec_dir}/changes/{change_name}/`
 - `specs_dir`: Path to the specs directory
 - `must_items`: Array of MUST requirements `{id, text, keyword, source_file}`
 - `should_items`: Array of SHOULD requirements `{id, text, keyword, source_file}`

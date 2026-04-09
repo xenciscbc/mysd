@@ -342,6 +342,84 @@ created: 2026-01-01
 	assert.Contains(t, result.Warnings[0].Message, "spec.md is missing")
 }
 
+func TestValidate_TasksV2Valid(t *testing.T) {
+	changeDir := setupChangeDir(t)
+	writeFile(t, changeDir, ".openspec.yaml", "schema: spec-driven\ncreated: 2026-01-01\n")
+	writeFile(t, changeDir, "proposal.md", `---
+spec-version: "1.0"
+change: test-change
+status: proposed
+created: 2026-01-01
+---
+
+# Proposal
+`)
+	writeFile(t, changeDir, "tasks.md", `---
+spec-version: "1.0"
+total: 2
+completed: 0
+tasks:
+  - id: 1
+    name: "Task one"
+    description: "Do task one"
+    spec: "core"
+    status: pending
+  - id: 2
+    name: "Task two"
+    description: "Do task two"
+    spec: "core"
+    status: pending
+---
+
+# Tasks
+`)
+
+	result := Validate(changeDir)
+
+	assert.True(t, result.Valid)
+	assert.Empty(t, result.Errors)
+	assert.Empty(t, result.Warnings)
+}
+
+func TestValidate_TasksV2CountMismatch(t *testing.T) {
+	changeDir := setupChangeDir(t)
+	writeFile(t, changeDir, ".openspec.yaml", "schema: spec-driven\ncreated: 2026-01-01\n")
+	writeFile(t, changeDir, "proposal.md", `---
+spec-version: "1.0"
+change: test-change
+status: proposed
+created: 2026-01-01
+---
+
+# Proposal
+`)
+	writeFile(t, changeDir, "tasks.md", `---
+spec-version: "1.0"
+total: 5
+completed: 0
+tasks:
+  - id: 1
+    name: "Task one"
+    description: "Do task one"
+    spec: "core"
+    status: pending
+  - id: 2
+    name: "Task two"
+    description: "Do task two"
+    spec: "core"
+    status: pending
+---
+
+# Tasks
+`)
+
+	result := Validate(changeDir)
+
+	assert.True(t, result.Valid) // count mismatch is a warning
+	assert.Len(t, result.Warnings, 1)
+	assert.Contains(t, result.Warnings[0].Message, "total (5) does not match actual task count (2)")
+}
+
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsStr(s, substr))
 }
