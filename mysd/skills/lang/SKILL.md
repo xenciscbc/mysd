@@ -30,14 +30,12 @@ Display the output to the user. It shows:
 
 ## Step 2: Set Language (optional)
 
-Ask the user if they want to change. If yes, present options:
-```
-Select a language or enter a BCP47 code:
-  1. zh-TW — Traditional Chinese
-  2. en-US — English (United States)
-  3. ja-JP — Japanese
-  4. Custom — Enter a BCP47 code (e.g., fr-FR, ko-KR, de-DE)
-```
+Ask the user if they want to change. If yes, use the **AskUserQuestion tool** with these options:
+
+- zh-TW — Traditional Chinese
+- en-US — English (United States)
+- ja-JP — Japanese
+- Custom — Enter a BCP47 code (e.g., fr-FR, ko-KR, de-DE)
 
 If the user selects an option or enters a BCP47 code, run:
 ```

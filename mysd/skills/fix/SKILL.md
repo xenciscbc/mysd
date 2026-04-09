@@ -33,13 +33,9 @@ Check `$ARGUMENTS`:
 If no task ID provided:
   Run: `mysd execute --context-only`
   Parse JSON for tasks with status "failed" or "blocked".
-  List them:
-  ```
-  Failed/blocked tasks:
-    T2 (setup-auth) — failed: merge conflict
-    T5 (add-validation) — blocked: depends on T2
-  ```
-  Ask user: "Which task would you like to fix?"
+  List them and use the **AskUserQuestion tool** to let the user select which task to fix:
+  - T2 (setup-auth) — failed: merge conflict
+  - T5 (add-validation) — blocked: depends on T2
 
 Set `target_task` and `change_name`.
 
@@ -77,7 +73,9 @@ If no conflict markers but task is failed:
     PATH = "implementation" (no sidecar — will diagnose without context)
 
 **Present detection to user (D-08 safety valve):**
-"Detected: {merge conflict | implementation failure}. Proceed with {path}? (Y/n)"
+Use the **AskUserQuestion tool** to confirm the detected path:
+- "Proceed with {merge conflict | implementation failure} fix"
+- "Abandon — return task to pending"
 
 ## Step 5A: Merge Conflict Path (D-14)
 
@@ -142,7 +140,7 @@ If no conflict markers but task is failed:
      Present any errors found.
 
 2. **Optional research (D-11):**
-   Ask: "Would you like to research this issue? [y/N]"
+   Use the **AskUserQuestion tool** to ask: "Would you like to research this issue?" with options "Yes" / "No".
    If yes:
      Task: Research implementation issue
      Agent: mysd-researcher

@@ -62,15 +62,10 @@ Use the filtered context for subsequent steps.
 
 If no `--spec` argument was provided and `auto_mode` is false:
 1. Group `pending_tasks` by their `spec` field
-2. If tasks have multiple distinct spec values, present an interactive selection list:
-   ```
-   Pending specs:
-   1. material-selection (3 tasks)
-   2. planning (2 tasks)
-   3. [All] Run all 5 pending tasks
-
-   Select:
-   ```
+2. If tasks have multiple distinct spec values, use the **AskUserQuestion tool** to let the user select:
+   - material-selection (3 tasks)
+   - planning (2 tasks)
+   - [All] Run all pending tasks
 3. If user selects a specific spec: re-run `mysd execute --spec {selected} --context-only` to get filtered context
 4. If user selects "All": proceed with the full unfiltered context
 
@@ -84,7 +79,7 @@ Read the `instruction` field from the JSON output. This field is dynamically gen
 2. Follow the guidance in `instruction`:
    - If it says all tasks are complete → inform the user and stop.
    - If it mentions failed tasks → highlight them and ask the user how to proceed.
-   - If it mentions missing files or stale artifacts → in `auto_mode`, display warnings and proceed; otherwise ask the user to confirm continuing or aborting.
+   - If it mentions missing files or stale artifacts → in `auto_mode`, display warnings and proceed; otherwise use the **AskUserQuestion tool** with options "Continue" / "Abort" to let the user decide.
    - Otherwise → proceed to execution.
 
 ## Step 3: Execute Based on Mode

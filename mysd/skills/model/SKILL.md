@@ -32,16 +32,13 @@ Display the output to the user as-is. The output shows:
 
 ## Step 2: Change Profile (optional)
 
-Ask the user if they want to change. If yes, present options:
-```
-Available profiles:
+Ask the user if they want to change. If yes, use the **AskUserQuestion tool** with these options:
 
-- quality   — All roles use opus (best quality, higher cost)
-- balanced  — Mixed models, default profile (recommended for most projects)
-- budget    — Core roles use sonnet, supporting roles use haiku
-```
+- quality — All roles use opus (best quality, higher cost)
+- balanced — Mixed models, default profile (recommended for most projects)
+- budget — Core roles use sonnet, supporting roles use haiku
 
-If the user provides a profile name, run:
+If the user selects a profile, run:
 ```
 mysd model set {profile}
 ```

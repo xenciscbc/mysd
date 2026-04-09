@@ -41,14 +41,9 @@ Determine the active change and present path selection.
 **If `change_name` is set (active change exists):**
 
 - **If `auto_mode` is true:** Enter source-driven path directly (no prompt).
-- **If `auto_mode` is false:** Present path selection:
-  ```
-  Active change: {change_name}
-  How would you like to proceed?
-  1. Discuss an existing spec (spec-focused)
-  2. Add content from external sources (source-driven)
-  ```
-  Wait for user selection.
+- **If `auto_mode` is false:** Use the **AskUserQuestion tool** to present path selection:
+  - Discuss an existing spec (spec-focused)
+  - Add content from external sources (source-driven)
 
 **If `change_name` is null (no active change):**
 → Enter source-driven path directly (no prompt needed).
@@ -59,14 +54,9 @@ This step only executes when the user selected **spec-focused** path in Step 2b.
 
 List all spec files under `.specs/changes/{change_name}/specs/*/spec.md`:
 - For each spec, extract the `capability` field from frontmatter and count the number of `### Requirement:` headings
-- Present as a numbered list:
-  ```
-  Specs in {change_name}:
-  1. {capability_name} ({N} requirements)
-  2. {capability_name} ({N} requirements)
-  ...
-  ```
-- Wait for user to select one spec
+- Use the **AskUserQuestion tool** to let the user select one spec, with options like:
+  - {capability_name} ({N} requirements)
+  - {capability_name} ({N} requirements)
 
 **If the change has no specs:**
 → Inform the user: "No specs found in this change. Switching to source-driven path."
@@ -238,16 +228,13 @@ Read file `.specs/changes/{change_name}/discuss-research-cache.json` using the R
 **If file exists and contains valid JSON:**
 - Extract `cached_at` field
 - If `auto_mode` is true: set `cache_action = "fresh"` (always run fresh research in auto mode)
-- If `auto_mode` is false: Ask user:
-  ```
-  Found cached research from {cached_at}.
-  1. Reuse cached research (skip research step)
-  2. Run fresh research (overwrite cache)
-  3. Skip research entirely (cache unchanged)
-  ```
-  - If user chooses 1 (reuse): set `cache_action = "reuse"`, load `research` object from cache, skip Steps 5-8, go directly to Step 9 with cached research as context
-  - If user chooses 2 (fresh): set `cache_action = "fresh"`, proceed to Step 5 normally
-  - If user chooses 3 (skip): set `cache_action = "skip"`, skip Steps 5-8, go to Step 9 without research
+- If `auto_mode` is false: Use the **AskUserQuestion tool** with these options:
+  - Reuse cached research from {cached_at} (skip research step)
+  - Run fresh research (overwrite cache)
+  - Skip research entirely (cache unchanged)
+  - If user chooses reuse: set `cache_action = "reuse"`, load `research` object from cache, skip Steps 5-8, go directly to Step 9 with cached research as context
+  - If user chooses fresh: set `cache_action = "fresh"`, proceed to Step 5 normally
+  - If user chooses skip: set `cache_action = "skip"`, skip Steps 5-8, go to Step 9 without research
 
 **If file does not exist or is invalid JSON (`discuss-research-cache.json` missing or unparseable):**
 - Set `cache_action = "none"` (no cache, proceed normally to Step 5)
@@ -258,11 +245,9 @@ If `cache_action` is "reuse" or "skip": skip this step entirely (already handled
 
 If `auto_mode` is true: skip research entirely (FAUTO-02 — auto means no interaction). Go directly to Step 9.
 
-If `auto_mode` is false: Ask user:
-```
-Would you like to run 4-dimension research on this topic?
-(Codebase / Domain / Architecture / Pitfalls) [y/N]
-```
+If `auto_mode` is false: Use the **AskUserQuestion tool** to ask:
+- Run 4-dimension research (Codebase / Domain / Architecture / Pitfalls)
+- Skip research
 
 - If user declines: go to Step 9 (discussion without research).
 - If user accepts: proceed to Step 6.
@@ -350,12 +335,9 @@ For each gray area with its advisor analysis:
    - Run: `mysd note add "{idea summary}"` to save to deferred notes
    - Continue exploration without incorporating the out-of-scope idea
    - Scope boundary is determined by reading the proposal.md's **In Scope / Out of Scope** sections
-4. After the area discussion concludes, ask (D-01 — user-driven, no quota):
-   ```
-   This area is resolved. Would you like to:
-   1. Continue to the next area
-   2. Finish exploration
-   ```
+4. After the area discussion concludes, use the **AskUserQuestion tool** (D-01 — user-driven, no quota):
+   - Continue to the next area
+   - Finish exploration
    If user chooses "Finish exploration": exit Layer 1 and go directly to Step 9.
 
 ### Layer 2 — Unified Research Exit
@@ -369,12 +351,12 @@ After all identified gray areas from Step 7 are explored, present a unified summ
 1. {gray_area_1}: {conclusion}
 2. {gray_area_2}: {conclusion}
 ...
-
-Would you like to:
-1. Explore additional areas (describe what you'd like to investigate)
-2. Continue discussing other aspects
-3. Converge to conclusion and decide on spec updates
 ```
+
+Then use the **AskUserQuestion tool**:
+- Explore additional areas (describe what you'd like to investigate)
+- Continue discussing other aspects
+- Converge to conclusion and decide on spec updates
 
 If user chooses "Explore additional areas":
 - User describes new areas to investigate
@@ -441,13 +423,10 @@ Say: "I'll capture this to {artifact} unless you'd rather not."
 
 If the user tries to end without a conclusion, summarize what was discussed and state what remains unresolved. Do not let the discussion end without at least an explicit deferral (e.g., "We don't have enough information yet to decide X").
 
-After presenting the conclusion summary, ask:
-```
-Would you like to:
-1. Incorporate this conclusion into the spec
-2. Continue discussing further
-3. Done — end discussion without spec changes
-```
+After presenting the conclusion summary, use the **AskUserQuestion tool**:
+- Incorporate this conclusion into the spec
+- Continue discussing further
+- Done — end discussion without spec changes
 
 If auto_mode: automatically choose "Incorporate" for all conclusions.
 
@@ -473,14 +452,12 @@ The following artifacts will be updated:
 [x] 1. proposal.md — scope update
 [x] 2. specs/material-selection/spec.md — new requirement
 [x] 3. specs/discuss-path-routing/spec.md — scenario update
-
-All items are selected. Deselect any you want to skip (e.g., "-2"):
 ```
 
-Wait for user input:
-- If user confirms without changes → update all
-- If user deselects items (e.g., "-2") → remove those from the update list
-- If user cancels → skip all updates, proceed to Step 11
+Then use the **AskUserQuestion tool** to confirm:
+- Option 1: "Confirm all" → update all listed artifacts
+- Option 2: "Customize" → ask user which items to deselect (e.g., "-2"), then proceed with remaining
+- Option 3: "Skip all" → skip all updates, proceed to Step 11
 
 ### Step 10c: Execute Updates
 
