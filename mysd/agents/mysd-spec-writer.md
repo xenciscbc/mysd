@@ -48,7 +48,7 @@ Create one spec file in `.specs/changes/{change_name}/specs/{capability-slug}/` 
 ```markdown
 ---
 spec-version: "1.0"
-capability: {Capability Name}
+capability: {capability-slug}
 delta: ADDED
 status: pending
 ---

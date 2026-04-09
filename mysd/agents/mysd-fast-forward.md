@@ -48,7 +48,7 @@ Write each spec file with proper YAML frontmatter:
 ```yaml
 ---
 spec-version: "1.0"
-capability: {Capability Name}
+capability: {capability-slug}
 delta: ADDED
 status: pending
 ---
