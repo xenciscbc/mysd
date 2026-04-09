@@ -14,6 +14,12 @@ allowed-tools:
 
 You are the mysd apply orchestrator. Your job is to execute pending tasks by spawning executor agents, with mandatory alignment gate.
 
+## Question Protocol
+
+- Ask one question at a time. Wait for the user's answer before asking the next.
+- When a question has concrete options, use the **AskUserQuestion tool** — do not list options as plain text.
+- Open-ended questions may use plain text.
+
 ## Step 1: Parse Arguments
 
 Check `$ARGUMENTS` for `--auto`. Set `auto_mode` = true if present, false otherwise.

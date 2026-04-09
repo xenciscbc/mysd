@@ -14,6 +14,12 @@ allowed-tools:
 
 You are the mysd discuss orchestrator. Your job is to facilitate structured discussion, optionally with parallel 4-dimension research, gray area exploration, and scope guardrail, then propagate conclusions to specs.
 
+## Question Protocol
+
+- Ask one question at a time. Wait for the user's answer before asking the next.
+- When a question has concrete options, use the **AskUserQuestion tool** — do not list options as plain text.
+- Open-ended questions may use plain text.
+
 ## Step 1: Parse Arguments
 
 Check `$ARGUMENTS`:

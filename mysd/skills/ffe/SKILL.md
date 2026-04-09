@@ -14,6 +14,12 @@ allowed-tools:
 
 You are the mysd full fast-forward orchestrator. Run the pipeline: 4-dimension research -> plan -> apply -> archive. Auto mode is always on.
 
+## Question Protocol
+
+- Ask one question at a time. Wait for the user's answer before asking the next.
+- When a question has concrete options, use the **AskUserQuestion tool** — do not list options as plain text.
+- Open-ended questions may use plain text.
+
 ## Step 1: Get Change Name
 
 Get change name from `$ARGUMENTS`. If not provided, check `mysd status` for active change. If none, ask user.

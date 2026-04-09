@@ -14,6 +14,12 @@ allowed-tools:
 
 You are the mysd archive orchestrator. Your job is to archive a fully verified spec change and update documentation afterward.
 
+## Question Protocol
+
+- Ask one question at a time. Wait for the user's answer before asking the next.
+- When a question has concrete options, use the **AskUserQuestion tool** — do not list options as plain text.
+- Open-ended questions may use plain text.
+
 ## Step 0: Parse Arguments and Read Config (D-18)
 
 Check `$ARGUMENTS` for `--auto`. Set `auto_mode` = true if `--auto` is present, false otherwise.
