@@ -32,6 +32,7 @@ mysd execute --context-only
 ```
 
 Parse the JSON output. It contains:
+- `spec_dir`: The detected spec directory (`.specs` or `openspec`) — pass to all agents
 - `change_name`: The current change
 - `model`: Profile-resolved short model name (e.g., "sonnet", "opus", "haiku") for agent spawning
 - `must_items`: Array of MUST requirements (id, text)
@@ -95,6 +96,7 @@ Task: Execute task T{task.id}: {task.name}
 Agent: mysd-executor
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "must_items": [...],
   "should_items": [...],
@@ -122,6 +124,7 @@ For each wave in `wave_groups`:
     Agent: mysd-executor
     Model: {model}
     Context: {
+      "spec_dir": "{spec_dir}",
       "change_name": "{change_name}",
       "must_items": [...],
       "should_items": [...],
@@ -163,6 +166,7 @@ Task: Execute spec '{spec_name}' tasks (T{id1}, T{id2}, ...)
 Agent: mysd-executor
 Model: {spec-executor model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "must_items": [...],
   "should_items": [...],
@@ -236,6 +240,7 @@ Task: Verify spec coverage for {change_name}
 Agent: mysd-verifier
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "must_items": [...],
   "should_items": [...],

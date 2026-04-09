@@ -21,8 +21,9 @@ mysd verify --context-only
 ```
 
 Parse the JSON output. It contains:
+- `spec_dir`: The detected spec directory (`.specs` or `openspec`) — included in context passed to verifier
 - `change_name`: The current change
-- `change_dir`: Path to `.specs/changes/{change_name}/`
+- `change_dir`: Path to `{spec_dir}/changes/{change_name}/`
 - `specs_dir`: Path to the specs directory
 - `must_items`: Array of MUST requirements (id, text, keyword, source_file)
 - `should_items`: Array of SHOULD requirements (id, text, keyword, source_file)

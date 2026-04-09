@@ -26,13 +26,21 @@ Check `$ARGUMENTS`:
 - If `--auto` present: set `auto_mode = true`, remove from arguments
 - Otherwise: `auto_mode = false`
 
+## Step 1b: Detect Spec Directory
+
+Detect the project's spec directory:
+- If `openspec/` directory exists in project root → set `spec_dir = "openspec"`
+- Otherwise → set `spec_dir = ".specs"`
+
+Use `{spec_dir}` for all artifact path references throughout this skill.
+
 ## Step 2: Context Detection & Path Routing
 
 Determine the active change and present path selection.
 
 ### Step 2a: Detect Active Change
 
-1. If remaining arguments match a directory `.specs/changes/{name}/` → set `change_name = {name}`
+1. If remaining arguments match a directory `{spec_dir}/changes/{name}/` → set `change_name = {name}`
 2. Else if no argument → run `mysd status`. If it reports an active change → use that `change_name`
 3. Else → `change_name = null` (no active change)
 
@@ -52,7 +60,7 @@ Determine the active change and present path selection.
 
 This step only executes when the user selected **spec-focused** path in Step 2b.
 
-List all spec files under `.specs/changes/{change_name}/specs/*/spec.md`:
+List all spec files under `{spec_dir}/changes/{change_name}/specs/*/spec.md`:
 - For each spec, extract the `capability` field from frontmatter and count the number of `### Requirement:` headings
 - Use the **AskUserQuestion tool** to let the user select one spec, with options like:
   - {capability_name} ({N} requirements)
@@ -75,7 +83,7 @@ Proceed to Step 3b (Material Selection).
 This step only executes when `selected_spec` is set (spec-focused path).
 If this is the source-driven path, skip to Step 3b.
 
-Read `selected_spec` and `.specs/changes/{change_name}/proposal.md`.
+Read `selected_spec` and `{spec_dir}/changes/{change_name}/proposal.md`.
 
 ### Step 3a: Requirement Coverage Analysis
 
@@ -167,7 +175,7 @@ Read and combine content from all selected sources into `aggregated_content`.
 
 ### Step 3b-iv: Compare with Existing Specs
 
-Scan specs under `.specs/changes/{change_name}/specs/` (if change exists) and `openspec/specs/`:
+Scan specs under `{spec_dir}/changes/{change_name}/specs/` (if change exists) and `{spec_dir}/specs/`:
 - Compare key concepts in `aggregated_content` against each spec's capability name and requirements
 - Recommend:
   - **Clear match**: "This content maps to `{spec_name}`. Recommend merging."
@@ -186,8 +194,8 @@ Proceed to Step 4.
 ## Step 3c: Topic Identification
 
 If `change_name` is set:
-  - Read `.specs/changes/{change_name}/proposal.md` for context
-  - Read `.specs/changes/{change_name}/specs/` for existing requirements
+  - Read `{spec_dir}/changes/{change_name}/proposal.md` for context
+  - Read `{spec_dir}/changes/{change_name}/specs/` for existing requirements
 
 Extract topic:
 - If arguments contained a topic string (not a path/change-name): use it directly
@@ -223,7 +231,7 @@ mysd status
 
 If `cache_action` is not yet set and `change_name` is set (mode = "change"), check for cached research:
 
-Read file `.specs/changes/{change_name}/discuss-research-cache.json` using the Read tool.
+Read file `{spec_dir}/changes/{change_name}/discuss-research-cache.json` using the Read tool.
 
 **If file exists and contains valid JSON:**
 - Extract `cached_at` field
@@ -263,6 +271,7 @@ Task: Research {dimension} for topic: {topic}
 Agent: mysd-researcher
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "dimension": "{dimension}",
   "topic": "{topic}",
@@ -277,7 +286,7 @@ Collect all 4 research outputs. Present organized summary by dimension to the us
 
 After collecting all 4 research outputs from Step 6, write the cache file:
 
-Use the Write tool to create `.specs/changes/{change_name}/discuss-research-cache.json` with content:
+Use the Write tool to create `{spec_dir}/changes/{change_name}/discuss-research-cache.json` with content:
 ```json
 {
   "change_name": "{change_name}",
@@ -307,6 +316,7 @@ Task: Analyze gray area: {gray_area_description}
 Agent: mysd-advisor
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "gray_area": "{gray_area_description}",
   "research_findings": "{all 4 researcher outputs combined}",
@@ -470,6 +480,7 @@ Task: Update proposal with discussion conclusions
 Agent: mysd-proposal-writer
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "conclusions": "{conclusions text}",
   "existing_proposal": "{current proposal body}",
@@ -484,6 +495,7 @@ Task: Update spec for {capability_area}
 Agent: mysd-spec-writer
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "capability_area": "{area}",
   "existing_spec_body": "{current spec content}",
@@ -499,6 +511,7 @@ Task: Update design with discussion conclusions
 Agent: mysd-designer
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "conclusions": "{conclusions text}",
   "auto_mode": {auto_mode}
@@ -509,7 +522,7 @@ Context: {
 
 After spec updates complete, check if a plan already exists:
 
-Check whether `.specs/changes/{change_name}/tasks.md` exists (use the Read tool — if the file is not found, it does not exist).
+Check whether `{spec_dir}/changes/{change_name}/tasks.md` exists (use the Read tool — if the file is not found, it does not exist).
 
 **If `tasks.md` does NOT exist:** Skip Step 11 entirely. Proceed to Step 12.
 

@@ -1,0 +1,125 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775530376174,
+  "projectRoot": "D:\\work_data\\project\\go\\mysd",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Go",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "go.mod"
+        ]
+      },
+      {
+        "name": "C/C++",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "Makefile"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "go",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "make build",
+    "testCommand": "make test",
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "cmd": {
+      "path": "cmd",
+      "purpose": null,
+      "fileCount": 46,
+      "lastAccessed": 1775530376147,
+      "keyFiles": [
+        "analyze.go",
+        "analyze_test.go",
+        "archive.go",
+        "archive_test.go",
+        "capture.go"
+      ]
+    },
+    "internal": {
+      "path": "internal",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775530376148,
+      "keyFiles": []
+    },
+    "mysd": {
+      "path": "mysd",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775530376148,
+      "keyFiles": []
+    },
+    "openspec": {
+      "path": "openspec",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1775530376148,
+      "keyFiles": [
+        "CLAUDE.md",
+        "config.yaml"
+      ]
+    },
+    "testdata": {
+      "path": "testdata",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775530376148,
+      "keyFiles": []
+    },
+    "internal\\config": {
+      "path": "internal\\config",
+      "purpose": "Configuration files",
+      "fileCount": 4,
+      "lastAccessed": 1775530376150,
+      "keyFiles": [
+        "CLAUDE.md",
+        "config.go",
+        "config_test.go"
+      ]
+    },
+    "internal\\spec": {
+      "path": "internal\\spec",
+      "purpose": "Test specifications",
+      "fileCount": 19,
+      "lastAccessed": 1775530376150,
+      "keyFiles": [
+        "CLAUDE.md",
+        "deferred.go",
+        "deferred_test.go"
+      ]
+    },
+    "testdata\\fixtures": {
+      "path": "testdata\\fixtures",
+      "purpose": "Test fixtures",
+      "fileCount": 0,
+      "lastAccessed": 1775530376151,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

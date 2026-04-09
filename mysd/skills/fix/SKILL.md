@@ -28,6 +28,11 @@ Check `$ARGUMENTS`:
 - Format 2: `{change-name} T{id}` — fix task T{id} of specified change
 - No arguments: proceed to Step 2 for task selection
 
+## Step 1b: Detect Spec Directory
+
+Run: `mysd execute --context-only`
+Extract `spec_dir` from the JSON output. Use `{spec_dir}` for all artifact path references.
+
 ## Step 2: Identify Target Task (D-10)
 
 If no task ID provided:
@@ -51,7 +56,7 @@ Check if worktree for T{id} exists.
 
 Check for failure sidecar file:
 ```
-Read .specs/changes/{change_name}/.sidecar/T{target_task.id}-failure.md
+Read {spec_dir}/changes/{change_name}/.sidecar/T{target_task.id}-failure.md
 ```
 If file exists: parse frontmatter (task_id, task_name, timestamp) and body sections (Error Output, Files Modified, AI Diagnostic Attempts). Store as `failure_context`.
 If file does not exist: set `failure_context` to null (backward compat per D-08 — degrade to no-context diagnosis).
@@ -145,6 +150,7 @@ Use the **AskUserQuestion tool** to confirm the detected path:
      Task: Research implementation issue
      Agent: mysd-researcher
      Context: {
+       "spec_dir": "{spec_dir}",
        "change_name": "{change_name}",
        "dimension": "codebase",
        "topic": "Fix: {failure reason summary}",
@@ -164,6 +170,7 @@ Use the **AskUserQuestion tool** to confirm the detected path:
    Task: Re-execute task T{id} after fix
    Agent: mysd-executor
    Context: {
+     "spec_dir": "{spec_dir}",
      "change_name": "{change_name}",
      "must_items": [...],
      "should_items": [...],

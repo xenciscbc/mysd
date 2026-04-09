@@ -28,19 +28,19 @@
 
 ## 4. Orchestrators pass spec_dir to agents (D1: spec_dir 傳遞機制)
 
-- [ ] 4.1 mysd/skills/plan/SKILL.md — 從 plan --context-only JSON 提取 spec_dir，傳入 designer/planner/reviewer/plan-checker agent context
-- [ ] 4.2 mysd/skills/propose/SKILL.md — 新增 spec_dir 偵測步驟，傳入 researcher/advisor/proposal-writer/spec-writer/reviewer agent context
-- [ ] 4.3 mysd/skills/apply/SKILL.md — 從 execute --context-only JSON 提取 spec_dir，傳入 executor/verifier agent context
-- [ ] 4.4 mysd/skills/discuss/SKILL.md — 從 plan --context-only JSON 提取 spec_dir，傳入 agent context
-- [ ] 4.5 mysd/skills/ff/SKILL.md — 從 plan/execute --context-only JSON 提取 spec_dir，傳入 fast-forward agent context
-- [ ] 4.6 mysd/skills/ffe/SKILL.md — 從 plan/execute --context-only JSON 提取 spec_dir，傳入 fast-forward agent context
-- [ ] 4.7 mysd/skills/fix/SKILL.md — 從 execute --context-only JSON 提取 spec_dir，傳入 agent context
-- [ ] 4.8 mysd/skills/scan/SKILL.md — 從 scan --context-only JSON 提取 spec_dir，傳入 scanner agent context
-- [ ] 4.9 mysd/skills/verify/SKILL.md — 從 verify --context-only JSON 提取 spec_dir，傳入 verifier agent context
-- [ ] 4.10 mysd/skills/archive/SKILL.md — 從 execute --context-only JSON 提取 spec_dir
+- [x] 4.1 mysd/skills/plan/SKILL.md — 從 plan --context-only JSON 提取 spec_dir，傳入 designer/planner/reviewer/plan-checker agent context
+- [x] 4.2 mysd/skills/propose/SKILL.md — 新增 spec_dir 偵測步驟，傳入 researcher/advisor/proposal-writer/spec-writer/reviewer agent context
+- [x] 4.3 mysd/skills/apply/SKILL.md — 從 execute --context-only JSON 提取 spec_dir，傳入 executor/verifier agent context
+- [x] 4.4 mysd/skills/discuss/SKILL.md — 從 plan --context-only JSON 提取 spec_dir，傳入 agent context
+- [x] 4.5 mysd/skills/ff/SKILL.md — 從 plan/execute --context-only JSON 提取 spec_dir，傳入 fast-forward agent context
+- [x] 4.6 mysd/skills/ffe/SKILL.md — 從 plan/execute --context-only JSON 提取 spec_dir，傳入 fast-forward agent context
+- [x] 4.7 mysd/skills/fix/SKILL.md — 從 execute --context-only JSON 提取 spec_dir，傳入 agent context
+- [x] 4.8 mysd/skills/scan/SKILL.md — 從 scan --context-only JSON 提取 spec_dir，傳入 scanner agent context
+- [x] 4.9 mysd/skills/verify/SKILL.md — 從 verify --context-only JSON 提取 spec_dir，傳入 verifier agent context
+- [x] 4.10 mysd/skills/archive/SKILL.md — 從 execute --context-only JSON 提取 spec_dir
 
 ## 5. Build 和驗證
 
-- [ ] 5.1 跑測試：go test ./internal/validator/ ./cmd/ -v
-- [ ] 5.2 Build binary：go build -o mysd.exe .
-- [ ] 5.3 在 test_mysd（openspec/ 專案）跑 mysd validate 驗證無誤報
+- [x] 5.1 跑測試：go test ./internal/validator/ ./cmd/ -v
+- [x] 5.2 Build binary：go build -o mysd.exe .
+- [x] 5.3 在 test_mysd（openspec/ 專案）跑 mysd validate 驗證無誤報

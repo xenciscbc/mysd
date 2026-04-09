@@ -1,5 +1,5 @@
 ---
-description: Archive a verified spec change to openspec/changes/archive/.
+description: Archive a verified spec change to {spec_dir}/archive/.
 argument-hint: "[--auto]"
 allowed-tools:
   - Bash
@@ -28,7 +28,7 @@ Read docs_to_update config:
 ```
 mysd execute --context-only
 ```
-Parse JSON output. Extract `docs_to_update` array and `change_name`.
+Parse JSON output. Extract `spec_dir`, `docs_to_update` array, and `change_name`.
 If `docs_to_update` is null or empty: set `has_docs_to_update` = false.
 Otherwise: set `has_docs_to_update` = true, store the file paths list.
 
@@ -45,7 +45,7 @@ Inform the user:
 ```
 Change archived successfully.
 
-Archive location: openspec/changes/archive/YYYY-MM-DD-{change_name}/
+Archive location: {spec_dir}/archive/YYYY-MM-DD-{change_name}/
 All spec files, verification report, and history preserved.
 ```
 
@@ -103,9 +103,9 @@ If user types 'n': skip to Step 3.
 ### Step 2b: Read Context for Updates (D-11b)
 
 For the archived change, read:
-- `openspec/changes/archive/YYYY-MM-DD-{change_name}/proposal.md` — what and why
-- `openspec/changes/archive/YYYY-MM-DD-{change_name}/tasks.md` — what was done
-- `openspec/changes/archive/YYYY-MM-DD-{change_name}/specs/` — all spec files (MUST/SHOULD/MAY requirements)
+- `{spec_dir}/archive/YYYY-MM-DD-{change_name}/proposal.md` — what and why
+- `{spec_dir}/archive/YYYY-MM-DD-{change_name}/tasks.md` — what was done
+- `{spec_dir}/archive/YYYY-MM-DD-{change_name}/specs/` — all spec files (MUST/SHOULD/MAY requirements)
 
 Combine into `update_context`.
 

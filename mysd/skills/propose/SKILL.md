@@ -27,11 +27,19 @@ Set `auto_mode` = true if `--auto` is present, false otherwise.
 
 The remaining arguments (after removing `--auto`) are the `source_arg`.
 
-If `source_arg` matches an existing directory `.specs/changes/{source_arg}/`:
+If `source_arg` matches an existing directory `{spec_dir}/changes/{source_arg}/`:
 → Set `existing_change` = true, `change_name` = `source_arg`
 → Read existing proposal.md if present
 
 Otherwise: set `existing_change` = false, `change_name` = null (will be derived later in Step 7).
+
+## Step 1b: Detect Spec Directory
+
+Detect the project's spec directory:
+- If `openspec/` directory exists in project root → set `spec_dir = "openspec"`
+- Otherwise → set `spec_dir = ".specs"`
+
+Use `{spec_dir}` for all artifact path references throughout this skill.
 
 ## Step 2: Resolve Agent Model
 
@@ -126,7 +134,7 @@ For each source type, read as follows:
 
 ## Step 5: Scan Existing Specs
 
-Use Glob to list `openspec/specs/*/spec.md`. Extract directory names as spec identifiers.
+Use Glob to list `{spec_dir}/specs/*/spec.md`. Extract directory names as spec identifiers.
 
 Compare against the `aggregated_content` to identify related specs (max 5 candidates). For each candidate (max 3), read the first 10 lines to retrieve the Purpose section.
 
@@ -222,7 +230,7 @@ Set `change_type`.
 mysd propose {change-name}
 ```
 
-This creates `.specs/changes/{change-name}/` with a template `proposal.md`.
+This creates `{spec_dir}/changes/{change-name}/` with a template `proposal.md`.
 
 ## Step 9: Optional Research
 
@@ -248,10 +256,11 @@ Task: Research {dimension} for proposal: {change_name}
 Agent: mysd-researcher
 Model: {researcher_model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "dimension": "{dimension}",
   "topic": "{requirement_brief}",
-  "spec_files": [".specs/changes/{change_name}/proposal.md"],
+  "spec_files": ["{spec_dir}/changes/{change_name}/proposal.md"],
   "auto_mode": false
 }
 ```
@@ -272,6 +281,7 @@ Task: Analyze gray area: {gray_area_description}
 Agent: mysd-advisor
 Model: {advisor_model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "gray_area": "{gray_area_description}",
   "research_findings": "{all 4 researcher outputs combined}",
@@ -337,6 +347,7 @@ Task: Write proposal for {change_name}
 Agent: mysd-proposal-writer
 Model: {proposal_writer_model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "change_type": "{change_type}",
   "conclusions": "{requirement_brief + research findings + exploration conclusions (if any)}",
@@ -354,12 +365,12 @@ Automatically invoke the spec-writer agent to generate specs from the proposal.
 
 Read the proposal body:
 ```
-Read .specs/changes/{change_name}/proposal.md
+Read {spec_dir}/changes/{change_name}/proposal.md
 ```
 
 Read existing spec files (if any):
 ```
-ls .specs/changes/{change_name}/specs/
+ls {spec_dir}/changes/{change_name}/specs/
 ```
 
 For each capability area found in the proposal (or a single "core" area if not structured by capability):
@@ -371,6 +382,7 @@ Task: Generate specs for {change_name} — {capability_area}
 Agent: mysd-spec-writer
 Model: {spec_writer_model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "capability_area": "{capability_area}",
   "existing_spec_body": "{existing spec content if any, else null}",
@@ -404,6 +416,7 @@ Task: Review artifacts for {change_name}
 Agent: mysd-reviewer
 Model: {reviewer_model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "phase": "propose",
   "change_type": "{change_type}",
@@ -417,7 +430,7 @@ Collect the reviewer summary. Include it in Step 15 output.
 ## Step 15: Final Summary
 
 Show the user:
-1. The proposal file path: `.specs/changes/{change_name}/proposal.md`
+1. The proposal file path: `{spec_dir}/changes/{change_name}/proposal.md`
 2. A brief summary of what was written
 3. Whether 4-dimension research was performed
 4. Number of gray areas explored (if research was run)

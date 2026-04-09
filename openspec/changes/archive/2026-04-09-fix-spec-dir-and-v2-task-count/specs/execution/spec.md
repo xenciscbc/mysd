@@ -2,7 +2,7 @@
 spec-version: "1.0"
 capability: execution
 delta: MODIFIED
-status: pending
+status: synced
 ---
 
 ## ADDED Requirements

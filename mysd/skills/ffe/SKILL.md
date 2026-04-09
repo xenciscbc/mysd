@@ -38,6 +38,7 @@ For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
   Agent: mysd-researcher
   Model: {model}
   Context: {
+    "spec_dir": "{spec_dir}",
     "change_name": "{change_name}",
     "dimension": "{dimension}",
     "topic": "{change description from spec}",
@@ -50,14 +51,14 @@ Collect all 4 research outputs.
 ## Step 3: Plan Phase (with research findings)
 
 Run: `mysd plan --context-only`
-Parse JSON. Extract `model` field.
+Parse JSON. Extract `spec_dir` and `model` fields. Pass `spec_dir` to all agents.
 
 Show: "Spawning mysd-designer ({model})..."
 Spawn designer with `model` parameter set to `{model}`:
   Task: Create design for {change_name} (ffe mode)
   Agent: mysd-designer
   Model: {model}
-  Context: { "change_name": "...", "specs": [...], "research_findings": [{from Step 2}], "auto_mode": true }
+  Context: { "spec_dir": "{spec_dir}", "change_name": "...", "specs": [...], "research_findings": [{from Step 2}], "auto_mode": true }
 
 Run: `mysd design`
 
@@ -66,7 +67,7 @@ Spawn planner with `model` parameter set to `{model}`:
   Task: Create task list for {change_name} (ffe mode)
   Agent: mysd-planner
   Model: {model}
-  Context: { full context JSON, "auto_mode": true }
+  Context: { full context JSON including spec_dir, "auto_mode": true }
 
 Run: `mysd plan`
 
@@ -110,6 +111,7 @@ Task: Verify spec coverage for {change_name} (ffe auto-verify)
 Agent: mysd-verifier
 Model: {model}
 Context: {
+  "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
   "must_items": [...],
   "should_items": [...],
@@ -135,7 +137,7 @@ Parse JSON, extract `docs_to_update`.
 If `docs_to_update` is null or empty: skip to Step 8.
 
 For each file in `docs_to_update`:
-1. Read `.specs/archive/{change_name}/proposal.md`, `tasks.md`, and `specs/` as context
+1. Read `{spec_dir}/archive/{change_name}/proposal.md`, `tasks.md`, and `specs/` as context
 2. Read current file content
 3. Apply update strategy:
    - `CHANGELOG.md`: prepend new entry only

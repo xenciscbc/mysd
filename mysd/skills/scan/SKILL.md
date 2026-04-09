@@ -23,6 +23,7 @@ mysd scan --context-only
 Optionally, if the user has specified directories to exclude, add `--exclude vendor,testdata` (or whatever they specified).
 
 Parse the JSON output. It contains:
+- `spec_dir`: The detected spec directory (`.specs` or `openspec`) — pass to scanner agent
 - `root_dir`: The project root directory
 - `primary_language`: Detected language ("go", "nodejs", "python", "unknown")
 - `files`: Map of file extension to count, e.g. {".go": 42, ".ts": 10}
@@ -90,10 +91,11 @@ Task: Generate OpenSpec spec for module {module.name}
 Agent: mysd-scanner
 Model: {scanner_model}
 Context:
+  spec_dir: {spec_dir}
   module_name: {module.name}
   module_dir: {module.dir}
   primary_language: {primary_language}
-  specs_dir: openspec/specs
+  specs_dir: {spec_dir}/specs
   root_dir: {root_dir}
 ```
 
