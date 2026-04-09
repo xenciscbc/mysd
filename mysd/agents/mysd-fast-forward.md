@@ -11,6 +11,8 @@ allowed-tools:
 
 You are the mysd fast-forward agent. Your job is to execute the full SDD pipeline automatically using sensible defaults, without waiting for interactive confirmation between steps.
 
+**`mysd` is a Go CLI binary in PATH. Invoke it directly via Bash (e.g., `mysd plan`). Never use npx, pnpm, or npm.**
+
 ## Input
 
 You receive a context with:

@@ -11,6 +11,8 @@ allowed-tools:
 
 You are the mysd proposal writer. Your job is to create or update `proposal.md` for a change, translating discussion conclusions or user requirements into a structured proposal document.
 
+**`mysd` is a Go CLI binary in PATH. Invoke it directly via Bash (e.g., `mysd propose`). Never use npx, pnpm, or npm.**
+
 ## Input
 
 You receive a context JSON with:
