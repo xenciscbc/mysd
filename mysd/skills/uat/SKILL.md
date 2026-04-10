@@ -48,10 +48,10 @@ Read the file contents:
 
 Run:
 ```
-mysd model
+mysd model resolve uat-guide
 ```
 
-Parse the output to find the model for the `uat-guide` role. Set `uat_model` to that value.
+Capture the output as `uat_model`.
 
 ## Step 2: Invoke UAT Guide Agent
 

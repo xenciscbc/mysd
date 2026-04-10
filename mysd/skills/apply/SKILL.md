@@ -34,8 +34,6 @@ mysd execute --context-only
 Parse the JSON output. It contains:
 - `spec_dir`: The detected spec directory (`.specs` or `openspec`) — pass to all agents
 - `change_name`: The current change
-- `model`: Profile-resolved short model name for executor agent spawning (e.g., "sonnet", "opus", "haiku")
-- `verifier_model`: Profile-resolved short model name for verifier agent spawning
 - `must_items`: Array of MUST requirements (id, text)
 - `should_items`: Array of SHOULD requirements (id, text)
 - `may_items`: Array of MAY requirements (id, text)
@@ -53,6 +51,15 @@ Parse the JSON output. It contains:
 If `--auto` was parsed in Step 1, override `auto_mode` to true.
 
 If this returns an error (e.g., not in planned phase), guide the user to complete `/mysd:plan` first.
+
+## Step 2a: Resolve Models
+
+Run:
+```
+mysd model resolve executor
+mysd model resolve verifier
+```
+Capture as `executor_model`, `verifier_model`.
 
 ## Step 2b: Per-Spec Selection
 
@@ -90,12 +97,12 @@ Read the `instruction` field from the JSON output. This field is dynamically gen
 
 For each task in `pending_tasks` (sequential, one at a time):
 
-Show: "Spawning mysd-executor ({model})..."
-Use the Task tool to invoke `mysd-executor` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-executor ({executor_model})..."
+Use the Task tool to invoke `mysd-executor` with `model` parameter set to `{executor_model}`:
 ```
 Task: Execute task T{task.id}: {task.name}
 Agent: mysd-executor
-Model: {model}
+Model: {executor_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -118,12 +125,12 @@ Process `wave_groups` sequentially. Within each wave, spawn executors in paralle
 
 For each wave in `wave_groups`:
   For each task in wave (spawn in parallel):
-    Show: "Spawning mysd-executor ({model})..."
-    Use the Task tool to invoke `mysd-executor` with `model` parameter set to `{model}`:
+    Show: "Spawning mysd-executor ({executor_model})..."
+    Use the Task tool to invoke `mysd-executor` with `model` parameter set to `{executor_model}`:
     ```
     Task: Execute wave task T{task.id}: {task.name}
     Agent: mysd-executor
-    Model: {model}
+    Model: {executor_model}
     Context: {
       "spec_dir": "{spec_dir}",
       "change_name": "{change_name}",
@@ -156,11 +163,11 @@ For each wave in `wave_groups`:
 
 Group `pending_tasks` by their `spec` field. Change-level tasks (empty `spec`) are grouped separately and executed last.
 
-Resolve model using `spec-executor` role: run `mysd model resolve spec-executor --json` to get the model name.
+Resolve model using `spec-executor` role: run `mysd model resolve spec-executor` to get the model name.
 
 For each spec group (sequentially, one group at a time):
 
-Show: "Spawning mysd-executor for spec '{spec_name}' ({model})..."
+Show: "Spawning mysd-executor for spec '{spec_name}' ({spec_executor_model})..."
 Use the Task tool to invoke `mysd-executor` with `model` parameter set to the spec-executor resolved model:
 ```
 Task: Execute spec '{spec_name}' tasks (T{id1}, T{id2}, ...)

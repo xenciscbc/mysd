@@ -33,6 +33,15 @@ Check `$ARGUMENTS`:
 Run: `mysd execute --context-only`
 Extract `spec_dir` from the JSON output. Use `{spec_dir}` for all artifact path references.
 
+## Step 1c: Resolve Models
+
+Run:
+```
+mysd model resolve researcher
+mysd model resolve executor
+```
+Capture as `researcher_model`, `executor_model`.
+
 ## Step 2: Identify Target Task (D-10)
 
 If no task ID provided:
@@ -149,6 +158,7 @@ Use the **AskUserQuestion tool** to confirm the detected path:
    If yes:
      Task: Research implementation issue
      Agent: mysd-researcher
+     Model: {researcher_model}
      Context: {
        "spec_dir": "{spec_dir}",
        "change_name": "{change_name}",
@@ -169,6 +179,7 @@ Use the **AskUserQuestion tool** to confirm the detected path:
    Spawn executor in fresh worktree:
    Task: Re-execute task T{id} after fix
    Agent: mysd-executor
+   Model: {executor_model}
    Context: {
      "spec_dir": "{spec_dir}",
      "change_name": "{change_name}",

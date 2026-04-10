@@ -29,22 +29,31 @@ Set `auto_mode = true` (always, per D-19/FAUTO-03).
 ## Step 2: Plan Phase (no research, per FAUTO-04)
 
 Run: `mysd plan --context-only`
-Parse JSON. Extract `spec_dir` and `model` fields. Pass `spec_dir` to all agents.
+Parse JSON. Extract `spec_dir` field. Pass `spec_dir` to all agents.
 
-Show: "Spawning mysd-designer ({model})..."
-Spawn designer with `model` parameter set to `{model}`:
+Resolve models:
+```
+mysd model resolve designer
+mysd model resolve planner
+mysd model resolve executor
+mysd model resolve verifier
+```
+Capture as `designer_model`, `planner_model`, `executor_model`, `verifier_model`.
+
+Show: "Spawning mysd-designer ({designer_model})..."
+Spawn designer with `model` parameter set to `{designer_model}`:
   Task: Create design for {change_name} (ff mode)
   Agent: mysd-designer
-  Model: {model}
+  Model: {designer_model}
   Context: { "spec_dir": "{spec_dir}", "change_name": "...", "specs": [...], "research_findings": [], "auto_mode": true }
 
 Run: `mysd design`
 
-Show: "Spawning mysd-planner ({model})..."
-Spawn planner with `model` parameter set to `{model}`:
+Show: "Spawning mysd-planner ({planner_model})..."
+Spawn planner with `model` parameter set to `{planner_model}`:
   Task: Create task list for {change_name} (ff mode)
   Agent: mysd-planner
-  Model: {model}
+  Model: {planner_model}
   Context: { full context JSON including spec_dir, "auto_mode": true }
 
 Run: `mysd plan`
@@ -52,12 +61,12 @@ Run: `mysd plan`
 ## Step 3: Apply Phase
 
 Run: `mysd execute --context-only`
-Parse JSON. Extract `model` field.
+Parse JSON.
 
-Execute tasks using the same logic as /mysd:apply Step 3, passing `model` to each executor:
-- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true, model: {model}
-- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true, model: {model}
-- Show "Spawning mysd-executor ({model})..." before each spawn
+Execute tasks using the same logic as /mysd:apply Step 3, passing `executor_model` to each executor:
+- Single mode: sequential per-task spawn of mysd-executor with auto_mode: true, model: {executor_model}
+- Wave mode: parallel per-task spawn with worktree isolation, auto_mode: true, model: {executor_model}
+- Show "Spawning mysd-executor ({executor_model})..." before each spawn
 
 Run: `mysd execute` (state transition)
 
@@ -80,12 +89,12 @@ mysd execute --context-only
 ```
 Parse JSON for must_items, should_items, may_items.
 
-Show: "Spawning mysd-verifier ({model})..."
-Use Task tool to invoke `mysd-verifier` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-verifier ({verifier_model})..."
+Use Task tool to invoke `mysd-verifier` with `model` parameter set to `{verifier_model}`:
 ```
 Task: Verify spec coverage for {change_name} (ff auto-verify)
 Agent: mysd-verifier
-Model: {model}
+Model: {verifier_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",

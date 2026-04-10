@@ -202,18 +202,23 @@ Extract topic:
 - If auto_mode: derive topic from the change context
 - Otherwise: Ask "What topic would you like to discuss?"
 
-## Step 3d: Resolve Agent Model
+## Step 3d: Resolve Agent Models
 
-Run:
+Run the following commands to resolve models for each agent role used in this skill:
 ```
-mysd model
+mysd model resolve researcher
+mysd model resolve advisor
+mysd model resolve proposal-writer
+mysd model resolve spec-writer
+mysd model resolve designer
+mysd model resolve planner
+mysd model resolve plan-checker
 ```
 
-Parse the output to find `Profile: {profile_name}`. The profile determines agent model:
-- `quality` or `balanced` → model = `sonnet`
-- `budget` → model = `haiku` (for researcher/advisor); model = `sonnet` (for proposal-writer/spec-writer/designer)
+Capture each output as:
+- `researcher_model`, `advisor_model`, `proposal_writer_model`, `spec_writer_model`, `designer_model`, `planner_model`, `plan_checker_model`
 
-Use this `model` value when spawning agents in subsequent steps.
+Use each role-specific model when spawning the corresponding agent in subsequent steps.
 
 ## Step 4: Conditional Deferred Notes Loading (D-02)
 
@@ -262,14 +267,14 @@ If `auto_mode` is false: Use the **AskUserQuestion tool** to ask:
 
 ## Step 6: Parallel Research Spawning
 
-Show: "Spawning 4 mysd-researcher agents ({model})..."
-Spawn 4 `mysd-researcher` agents in parallel using the Task tool, each with `model` parameter set to `{model}`:
+Show: "Spawning 4 mysd-researcher agents ({researcher_model})..."
+Spawn 4 `mysd-researcher` agents in parallel using the Task tool, each with `model` parameter set to `{researcher_model}`:
 
 For each dimension in ["codebase", "domain", "architecture", "pitfalls"]:
 ```
 Task: Research {dimension} for topic: {topic}
 Agent: mysd-researcher
-Model: {model}
+Model: {researcher_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -310,11 +315,11 @@ If write fails: continue silently (cache is best-effort, do not interrupt the di
 
 From the 4 research outputs, identify gray areas: ambiguous design decisions where multiple valid approaches exist, conflicting recommendations between dimensions, or areas needing user input.
 
-For each gray area, show: "Spawning mysd-advisor ({model})..." and spawn one `mysd-advisor` agent in parallel using the Task tool with `model` parameter set to `{model}`:
+For each gray area, show: "Spawning mysd-advisor ({advisor_model})..." and spawn one `mysd-advisor` agent in parallel using the Task tool with `model` parameter set to `{advisor_model}`:
 ```
 Task: Analyze gray area: {gray_area_description}
 Agent: mysd-advisor
-Model: {model}
+Model: {advisor_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -474,11 +479,11 @@ Then use the **AskUserQuestion tool** to confirm:
 Only spawn writer agents for the artifacts the user confirmed:
 
 **If proposal layer confirmed:**
-Show: "Spawning mysd-proposal-writer ({model})..."
+Show: "Spawning mysd-proposal-writer ({proposal_writer_model})..."
 ```
 Task: Update proposal with discussion conclusions
 Agent: mysd-proposal-writer
-Model: {model}
+Model: {proposal_writer_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -489,11 +494,11 @@ Context: {
 ```
 
 **If specs/ layer confirmed:**
-For each confirmed capability area, show: "Spawning mysd-spec-writer ({model})..."
+For each confirmed capability area, show: "Spawning mysd-spec-writer ({spec_writer_model})..."
 ```
 Task: Update spec for {capability_area}
 Agent: mysd-spec-writer
-Model: {model}
+Model: {spec_writer_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -505,11 +510,11 @@ Context: {
 ```
 
 **If design layer confirmed:**
-Show: "Spawning mysd-designer ({model})..."
+Show: "Spawning mysd-designer ({designer_model})..."
 ```
 Task: Update design with discussion conclusions
 Agent: mysd-designer
-Model: {model}
+Model: {designer_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -531,12 +536,12 @@ Check whether `{spec_dir}/changes/{change_name}/tasks.md` exists (use the Read t
 1. Get new planning context:
    Run: `mysd plan --context-only`
 
-2. Extract `model` from planning context JSON. Show: "Spawning mysd-planner ({model})..."
-   Spawn planner with `model` parameter set to `{model}`:
+2. Show: "Spawning mysd-planner ({planner_model})..."
+   Spawn planner with `model` parameter set to `{planner_model}`:
    ```
    Task: Re-plan after discussion updates
    Agent: mysd-planner
-   Model: {model}
+   Model: {planner_model}
    Context: {planning context JSON with auto_mode}
    ```
 
@@ -546,12 +551,12 @@ Check whether `{spec_dir}/changes/{change_name}/tasks.md` exists (use the Read t
 4. Get check context:
    Run: `mysd plan --check --context-only`
 
-5. Show: "Spawning mysd-plan-checker ({model})..."
-   Spawn plan-checker with `model` parameter set to `{model}`:
+5. Show: "Spawning mysd-plan-checker ({plan_checker_model})..."
+   Spawn plan-checker with `model` parameter set to `{plan_checker_model}`:
    ```
    Task: Validate plan coverage after discussion updates
    Agent: mysd-plan-checker
-   Model: {model}
+   Model: {plan_checker_model}
    Context: {check output JSON}
    ```
 

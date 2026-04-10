@@ -75,10 +75,10 @@ If the user types 'no' or 'cancel', stop and inform the user that no specs were 
 
 Run:
 ```
-mysd model
+mysd model resolve scanner
 ```
 
-Parse the output to find the model for the `scanner` role. Set `scanner_model` to that value.
+Capture the output as `scanner_model`.
 
 ## Step 3: Invoke Scanner Agent for Each Confirmed Module
 

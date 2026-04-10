@@ -37,17 +37,27 @@ mysd plan --context-only [--research] [--check]
 ```
 
 Parse the JSON output. It contains:
-- `spec_dir`, `change_name`, `phase`, `specs`, `design`, `model`
-- `reviewer_model`, `plan_checker_model`
+- `spec_dir`, `change_name`, `phase`, `specs`, `design`
 - `research_enabled`, `check_enabled`, `test_generation`
 
 Extract the following fields:
 - `spec_dir`: the detected spec directory (`.specs` or `openspec`) — pass to all agents
-- `model`: profile-resolved model for designer and planner agents
-- `reviewer_model`: profile-resolved model for mysd-reviewer
-- `plan_checker_model`: profile-resolved model for mysd-plan-checker
 - `spec`: (optional) the `--spec` value if passed, restricts planning to this spec
 - `external_input`: (optional) content from `--from` flag, used as planner context
+
+## Step 2a: Resolve Models
+
+Run the following commands to resolve models for each agent role:
+```
+mysd model resolve planner
+mysd model resolve designer
+mysd model resolve researcher
+mysd model resolve reviewer
+mysd model resolve plan-checker
+```
+
+Capture each output (a single short name like `sonnet` or `opus`) as:
+- `planner_model`, `designer_model`, `researcher_model`, `reviewer_model`, `plan_checker_model`
 
 If error (not in designed/specced phase), guide user to complete prerequisites.
 
@@ -98,12 +108,12 @@ If `research_enabled` is true (from context JSON) or `--research` flag present:
   If `auto_mode` is true:
     Skip research entirely. Go to Step 4.
 
-  Show: "Spawning mysd-researcher ({model})..."
-  Spawn ONE `mysd-researcher` agent (single, NOT parallel), with `model` parameter set to `{model}`:
+  Show: "Spawning mysd-researcher ({researcher_model})..."
+  Spawn ONE `mysd-researcher` agent (single, NOT parallel), with `model` parameter set to `{researcher_model}`:
 
   Task: Research implementation details for {change_name}
   Agent: mysd-researcher
-  Model: {model}
+  Model: {researcher_model}
   Context: {
     "spec_dir": "{spec_dir}",
     "change_name": "{change_name}",
@@ -145,12 +155,12 @@ mysd instructions design --change {change_name} --json
 ```
 Parse the JSON output to get `template`, `rules`, `instruction`, `selfReviewChecklist`, and `dependencies`.
 
-Show: "Spawning mysd-designer ({model})..."
-Use the Task tool to invoke `mysd-designer` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-designer ({designer_model})..."
+Use the Task tool to invoke `mysd-designer` with `model` parameter set to `{designer_model}`:
 
 Task: Create design document for {change_name}
 Agent: mysd-designer
-Model: {model}
+Model: {designer_model}
 Context: {
   "spec_dir": "{spec_dir}",
   "change_name": "{change_name}",
@@ -175,12 +185,12 @@ mysd instructions tasks --change {change_name} --json
 ```
 Parse the JSON output to get `template`, `rules`, `instruction`, `selfReviewChecklist`, and `dependencies`.
 
-Show: "Spawning mysd-planner ({model})..."
-Use the Task tool to invoke `mysd-planner` with `model` parameter set to `{model}`:
+Show: "Spawning mysd-planner ({planner_model})..."
+Use the Task tool to invoke `mysd-planner` with `model` parameter set to `{planner_model}`:
 
 Task: Create task list for {change_name}
 Agent: mysd-planner
-Model: {model}
+Model: {planner_model}
 Context: {full context JSON from Step 2 (including spec_dir), plus research_findings and design content, plus auto_mode, plus:
   "spec_dir": "{spec_dir}",
   "instructions": {instructions JSON from mysd instructions},
@@ -327,7 +337,7 @@ Use the Task tool to invoke `mysd-plan-checker` with `model` parameter set to `{
 
 Task: Validate plan coverage for {change_name}
 Agent: mysd-plan-checker
-Model: {model}
+Model: {plan_checker_model}
 Context: {check output JSON}
 
 ## Step 7: Cleanup

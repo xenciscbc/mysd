@@ -41,19 +41,19 @@ Detect the project's spec directory:
 
 Use `{spec_dir}` for all artifact path references throughout this skill.
 
-## Step 2: Resolve Agent Model
+## Step 2: Resolve Agent Models
 
-Run:
+Run the following commands to resolve models for each agent role:
 ```
-mysd model
+mysd model resolve researcher
+mysd model resolve advisor
+mysd model resolve proposal-writer
+mysd model resolve spec-writer
+mysd model resolve reviewer
 ```
 
-Parse the output table to find the model for each role. Extract:
-- `researcher_model` from the `researcher` row
-- `advisor_model` from the `advisor` row
-- `proposal_writer_model` from the `proposal-writer` row
-- `spec_writer_model` from the `spec-writer` row
-- `reviewer_model` from the `reviewer` row
+Capture each output as:
+- `researcher_model`, `advisor_model`, `proposal_writer_model`, `spec_writer_model`, `reviewer_model`
 
 ## Step 3: Load Deferred Notes
 
