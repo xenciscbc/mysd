@@ -31,9 +31,6 @@ type ExecutionContext struct {
 	DocsToUpdate []string `json:"docs_to_update,omitempty"`
 	// Dynamic instruction for orchestrator (dynamic-apply-instructions change)
 	Instruction string `json:"instruction"`
-	// Profile-resolved model names for agent spawning
-	Model         string `json:"model"`
-	VerifierModel string `json:"verifier_model"`
 }
 
 // RequirementItem is a flattened requirement for JSON output.

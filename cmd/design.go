@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/xenciscbc/mysd/internal/config"
 	"github.com/xenciscbc/mysd/internal/output"
 	"github.com/xenciscbc/mysd/internal/roadmap"
 	"github.com/xenciscbc/mysd/internal/spec"
@@ -41,11 +40,6 @@ func runDesign(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cfg, err := config.Load(".")
-	if err != nil {
-		return err
-	}
-
 	if designContextOnly {
 		changeDir := filepath.Join(specDir, "changes", ws.ChangeName)
 		change, _ := spec.ParseChange(changeDir)
@@ -62,7 +56,6 @@ func runDesign(cmd *cobra.Command, args []string) error {
 			"phase":            ws.Phase,
 			"proposal_summary": change.Proposal.Body,
 			"specs":            reqTexts,
-			"model":            config.ResolveModel("designer", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles),
 		}
 		data, err := json.MarshalIndent(ctx, "", "  ")
 		if err != nil {

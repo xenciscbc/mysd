@@ -77,8 +77,6 @@ func runVerifyContextOnly(out io.Writer, specsDir string, ws state.WorkflowState
 		return fmt.Errorf("build verification context: %w", err)
 	}
 	ctx.SpecDir = specsDir
-	ctx.Model = config.ResolveModel("verifier", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles)
-
 	data, err := json.MarshalIndent(ctx, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal verification context: %w", err)

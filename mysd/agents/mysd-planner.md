@@ -91,16 +91,25 @@ tasks:
     description: "{Brief description of what to implement}"
     spec: "{spec-directory-name}"
     status: pending
+    depends: []
+    files: ["{file1.go}", "{file2.go}"]
+    satisfies: ["{REQ-ID}"]
   - id: 2
     name: "{Task Name}"
     description: "{Brief description}"
     spec: "{spec-directory-name}"
     status: pending
+    depends: [1]
+    files: ["{file3.go}"]
+    satisfies: ["{REQ-ID}"]
   - id: 3
     name: "{Task Name}"
     description: "{Brief description}"
     spec: "{spec-directory-name}"
     status: pending
+    depends: []
+    files: ["{file4.go}"]
+    satisfies: ["{REQ-ID}"]
 ---
 
 # Tasks: {change_name}
@@ -112,9 +121,13 @@ tasks:
 - `spec-version`: Always "1.0"
 - `total`: Total number of tasks
 - `completed`: Always start at 0
-- `tasks`: Array of task entries with id, name, description, spec, status
+- `tasks`: Array of task entries with id, name, description, spec, status, depends, files, satisfies
 - `spec`: The spec directory name this task belongs to (e.g., `material-selection` for `specs/material-selection/spec.md`). Assign every task a spec value matching its capability area. Tasks without a spec are treated as change-level tasks.
 - `status` values: `pending`, `in_progress`, `done`, `blocked`
+- `satisfies`: Array of requirement IDs (strings) that this task fulfills. Every MUST requirement must be covered by at least one task via this field.
+- `depends`: Array of integer task IDs that must complete before this task. Use `[]` for tasks with no dependencies. Dependencies must form a valid DAG (no circular references).
+- `files`: Array of file paths (strings) touched by this task. Each task should target at most 3 files.
+- `skills`: (optional) Array of slash commands used for this task.
 
 ### Step 5: Check Phase (if check_enabled)
 

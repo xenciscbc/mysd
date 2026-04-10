@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -31,8 +32,16 @@ var modelSetCmd = &cobra.Command{
 	RunE:  runModelSet,
 }
 
+var modelResolveCmd = &cobra.Command{
+	Use:   "resolve <role>",
+	Short: "Resolve model for a specific agent role",
+	Args:  cobra.ExactArgs(1),
+	RunE:  runModelResolve,
+}
+
 func init() {
 	modelCmd.AddCommand(modelSetCmd)
+	modelCmd.AddCommand(modelResolveCmd)
 	rootCmd.AddCommand(modelCmd)
 }
 
@@ -41,6 +50,34 @@ func emitCustomProfileWarnings(cmd *cobra.Command, customProfiles map[string]con
 	for _, w := range warnings {
 		fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", w)
 	}
+}
+
+func runModelResolve(cmd *cobra.Command, args []string) error {
+	role := args[0]
+
+	// Validate role exists in DefaultModelMap (check any profile)
+	if _, ok := config.DefaultModelMap["balanced"][role]; !ok {
+		allRoles := make([]string, 0, len(config.DefaultModelMap["balanced"]))
+		for r := range config.DefaultModelMap["balanced"] {
+			allRoles = append(allRoles, r)
+		}
+		sort.Strings(allRoles)
+		return fmt.Errorf("unknown role %q; valid roles: %s", role, strings.Join(allRoles, ", "))
+	}
+
+	cfg, err := config.Load(".")
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
+	}
+
+	profile := cfg.ModelProfile
+	if profile == "" {
+		profile = "balanced"
+	}
+
+	model := config.ResolveModel(role, profile, cfg.ModelOverrides, cfg.CustomProfiles)
+	fmt.Fprintln(cmd.OutOrStdout(), model)
+	return nil
 }
 
 func runModelRead(cmd *cobra.Command, args []string) error {

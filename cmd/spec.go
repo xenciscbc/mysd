@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/xenciscbc/mysd/internal/config"
 	"github.com/xenciscbc/mysd/internal/output"
 	"github.com/xenciscbc/mysd/internal/roadmap"
 	"github.com/xenciscbc/mysd/internal/spec"
@@ -41,11 +40,6 @@ func runSpec(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cfg, err := config.Load(".")
-	if err != nil {
-		return err
-	}
-
 	if specContextOnly {
 		changeDir := filepath.Join(specDir, "changes", ws.ChangeName)
 		change, _ := spec.ParseChange(changeDir)
@@ -55,7 +49,6 @@ func runSpec(cmd *cobra.Command, args []string) error {
 			"change_name": ws.ChangeName,
 			"phase":       ws.Phase,
 			"proposal":    change.Proposal.Body,
-			"model":       config.ResolveModel("spec-writer", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles),
 		}
 		data, err := json.MarshalIndent(ctx, "", "  ")
 		if err != nil {

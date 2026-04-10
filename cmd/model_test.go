@@ -232,6 +232,105 @@ func TestModelSet_UnknownProfile_WithCustom(t *testing.T) {
 	assert.Contains(t, errMsg, "my-team")
 }
 
+// TestModelResolve_BalancedExecutor verifies resolve returns sonnet for executor under balanced.
+func TestModelResolve_BalancedExecutor(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model", "resolve", "executor"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+	assert.Equal(t, "sonnet\n", buf.String())
+}
+
+// TestModelResolve_QualityPlanner verifies resolve returns opus for planner under quality.
+func TestModelResolve_QualityPlanner(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte("model_profile: quality\n"), 0644))
+
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model", "resolve", "planner"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+	assert.Equal(t, "opus\n", buf.String())
+}
+
+// TestModelResolve_CustomProfileOverride verifies resolve respects custom profile overrides.
+func TestModelResolve_CustomProfileOverride(t *testing.T) {
+	tmpDir := t.TempDir()
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	require.NoError(t, os.MkdirAll(claudeDir, 0755))
+
+	configContent := `model_profile: my-team
+custom_profiles:
+  my-team:
+    base: balanced
+    models:
+      executor: opus
+`
+	require.NoError(t, os.WriteFile(filepath.Join(claudeDir, "mysd.yaml"), []byte(configContent), 0644))
+
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model", "resolve", "executor"})
+
+	err = rootCmd.Execute()
+	require.NoError(t, err)
+	assert.Equal(t, "opus\n", buf.String())
+}
+
+// TestModelResolve_NoArgument verifies resolve errors when no role is provided.
+func TestModelResolve_NoArgument(t *testing.T) {
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model", "resolve"})
+
+	err := rootCmd.Execute()
+	require.Error(t, err)
+}
+
+// TestModelResolve_UnknownRole verifies resolve errors for unknown role names.
+func TestModelResolve_UnknownRole(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, err := os.Getwd()
+	require.NoError(t, err)
+	defer func() { _ = os.Chdir(origDir) }()
+	require.NoError(t, os.Chdir(tmpDir))
+
+	buf := &bytes.Buffer{}
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(&bytes.Buffer{})
+	rootCmd.SetArgs([]string{"model", "resolve", "nonexistent-role"})
+
+	err = rootCmd.Execute()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unknown role")
+}
+
 // TestModelRead_CustomProfile verifies model display works with a custom profile.
 func TestModelRead_CustomProfile(t *testing.T) {
 	tmpDir := t.TempDir()

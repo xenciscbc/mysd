@@ -84,9 +84,6 @@ func runExecute(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		ctx.SpecDir = specDir
-		ctx.Model = config.ResolveModel("executor", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles)
-		ctx.VerifierModel = config.ResolveModel("verifier", cfg.ModelProfile, cfg.ModelOverrides, cfg.CustomProfiles)
-
 		// Filter by --spec flag
 		if executeSpec != "" {
 			ctx.PendingTasks = filterTasksBySpec(ctx.PendingTasks, executeSpec)
