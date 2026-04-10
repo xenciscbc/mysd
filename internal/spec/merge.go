@@ -27,6 +27,11 @@ func MergeSpecs(mainSpecPath string, deltaBody string) (string, []string, error)
 
 	var warnings []string
 
+	// Fallback: when ParseDelta finds no delta headings, use frontmatter delta field
+	if len(added) == 0 && len(modified) == 0 && len(removed) == 0 && len(renamed) == 0 {
+		return mergeFallback(mainSpecPath, deltaBody)
+	}
+
 	// Read existing main spec content (or start empty if file doesn't exist)
 	var content string
 	var fm SpecFrontmatter
@@ -98,6 +103,62 @@ func MergeSpecs(mainSpecPath string, deltaBody string) (string, []string, error)
 	// Serialize frontmatter + body
 	result := renderWithFrontmatter(fm, content)
 	return result, warnings, nil
+}
+
+// mergeFallback handles delta specs that have no delta section headings.
+// It reads the frontmatter delta field to decide the merge strategy:
+// ADDED → use delta body as new spec content; MODIFIED → replace main spec body + increment version.
+func mergeFallback(mainSpecPath string, deltaBody string) (string, []string, error) {
+	var deltaFM SpecFrontmatter
+	rest, fmErr := frontmatter.Parse(bytes.NewReader([]byte(deltaBody)), &deltaFM)
+	if fmErr != nil {
+		return "", []string{"fallback: could not parse delta frontmatter, skipping merge"}, nil
+	}
+	body := string(rest)
+
+	switch deltaFM.Delta {
+	case DeltaAdded:
+		fm := SpecFrontmatter{
+			SpecVersion: deltaFM.SpecVersion,
+			Capability:  deltaFM.Capability,
+			Version:     "1.0.0",
+			GeneratedBy: "mysd v" + AppVersion,
+		}
+		return renderWithFrontmatter(fm, body), nil, nil
+
+	case DeltaModified:
+		// Read existing main spec frontmatter
+		var mainFM SpecFrontmatter
+		data, err := os.ReadFile(mainSpecPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				// No existing spec — treat as ADDED
+				fm := SpecFrontmatter{
+					SpecVersion: deltaFM.SpecVersion,
+					Capability:  deltaFM.Capability,
+					Version:     "1.0.0",
+					GeneratedBy: "mysd v" + AppVersion,
+				}
+				return renderWithFrontmatter(fm, body), nil, nil
+			}
+			return "", nil, fmt.Errorf("read main spec: %w", err)
+		}
+		if _, fErr := frontmatter.Parse(bytes.NewReader(data), &mainFM); fErr != nil {
+			mainFM = SpecFrontmatter{}
+		}
+		mainFM.Version = incrementMinorVersion(mainFM.Version)
+		mainFM.GeneratedBy = "mysd v" + AppVersion
+		if mainFM.Capability == "" {
+			mainFM.Capability = deltaFM.Capability
+		}
+		if mainFM.SpecVersion == "" {
+			mainFM.SpecVersion = deltaFM.SpecVersion
+		}
+		return renderWithFrontmatter(mainFM, body), nil, nil
+
+	default:
+		return "", []string{fmt.Sprintf("fallback: delta spec has no parseable operations (delta=%q), skipping merge", deltaFM.Delta)}, nil
+	}
 }
 
 // renameRequirement finds "### Requirement: <from>" and renames it to "### Requirement: <to>".

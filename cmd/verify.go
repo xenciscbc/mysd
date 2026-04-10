@@ -91,6 +91,18 @@ func runVerifyContextOnly(out io.Writer, specsDir string, ws state.WorkflowState
 // runVerifyWriteResults reads a verifier report JSON, writes verification artifacts,
 // updates verification-status.json, and transitions state if MUST all pass.
 func runVerifyWriteResults(out io.Writer, specsDir string, ws *state.WorkflowState, reportPath string) error {
+	// Safety net: if phase is planned and all tasks are terminal, auto-advance to executed
+	if ws.Phase == state.PhasePlanned {
+		tasksPath := filepath.Join(specsDir, "changes", ws.ChangeName, "tasks.md")
+		if fm, _, fmErr := spec.ParseTasksV2(tasksPath); fmErr == nil && allTasksTerminal(fm) {
+			if tErr := state.Transition(ws, state.PhaseExecuted); tErr == nil {
+				if sErr := state.SaveState(specsDir, *ws); sErr == nil {
+					fmt.Fprintln(out, "Safety net: all tasks complete — phase advanced to executed")
+				}
+			}
+		}
+	}
+
 	// 1. Read and parse report JSON
 	data, err := os.ReadFile(reportPath)
 	if err != nil {

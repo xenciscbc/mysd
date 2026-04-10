@@ -190,6 +190,7 @@ Write the complete report to `{change_dir}/verifier-report.json`.
 - Every result with `pass: false` MUST have a non-empty `suggestion` string
 - Include ALL items: MUST, SHOULD, and MAY in the `results` array
 - `keyword` field must be exactly `"MUST"`, `"SHOULD"`, or `"MAY"`
+- `id` field MUST use the exact ID values from `must_items`/`should_items`/`may_items` in the input context — copy them verbatim (e.g., `spec.md::must-5451802d`). Do NOT invent custom numbering schemes like `MUST-01` or `SHOULD-02`
 
 After writing the report, inform the skill that verification is complete:
 ```

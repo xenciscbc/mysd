@@ -185,6 +185,98 @@ func TestVerifyWriteResults_MustFail(t *testing.T) {
 	assert.Equal(t, spec.StatusBlocked, vs.Requirements["spec.md::must-abc123"])
 }
 
+// setupVerifyTestChangePlanned creates a change with planned phase and all-done tasks for safety net tests.
+func setupVerifyTestChangePlanned(t *testing.T) (specsDir, changeName, changeDir string) {
+	t.Helper()
+	tmp := t.TempDir()
+	specsDir = tmp
+	changeName = "test-change"
+	changeDir = filepath.Join(specsDir, "changes", changeName)
+
+	require.NoError(t, os.MkdirAll(changeDir, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, ".openspec.yaml"), []byte("schema: openspec/v1\ncreated: 2026-01-01\n"), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "proposal.md"), []byte("# Proposal\nTest.\n"), 0644))
+
+	// tasks.md with frontmatter — all tasks done
+	tasksContent := `---
+spec-version: "1"
+total: 2
+completed: 2
+tasks:
+  - id: 1
+    name: "task one"
+    status: done
+  - id: 2
+    name: "task two"
+    status: done
+---
+
+## Tasks
+`
+	require.NoError(t, os.WriteFile(filepath.Join(changeDir, "tasks.md"), []byte(tasksContent), 0644))
+
+	specsSubDir := filepath.Join(changeDir, "specs", "capability-a")
+	require.NoError(t, os.MkdirAll(specsSubDir, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(specsSubDir, "spec.md"), []byte("The system MUST work.\n"), 0644))
+
+	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhasePlanned}
+	require.NoError(t, state.SaveState(specsDir, ws))
+
+	return specsDir, changeName, changeDir
+}
+
+// TestVerifyWriteResults_SafetyNet_PlannedToExecuted tests auto-advance from planned when all tasks done.
+func TestVerifyWriteResults_SafetyNet_PlannedToExecuted(t *testing.T) {
+	specsDir, changeName, _ := setupVerifyTestChangePlanned(t)
+
+	report := verifier.VerifierReport{
+		ChangeName: changeName, OverallPass: true, MustPass: true,
+		Results: []verifier.VerifierResultItem{{
+			ID: "spec.md::must-abc123", Text: "The system MUST work.", Keyword: "MUST", Pass: true, Evidence: "works",
+		}},
+	}
+	reportData, err := json.Marshal(report)
+	require.NoError(t, err)
+
+	reportPath := filepath.Join(t.TempDir(), "report.json")
+	require.NoError(t, os.WriteFile(reportPath, reportData, 0644))
+
+	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhasePlanned}
+	var buf bytes.Buffer
+	err = runVerifyWriteResults(&buf, specsDir, &ws, reportPath)
+	require.NoError(t, err)
+
+	// Should have gone planned -> executed -> verified
+	assert.Equal(t, state.PhaseVerified, ws.Phase)
+	assert.Contains(t, buf.String(), "Safety net: all tasks complete")
+}
+
+// TestVerifyWriteResults_SafetyNet_AlreadyExecuted tests no extra transition when already executed.
+func TestVerifyWriteResults_SafetyNet_AlreadyExecuted(t *testing.T) {
+	specsDir, changeName, _ := setupVerifyTestChange(t)
+
+	report := verifier.VerifierReport{
+		ChangeName: changeName, OverallPass: true, MustPass: true,
+		Results: []verifier.VerifierResultItem{{
+			ID: "spec.md::must-abc123", Text: "The system MUST provide authentication.", Keyword: "MUST", Pass: true, Evidence: "found",
+		}},
+	}
+	reportData, err := json.Marshal(report)
+	require.NoError(t, err)
+
+	reportPath := filepath.Join(t.TempDir(), "report.json")
+	require.NoError(t, os.WriteFile(reportPath, reportData, 0644))
+
+	ws := state.WorkflowState{ChangeName: changeName, Phase: state.PhaseExecuted}
+	var buf bytes.Buffer
+	err = runVerifyWriteResults(&buf, specsDir, &ws, reportPath)
+	require.NoError(t, err)
+
+	// Should go directly executed -> verified, no safety net message
+	assert.Equal(t, state.PhaseVerified, ws.Phase)
+	assert.NotContains(t, buf.String(), "Safety net")
+}
+
 // TestVerifyNoFlags tests that verify with no flags returns usage hint error.
 func TestVerifyNoFlags(t *testing.T) {
 	cmd := &cobra.Command{}

@@ -54,29 +54,28 @@ delta: ADDED
 status: pending
 ---
 
-# {Capability Name}
+## ADDED Requirements
 
-## Requirements
+### Requirement: {Requirement Name}
 
-### MUST
-- The system MUST {requirement text}.
-- The system MUST {requirement text}.
+The system MUST {requirement text}.
 
-### SHOULD
-- The system SHOULD {requirement text}.
+The system MUST {requirement text}.
 
-### MAY
-- The system MAY {requirement text}.
+### Requirement: {Another Requirement Name}
 
-## Scenarios
+The system SHOULD {requirement text}.
 
-### Given/When/Then
+The system MAY {requirement text}.
 
-**Scenario: {scenario name}**
-- Given: {precondition}
-- When: {action}
-- Then: {expected outcome}
+#### Scenario: {scenario name}
+
+- **GIVEN** {precondition}
+- **WHEN** {action}
+- **THEN** {expected outcome}
 ```
+
+**Important:** Use delta heading format (`## ADDED Requirements`, `## MODIFIED Requirements`, `## REMOVED Requirements`) so that `MergeSpecs` can correctly parse and merge delta specs during archive. Each requirement goes under a `### Requirement: <name>` heading within the delta section.
 
 **RFC 2119 Usage Rules:**
 - **MUST** / **MUST NOT**: Absolute requirements. Non-compliance means failure.

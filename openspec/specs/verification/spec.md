@@ -68,3 +68,5 @@ AND research cache is cleaned up
 - `cmd/verify.go`, `cmd/archive.go`
 - `internal/verifier/` — VerificationContext building, report parsing, gap reporting
 - `internal/uat/` — UAT checklist management
+
+## Requirements

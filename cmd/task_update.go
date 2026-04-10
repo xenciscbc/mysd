@@ -63,6 +63,16 @@ func runTaskUpdate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Auto-transition: if all tasks are terminal (done/skipped) and phase is planned, advance to executed
+	if ws.Phase == state.PhasePlanned {
+		fm, _, fmErr := spec.ParseTasksV2(tasksPath)
+		if fmErr == nil && allTasksTerminal(fm) {
+			if tErr := state.Transition(&ws, state.PhaseExecuted); tErr == nil {
+				p.Success("All tasks complete — phase advanced to executed")
+			}
+		}
+	}
+
 	// Update STATE.json LastRun
 	ws.LastRun = time.Now()
 	if saveErr := state.SaveState(specDir, ws); saveErr != nil {
@@ -74,4 +84,18 @@ func runTaskUpdate(cmd *cobra.Command, args []string) error {
 
 	p.Success(fmt.Sprintf("Task %d status updated to %s", taskID, newStatus))
 	return nil
+}
+
+// allTasksTerminal returns true if every task in the frontmatter has a terminal status (done or skipped).
+// Returns false if there are no tasks.
+func allTasksTerminal(fm spec.TasksFrontmatterV2) bool {
+	if len(fm.Tasks) == 0 {
+		return false
+	}
+	for _, t := range fm.Tasks {
+		if t.Status != spec.StatusDone && t.Status != "skipped" {
+			return false
+		}
+	}
+	return true
 }

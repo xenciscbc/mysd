@@ -170,6 +170,85 @@ func TestIncrementMinorVersion(t *testing.T) {
 	assert.Equal(t, "1.1.0", incrementMinorVersion("invalid"))
 }
 
+func TestMergeSpecs_FallbackAdded(t *testing.T) {
+	dir := t.TempDir()
+	mainSpec := filepath.Join(dir, "spec.md") // does not exist
+
+	delta := `---
+spec-version: "1.0"
+capability: new-cap
+delta: ADDED
+status: pending
+---
+
+### Requirement: New Feature
+
+The system MUST support new feature.
+`
+	AppVersion = "1.0.0"
+	defer func() { AppVersion = "dev" }()
+
+	result, warnings, err := MergeSpecs(mainSpec, delta)
+	require.NoError(t, err)
+	assert.Empty(t, warnings)
+	assert.Contains(t, result, "The system MUST support new feature.")
+	assert.Contains(t, result, "version: 1.0.0")
+	assert.Contains(t, result, "capability: new-cap")
+}
+
+func TestMergeSpecs_FallbackModified(t *testing.T) {
+	dir := t.TempDir()
+	mainContent := `---
+spec-version: "1.0"
+capability: auth
+version: 1.0.0
+---
+
+### Requirement: Auth
+
+The system MUST provide basic authentication.
+`
+	mainSpec := writeMainSpec(t, dir, mainContent)
+
+	delta := `---
+spec-version: "1.0"
+capability: auth
+delta: MODIFIED
+status: pending
+---
+
+### Requirement: Auth
+
+The system MUST provide OAuth2 authentication.
+`
+	result, warnings, err := MergeSpecs(mainSpec, delta)
+	require.NoError(t, err)
+	assert.Empty(t, warnings)
+	assert.Contains(t, result, "The system MUST provide OAuth2 authentication.")
+	assert.Contains(t, result, "version: 1.1.0")
+	// Old content should be replaced
+	assert.NotContains(t, result, "basic authentication")
+}
+
+func TestMergeSpecs_FallbackEmptyDelta(t *testing.T) {
+	dir := t.TempDir()
+	mainSpec := writeMainSpec(t, dir, "# Spec\n")
+
+	delta := `---
+spec-version: "1.0"
+capability: auth
+delta: ""
+status: pending
+---
+
+Some content without delta headings.
+`
+	_, warnings, err := MergeSpecs(mainSpec, delta)
+	require.NoError(t, err)
+	assert.NotEmpty(t, warnings)
+	assert.Contains(t, warnings[0], "no parseable operations")
+}
+
 func TestMergeSpecs_RenamedHeadingMismatch(t *testing.T) {
 	dir := t.TempDir()
 	mainSpec := writeMainSpec(t, dir, `### Requirement: Auth
