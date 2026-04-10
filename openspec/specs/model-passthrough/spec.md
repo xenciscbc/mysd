@@ -53,43 +53,25 @@ Rationale: reviewer is a judgment role requiring reasoning capability. Budget pr
 - **WHEN** `ResolveModel("reviewer", "budget", nil)` is called
 - **THEN** the return value SHALL be `"sonnet"`
 
-## Requirement: Binary context JSON includes model field
-
-The `--context-only` output of workflow commands (`plan`, `execute`, `design`, `spec`) SHALL include a `"model"` field containing the resolved short name for the relevant agent role.
-
-### Scenario: Plan context includes planner model
-
-WHEN `mysd plan --context-only` is executed with profile set to `balanced`
-THEN the JSON output SHALL contain `"model": "sonnet"`
+<!-- Requirement "Binary context JSON includes model field" REMOVED by unified-model-resolve (2026-04-09). See model-resolve-command spec. -->
 
 ## Requirement: Command skills pass model to agents
 
-Workflow command skills (`propose`, `discuss`, `plan`, `apply`, `ff`, `ffe`) SHALL read the `model` field from the binary's `--context-only` JSON output and pass it as the `model` parameter when spawning agent tasks.
+Workflow command skills (`propose`, `discuss`, `plan`, `apply`, `ff`, `ffe`, `scan`, `uat`, `verify`, `fix`) SHALL use `mysd model resolve <role>` to obtain the model short name for each agent role they spawn, and pass it as the `model` parameter when spawning agent tasks.
 
-The `propose` skill SHALL additionally resolve a `reviewer_model` from the current profile's reviewer role mapping. Since `propose` uses `mysd model` (not `--context-only` JSON), the skill SHALL derive `reviewer_model` from the profile name:
+Skills SHALL NOT parse the `mysd model` table output or read model fields from `--context-only` JSON for model resolution.
 
-| Profile | reviewer_model |
-|---------|---------------|
-| quality | opus |
-| balanced | sonnet |
-| budget | sonnet |
+### Scenario: Plan command resolves models via model resolve
 
-### Scenario: Plan command spawns designer with profile model
+WHEN `/mysd:plan` needs to spawn mysd-designer, mysd-planner, mysd-reviewer, and mysd-plan-checker
+THEN the skill SHALL execute `mysd model resolve designer`, `mysd model resolve planner`, `mysd model resolve reviewer`, and `mysd model resolve plan-checker`
+AND use each output as the model parameter for the corresponding agent
 
-WHEN `/mysd:plan` reads context JSON containing `"model": "opus"`
-THEN the command SHALL spawn `mysd-designer` with `model: opus`
+### Scenario: Propose command resolves models via model resolve
 
-### Scenario: Propose command resolves reviewer_model from profile
-
-- **WHEN** `/mysd:propose` reads `Profile: balanced` from `mysd model` output
-- **THEN** the skill SHALL set `reviewer_model` to `sonnet`
-- **AND** spawn `mysd-reviewer` with `model: sonnet`
-
-### Scenario: Propose command resolves reviewer_model for quality profile
-
-- **WHEN** `/mysd:propose` reads `Profile: quality` from `mysd model` output
-- **THEN** the skill SHALL set `reviewer_model` to `opus`
-- **AND** spawn `mysd-reviewer` with `model: opus`
+WHEN `/mysd:propose` needs to spawn mysd-researcher, mysd-advisor, mysd-proposal-writer, and mysd-reviewer
+THEN the skill SHALL execute `mysd model resolve researcher`, `mysd model resolve advisor`, `mysd model resolve proposal-writer`, and `mysd model resolve reviewer`
+AND use each output as the model parameter for the corresponding agent
 
 ## Requirement: Command skills display model on agent spawn
 
@@ -270,86 +252,63 @@ tests:
   - internal/config/config_test.go
 -->
 
----
-### Requirement: Binary context JSON includes model field
-
-The `--context-only` output of workflow commands (`plan`, `execute`, `design`, `spec`) SHALL include a `"model"` field containing the resolved short name for the relevant agent role.
-
-For the `plan` command specifically, the `--context-only` output SHALL additionally include:
-- `"reviewer_model"`: resolved model for the `reviewer` role under the current profile
-- `"plan_checker_model"`: resolved model for the `plan-checker` role under the current profile
-
-#### Scenario: Plan context includes planner model
-
-- **WHEN** `mysd plan --context-only` is executed with profile set to `balanced`
-- **THEN** the JSON output SHALL contain `"model": "sonnet"`
-
-#### Scenario: Plan context includes reviewer_model
-
-- **WHEN** `mysd plan --context-only` is executed with profile set to `balanced`
-- **THEN** the JSON output SHALL contain `"reviewer_model": "sonnet"`
-
-#### Scenario: Plan context includes plan_checker_model for quality profile
-
-- **WHEN** `mysd plan --context-only` is executed with profile set to `quality`
-- **THEN** the JSON output SHALL contain `"plan_checker_model": "opus"`
-
-
-<!-- @trace
-source: add-mysd-reviewer-agent
-updated: 2026-03-28
-code:
-  - mysd/skills/plan/SKILL.md
-  - mysd/skills/propose/SKILL.md
-  - internal/config/config.go
-  - mysd/skills/model/SKILL.md
-  - mysd/skills/discuss/SKILL.md
-  - mysd/skills/lang/SKILL.md
-  - cmd/plan.go
-  - mysd/skills/init/SKILL.md
-  - mysd/agents/mysd-reviewer.md
-tests:
-  - cmd/plan_test.go
-  - internal/config/config_test.go
--->
+<!-- Requirement "Binary context JSON includes model field" REMOVED by unified-model-resolve (2026-04-09).
+     Reason: Model resolution responsibility transferred to dedicated `mysd model resolve <role>` subcommand.
+     Embedding model fields in --context-only JSON mixed configuration concerns (model selection) with
+     workflow context (spec_dir, tasks, change_name). Skills now use `mysd model resolve <role>` instead of
+     reading model, verifier_model, reviewer_model, or plan_checker_model from --context-only JSON. -->
 
 ---
 ### Requirement: Command skills pass model to agents
 
-Workflow command skills (`propose`, `discuss`, `plan`, `apply`, `ff`, `ffe`) SHALL read the `model` field from the binary's `--context-only` JSON output and pass it as the `model` parameter when spawning agent tasks.
+Workflow command skills (`propose`, `discuss`, `plan`, `apply`, `ff`, `ffe`, `scan`, `uat`, `verify`, `fix`) SHALL use `mysd model resolve <role>` to obtain the model short name for each agent role they spawn, and pass it as the `model` parameter when spawning agent tasks.
 
-The `propose` skill SHALL additionally resolve a `reviewer_model` from the current profile's reviewer role mapping. Since `propose` uses `mysd model` (not `--context-only` JSON), the skill SHALL derive `reviewer_model` from the profile name:
+Skills SHALL NOT parse the `mysd model` table output or read model fields from `--context-only` JSON for model resolution.
 
-| Profile | reviewer_model |
-|---------|---------------|
-| quality | opus |
-| balanced | sonnet |
-| budget | sonnet |
+#### Scenario: Plan command resolves models via model resolve
 
-#### Scenario: Plan command spawns designer with profile model
+- **WHEN** `/mysd:plan` needs to spawn mysd-designer, mysd-planner, mysd-reviewer, and mysd-plan-checker
+- **THEN** the skill SHALL execute `mysd model resolve designer`, `mysd model resolve planner`, `mysd model resolve reviewer`, and `mysd model resolve plan-checker`
+- **AND** use each output as the model parameter for the corresponding agent
 
-- **WHEN** `/mysd:plan` reads context JSON containing `"model": "opus"`
-- **THEN** the command SHALL spawn `mysd-designer` with `model: opus`
+#### Scenario: Propose command resolves models via model resolve
 
-#### Scenario: Propose command resolves reviewer_model from profile
+- **WHEN** `/mysd:propose` needs to spawn mysd-researcher, mysd-advisor, mysd-proposal-writer, and mysd-reviewer
+- **THEN** the skill SHALL execute `mysd model resolve researcher`, `mysd model resolve advisor`, `mysd model resolve proposal-writer`, and `mysd model resolve reviewer`
+- **AND** use each output as the model parameter for the corresponding agent
 
-- **WHEN** `/mysd:propose` reads `Profile: balanced` from `mysd model` output
-- **THEN** the skill SHALL set `reviewer_model` to `sonnet`
-- **AND** spawn `mysd-reviewer` with `model: sonnet`
+#### Scenario: Apply command resolves executor model via model resolve
 
-#### Scenario: Propose command resolves reviewer_model for quality profile
-
-- **WHEN** `/mysd:propose` reads `Profile: quality` from `mysd model` output
-- **THEN** the skill SHALL set `reviewer_model` to `opus`
-- **AND** spawn `mysd-reviewer` with `model: opus`
+- **WHEN** `/mysd:apply` needs to spawn mysd-executor
+- **THEN** the skill SHALL execute `mysd model resolve executor`
+- **AND** use the output as the model parameter when spawning mysd-executor
 
 
 <!-- @trace
-source: enhance-propose-reviewer
-updated: 2026-03-28
+source: unified-model-resolve
+updated: 2026-04-10
 code:
-  - mysd/agents/mysd-reviewer.md
+  - mysd/skills/apply/SKILL.md
+  - cmd/model.go
+  - cmd/verify.go
+  - mysd/skills/fix/SKILL.md
+  - cmd/design.go
+  - mysd/skills/uat/SKILL.md
+  - cmd/plan.go
+  - cmd/execute.go
   - mysd/skills/propose/SKILL.md
+  - cmd/spec.go
+  - mysd/skills/discuss/SKILL.md
+  - mysd/skills/scan/SKILL.md
+  - internal/verifier/context.go
+  - mysd/skills/verify/SKILL.md
+  - mysd/skills/ff/SKILL.md
+  - mysd/skills/ffe/SKILL.md
+  - internal/executor/context.go
+  - mysd/skills/plan/SKILL.md
+tests:
+  - cmd/model_test.go
+  - cmd/plan_test.go
 -->
 
 ---
