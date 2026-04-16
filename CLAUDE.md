@@ -31,7 +31,7 @@ Changes can be parked（暫存）— temporarily moved out of `openspec/changes/
 
 **my-ssd**
 
-my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driven Development（SDD）方法論與 GSD 級別的規劃/執行/驗證引擎整合為一個無縫系統。它讓獨立開發者（1 人 + N 個 AI agent）能以結構化規格驅動 AI 編程，確保 AI 在寫程式前先對齊需求，並在執行後自動驗證成果。
+my-ssd 已從 Go CLI binary 轉型為純 SKILL.md plugin（見 `mysd-skills/`），將 OpenSpec 的 Spec-Driven Development（SDD）方法論與 GSD 級別的規劃/執行/驗證引擎整合為一個無縫系統。它讓獨立開發者（1 人 + N 個 AI agent）能以結構化規格驅動 AI 編程，確保 AI 在寫程式前先對齊需求，並在執行後自動驗證成果。
 
 **Core Value:** **Spec 和執行的緊密整合** — 規格不只是文件，而是直接驅動 AI 執行和驗證的單一事實來源。AI 寫 code 前必須對齊 spec，寫完後自動驗證 spec 是否被滿足。
 
@@ -45,6 +45,8 @@ my-ssd 是一個用 Go 建造的 Claude Code plugin，將 OpenSpec 的 Spec-Driv
 
 <!-- GSD:stack-start source:research/STACK.md -->
 ## Technology Stack
+
+> **Note:** The Technology Stack section below describes the deprecated Go binary. New development uses pure SKILL.md files with no compiled dependencies. See `mysd-skills/README.md` for the current architecture.
 
 ## Recommended Stack
 ### Core Technologies
@@ -147,35 +149,9 @@ All three locations must use the same version number (tag without the `v` prefix
 Architecture not yet mapped. Follow existing patterns found in the codebase.
 <!-- GSD:architecture-end -->
 
-<!-- GSD:workflow-start source:GSD defaults -->
-## GSD Workflow Enforcement
-
-Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
-
-Use these entry points:
-- `/gsd:quick` for small fixes, doc updates, and ad-hoc tasks
-- `/gsd:debug` for investigation and bug fixing
-- `/gsd:execute-phase` for planned phase work
-
-Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
-<!-- GSD:workflow-end -->
-
 ## Documentation Sync
 
-When mysd project features, commands, configuration, or workflow change, **always update both README.md and README.zh-TW.md** to reflect the changes. This includes:
-- Adding/removing/renaming commands
-- Changing workflow steps or flow
-- Modifying model profile assignments
-- Updating configuration options
-- Adding/changing SKILL.md capabilities or arguments
-
-## Build After Changes
-
-When Go source code is modified (cmd/, internal/, etc.), **always rebuild the binary** before testing or committing:
-```bash
-go build -o mysd.exe .
-```
-This ensures the installed binary matches the source code. Skipping this step causes `mysd --help` and runtime behavior to be out of sync with the code.
+When project features, commands, configuration, or workflow change, use `/mysd:doc` to automatically detect and update affected documentation files. This handles both README.md and README.zh-TW.md.
 
 <!-- GSD:profile-start -->
 ## Developer Profile
