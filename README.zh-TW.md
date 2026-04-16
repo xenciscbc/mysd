@@ -1,6 +1,10 @@
 # mysd
 
-> **測試中** — 本專案正在積極開發中，API 和工作流程可能會變動。
+> **⚠️ 已棄用** — 此 Go CLI binary 不再維護。請改用 **[mysd-skills](mysd-skills/)** — 純 SKILL.md plugin，零依賴。
+>
+> 新的 plugin 提供 3 個內容智慧 skill：`/mysd:research`（灰區決策）、`/mysd:doc`（文件同步）、`/mysd:spec`（規格撰寫），以及 `/mysd:run`（協調器）。
+>
+> **遷移方式：** 將 `mysd-skills/` 複製到你的 Claude Code skills 目錄即可。不需要 binary。
 
 **以規格驅動開發的 AI 程式設計工具**
 
