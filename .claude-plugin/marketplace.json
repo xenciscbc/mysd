@@ -4,15 +4,15 @@
     "name": "xenciscbc"
   },
   "metadata": {
-    "description": "Spec-Driven Development for AI programming — integrates OpenSpec SDD with a planning/execution/verification engine",
-    "version": "1.0.4"
+    "description": "[DEPRECATED] Use mysd-skills instead. Spec-Driven Development for AI programming — integrates OpenSpec SDD with a planning/execution/verification engine",
+    "version": "1.0.5"
   },
   "plugins": [
     {
       "name": "mysd",
       "source": "./mysd",
-      "description": "Spec-Driven Development for AI programming — specs as single source of truth, mandatory alignment gates, goal-backward verification",
-      "version": "1.0.4",
+      "description": "[DEPRECATED] Use mysd-skills instead. Spec-Driven Development for AI programming — specs as single source of truth, mandatory alignment gates, goal-backward verification",
+      "version": "1.0.5",
       "author": {
         "name": "xenciscbc"
       },
@@ -25,7 +25,8 @@
         "ai-programming",
         "verification",
         "planning",
-        "execution"
+        "execution",
+        "deprecated"
       ],
       "category": "development"
     }
