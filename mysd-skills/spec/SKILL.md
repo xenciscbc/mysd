@@ -167,8 +167,22 @@ Before writing, confirm each spec satisfies:
 
 Fail any spec that misses a required field — do not silently omit it.
 
+### Step 6.5: Confirm Scope
+
+Use AskUserQuestion to present the specs to be written/updated and let the user choose:
+
+> 根據分析，以下 spec 需要處理：
+>
+> [列出每個 spec 的 capability name、delta type、目標路徑]
+>
+> A) 全部寫入
+> B) 只處理部分 — [讓使用者選擇要處理哪些]
+> C) 跳過 — 這次不寫 spec
+
+如果使用者選 C，結束。選 A 或 B，帶著選定的 spec 清單繼續到 Step 7。
+
 ### Step 7: Output
 
-- **New spec**: use Write tool to create the file; confirm path with user before writing
+- **New spec**: use Write tool to create the file
 - **Existing spec**: use Edit tool to apply targeted changes; show old → new blocks
 - After all writes, list each file path and its delta type (ADDED / MODIFIED / etc.)

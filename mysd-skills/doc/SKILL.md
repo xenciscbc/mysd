@@ -49,6 +49,18 @@ Map each changed file to the docs that need updating:
 
 Fallback: grep changed keywords across `.md` files to find additional affected docs.
 
+### Step 2.5: Confirm Scope
+
+Use AskUserQuestion to present the impact analysis results and let the user choose:
+
+> 根據變更分析，以下文件需要更新：
+>
+> A) 全部更新 — [列出所有受影響的文件]
+> B) 只更新部分 — [讓使用者勾選要更新哪些]
+> C) 跳過 — 這次不需要更新文件
+
+如果使用者選 C，結束。選 A 或 B，帶著選定的文件清單繼續到 Step 3。
+
 ### Step 3: Style Matching
 
 Before writing, read the first 50 lines of each target doc. Match:
