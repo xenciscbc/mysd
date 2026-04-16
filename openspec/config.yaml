@@ -1,9 +1,0 @@
-schema: spec-driven
-
-context: |
-  Tech stack: Go 1.23+, Cobra CLI, Viper config, YAML frontmatter parsing
-  Project: mysd — Claude Code plugin for Spec-Driven Development (SDD)
-  Architecture: Single binary (Go), invoked from SKILL.md via Bash
-  Plugin structure: plugin/commands/*.md (skills), plugin/agents/*.md (agent definitions)
-  Core packages: cmd/ (CLI), internal/ (logic), plugin/ (distribution)
-  Convention: convention over configuration, RFC 2119 keywords in specs
