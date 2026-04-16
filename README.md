@@ -1,6 +1,10 @@
 # mysd
 
-> **Testing / 測試中** — This project is under active development. APIs and workflows may change.
+> **⚠️ DEPRECATED** — This Go CLI binary is no longer maintained. Use **[mysd-skills](mysd-skills/)** instead — a pure SKILL.md plugin with zero dependencies.
+>
+> The new plugin provides 3 content intelligence skills: `/mysd:research` (gray-area decisions), `/mysd:doc` (doc sync), `/mysd:spec` (spec writing), plus `/mysd:run` (orchestrator).
+>
+> **Migration:** Copy `mysd-skills/` to your Claude Code skills directory. No binary needed.
 
 **Spec-Driven Development for AI Programming**
 
