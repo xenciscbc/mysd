@@ -19,6 +19,14 @@ Each skill works independently. Use one, two, or all four.
 
 ## Install
 
+### Claude Code Plugin
+
+```bash
+claude plugin add https://github.com/xenciscbc/mysd
+```
+
+### Manual
+
 Copy the skills into your Claude Code skills directory:
 
 ```bash
