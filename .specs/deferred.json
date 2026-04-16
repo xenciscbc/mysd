@@ -1,9 +1,0 @@
-{
-  "notes": [
-    {
-      "id": 1,
-      "content": "遷移 plugin/commands/ 到 plugin/skills/ 子目錄結構，按功能分組（workflow、config 等），利用 skills/ 支援嵌套目錄的特性",
-      "created_at": "2026-03-27T14:05:09+08:00"
-    }
-  ]
-}
