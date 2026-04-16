@@ -1,7 +1,7 @@
 {
   "name": "mysd",
-  "version": "1.0.5",
-  "description": "[DEPRECATED] Use mysd-skills instead. Spec-Driven Development for AI programming — integrates OpenSpec SDD with a planning/execution/verification engine",
+  "version": "2.0.0",
+  "description": "Content intelligence skills for spec-driven development — research decisions, sync docs, write specs",
   "author": {
     "name": "my-ssd contributors"
   },

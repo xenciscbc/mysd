@@ -4,29 +4,27 @@
     "name": "xenciscbc"
   },
   "metadata": {
-    "description": "[DEPRECATED] Use mysd-skills instead. Spec-Driven Development for AI programming — integrates OpenSpec SDD with a planning/execution/verification engine",
-    "version": "1.0.5"
+    "description": "Content intelligence skills for spec-driven development — research decisions, sync docs, write specs",
+    "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "mysd",
       "source": "./mysd",
-      "description": "[DEPRECATED] Use mysd-skills instead. Spec-Driven Development for AI programming — specs as single source of truth, mandatory alignment gates, goal-backward verification",
-      "version": "1.0.5",
+      "description": "Content intelligence skills for spec-driven development — research, doc sync, spec writing, and full pipeline sync",
+      "version": "2.0.0",
       "author": {
         "name": "xenciscbc"
       },
       "repository": "https://github.com/xenciscbc/mysd",
       "license": "MIT",
       "keywords": [
-        "sdd",
+        "content-intelligence",
         "spec-driven",
         "openspec",
-        "ai-programming",
-        "verification",
-        "planning",
-        "execution",
-        "deprecated"
+        "documentation",
+        "research",
+        "decision-making"
       ],
       "category": "development"
     }
