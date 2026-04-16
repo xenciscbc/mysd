@@ -1,10 +1,10 @@
 ---
-name: mysd:run
+name: mysd:sync
 description: >
-  Orchestrate a full content intelligence workflow: research → doc → spec.
+  Sync all content artifacts after a change: research → doc → spec.
   Chains the three mysd skills using subagents, passing context between them.
-  Each skill runs in its own context window. Use when you want the full pipeline,
-  not just one skill. For individual skills, use mysd:research, mysd:doc, or mysd:spec directly.
+  Each skill runs in its own context window. Use when you want to sync everything
+  after a significant change. For individual tasks, use mysd:research, mysd:doc, or mysd:spec directly.
 ---
 
 ## When to Use
@@ -66,7 +66,7 @@ On failure: record "spec failed", suggest `mysd:spec`.
 ### Step 5: Summary
 
 ```
-## mysd:run — Pipeline Summary
+## mysd:sync — Pipeline Summary
 
 Research:  {Decision Doc title} (confidence {N}/10)  |  skipped / failed: {reason}
 Docs:      {N} file(s) updated: {list}               |  skipped / failed: {reason}
