@@ -1,5 +1,18 @@
 {
   "name": "mysd-skills",
   "version": "1.0.0",
-  "description": "Content intelligence skills for spec-driven development — research decisions, sync docs, write specs"
+  "description": "Content intelligence skills for spec-driven development — research decisions, sync docs, write specs",
+  "author": {
+    "name": "xenciscbc"
+  },
+  "repository": "https://github.com/xenciscbc/mysd",
+  "license": "MIT",
+  "keywords": [
+    "content-intelligence",
+    "spec-driven",
+    "openspec",
+    "documentation",
+    "research",
+    "decision-making"
+  ]
 }
