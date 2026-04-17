@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Content intelligence skills for spec-driven development — research decisions, sync docs, write specs",
-    "version": "2.0.0"
+    "version": "2.0.1"
   },
   "plugins": [
     {
       "name": "mysd",
       "source": "./mysd",
       "description": "Content intelligence skills for spec-driven development — research, doc sync, spec writing, and full pipeline sync",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "author": {
         "name": "xenciscbc"
       },
