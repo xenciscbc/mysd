@@ -33,29 +33,43 @@ Determine the question type, then use AskUserQuestion to confirm with the user:
 **Use AskUserQuestion:**
 > 我對你的問題的理解是 [一句話重述]。我建議用以下模式處理：
 >
-> A) **灰區決策** — 分析選項、蒐集證據、產出 Decision Doc（適用於多方案無共識的問題）
-> B) **Spec 健康檢查** — 跑 4 維度分析（Coverage/Consistency/Ambiguity/Gaps），檢查 spec 品質
-> C) **灰區決策 + Spec 健康檢查** — 先跑健康檢查作為上下文，再進行決策分析
-> D) **直接回答** — 這不是灰區問題，我直接給答案
+> A) **4 維度深度分析** — 派 4 個 subagent 分別從 Coverage/Consistency/Ambiguity/Gaps 維度分析問題，蒐集證據，產出 Decision Doc
+> B) **直接分析** — 用 LLM 本身的能力直接分析回答，不跑 subagent
+
+若使用者的提問明確指定要檢查 spec 品質，則額外顯示：
+> C) **Spec 健康檢查** — 檢查 openspec/ 下的 spec 檔案品質（Coverage/Consistency/Ambiguity/Gaps）
 
 推薦選項和理由。讓使用者選擇。
 
-- 使用者選 **A** → 進入 Step 2（Context Gathering），跳過 spec health check
-- 使用者選 **B** → 跳到 [Spec Health Check Mode](#spec-health-check-mode)
-- 使用者選 **C** → 進入 Step 2，在 context gathering 中包含 spec health check
-- 使用者選 **D** → 直接回答，結束
+- 使用者選 **A** → 進入 Step 2（Context Gathering），Step 3 用 4 個 subagent 做維度分析
+- 使用者選 **B** → 直接分析回答，不經過 subagent 流程
+- 使用者選 **C**（僅 spec 相關問題時出現）→ 跳到 [Spec Health Check Mode](#spec-health-check-mode)
 
 ### Step 2: Context Gathering
 
 Gather evidence in this order — stop when you have enough to frame 2+ options:
 
 1. Codebase — Grep/Glob/Read for existing patterns, prior decisions, constraints
-2. Spec health (only if user chose C) — run the 4-dimension health check (read `formats/health-check.md`) against the relevant change or spec directory. Coverage gaps, ambiguous language, inconsistencies, and missing scenarios are decision-relevant context.
+2. Spec health (only if user chose C, i.e. spec-related question) — run the 4-dimension health check (read `formats/health-check.md`) against the relevant change or spec directory.
 3. Git history — `git log --oneline` or `git diff` for recent relevant changes
 4. Project docs — CLAUDE.md, README, any spec files in `openspec/`
 5. WebSearch — only if the above leave critical gaps and WebSearch is available
 
 ### Step 3: Option Framing
+
+**若使用者選 A（4 維度深度分析）：**
+
+派 4 個 subagent 平行分析，每個 subagent 負責一個維度：
+1. **Coverage subagent** — 這個問題涵蓋了哪些面向？有沒有遺漏的選項或情境？
+2. **Consistency subagent** — 各選項的論點是否自洽？有沒有矛盾的證據？
+3. **Ambiguity subagent** — 問題本身或各選項中有哪些模糊地帶？需要哪些澄清？
+4. **Gaps subagent** — 還缺少什麼關鍵資訊？哪些假設尚未驗證？
+
+每個 subagent 回傳結構化分析結果，彙整後進入 Option Framing。
+
+**若使用者選 B（直接分析）：** 跳過 subagent，直接由 LLM 分析。
+
+---
 
 Frame **2–4 options** (fewer = no real decision; more = consolidate first).
 
